@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>About | SETH A. WILLIAMS</title>
+  <link rel="stylesheet" href="https://use.typekit.net/pgi1nbm.css">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      background-color: #141414;
+      font-family: 'Avenir', 'Helvetica Neue', Helvetica, sans-serif;
+      color: white;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 2rem;
+    }
+
+    header {
+      width: 978px;
+      text-align: center;
+      margin-bottom: 2rem;
+    }
+
+    header h1 {
+      font-family: "lulo-one", sans-serif;
+      font-weight: normal;
+      font-size: 3.5rem;
+      letter-spacing: 0.16em;
+      margin-bottom: 1rem;
+    }
+
+    .home-link {
+      color: white;
+      text-decoration: none;
+    }
+
+    .home-link:hover {
+      color: white;
+    }
+
+    nav {
+      display: flex;
+      justify-content: center;
+      gap: 2rem;
+    }
+
+    nav a {
+      font-family: "avenir-lt-pro", sans-serif;
+      font-weight: 200;
+      font-style: normal;
+      font-size: 1rem;
+      color: white;
+      text-decoration: none;
+      transition: color 0.3s ease;
+    }
+
+    nav a:hover {
+      color: #2CA25F;
+      text-decoration: none;
+    }
+
+    .active {
+      color: #2CA25F;
+    }
+
+    .content {
+      display: flex;
+      justify-content: space-between;
+      width: 978px;
+      gap: 2rem;
+      margin-bottom: 2rem;
+    }
+
+    .text {
+      flex: 3;
+      text-align: justify;
+      font-size: 1rem;
+    }
+
+    .text h2 {
+      color: #2CA25F;
+      font-family: "avenir-lt-pro", sans-serif;
+      font-weight: bold;
+      margin-bottom: 1rem;
+    }
+
+    .text a {
+      color: #2CA25F;
+      text-decoration: none;
+    }
+
+    .text a:hover {
+      text-decoration: underline;
+    }
+
+    .portrait {
+      flex: 2;
+    }
+
+    .portrait img {
+      width: 100%;
+      height: auto;
+      display: block;
+    }
+
+    .banner {
+      margin-top: 2rem;
+      width: 978px;
+    }
+
+    .banner img {
+      width: 100%;
+      height: auto;
+      display: block;
+    }
+
+    footer {
+      width: 978px;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      gap: 0.75rem;
+      margin-top: 2rem;
+    }
+
+    .icons {
+      display: flex;
+      gap: 1rem;
+    }
+
+    .icons a {
+      display: inline-block;
+    }
+
+    .icons img {
+      width: 24px;
+      height: 24px;
+      display: block;
+    }
+
+    .copyright {
+      font-size: 0.75rem;
+      color: #ccc;
+      text-transform: none;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1><a href="index.html" class="home-link">SETH A. WILLIAMS</a></h1>
+    <nav>
+      <a href="index.html">home</a>
+      <a href="about.html" class="active">about</a>
+      <a href="#">research</a>
+      <a href="#">publications</a>
+      <a href="#">cv</a>
+    </nav>
+  </header>
+
+  <div class="content">
+    <div class="text">
+      <h2>about me</h2>
+      <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Integer nec odio. Praesent libero. Sed cursus ante dapibus diam. <a href="#">Link Example</a></p>
+      <p>Sed nisi. Nulla quis sem at nibh elementum imperdiet. Duis sagittis ipsum. Praesent mauris.</p>
+    </div>
+    <div class="portrait">
+      <img src="icons/headshot.png" alt="19.4326° N, 99.1332° W">
+    </div>
+  </div>
+
+  <div class="banner">
+    <a href="#"><img src="icons/banner.png" alt="Read my latest article in the Journal of Crime and Justice"></a>
+  </div>
+
+  <footer>
+    <div class="icons">
+      <a href="mailto:sethwilliams@lsu.edu" title="Email"><img src="icons/mail.png" alt="Email"></a>
+      <a href="https://scholar.google.com/citations?user=O-2boQoAAAAJ&hl=es&oi=ao" title="Google Scholar" target="_blank" rel="noopener noreferrer"><img src="icons/google-scholar.png" alt="Google Scholar"></a>
+      <a href="https://www.researchgate.net/profile/Seth-Williams-10" title="ResearchGate" target="_blank" rel="noopener noreferrer"><img src="icons/rg.png" alt="ResearchGate"></a>
+    </div>
+    <div class="copyright">© 2025 by Seth A. Williams.</div>
+  </footer>
+</body>
+</html>
