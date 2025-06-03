@@ -35,18 +35,34 @@
       margin-bottom: 1rem;
     }
 
+    .home-link {
+      color: white;
+      text-decoration: none;
+    }
+
+    .home-link:hover {
+      color: #2CA25F;
+    }
+
     nav {
       display: flex;
       justify-content: center;
       gap: 2rem;
     }
 
-    nav a {
+    nav a,
+    nav a:visited,
+    nav a:focus {
       font-family: "avenir-lt-pro", sans-serif;
       font-weight: 200;
       font-style: normal;
       font-size: 1rem;
       color: white;
+      text-decoration: none;
+    }
+
+    nav a:hover {
+      color: #2CA25F;
       text-decoration: none;
     }
 
@@ -105,14 +121,6 @@
       font-size: 0.75rem;
       color: #ccc;
       text-transform: none;
-    }
-      .home-link {
-      color: white;
-      text-decoration: none;
-    }
-
-    .home-link:hover {
-      color: #2CA25F;
     }
   </style>
 </head>
