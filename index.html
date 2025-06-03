@@ -1,28 +1,126 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Hello, Tendrils</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Home | Seth A. Williams</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@700&display=swap" rel="stylesheet">
   <style>
-    body {
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body, html {
+      height: 100%;
       font-family: sans-serif;
-      background-color: #f0f0f0;
+      color: white;
+    }
+
+    header {
+      position: absolute;
+      top: 0;
+      width: 100%;
       text-align: center;
-      padding-top: 5rem;
+      padding: 2rem 1rem 0 1rem;
+      z-index: 2;
     }
-    h1 {
+
+    header h1 {
+      font-family: 'Cormorant Garamond', serif;
       font-size: 3rem;
-      color: #222;
+      letter-spacing: 0.05em;
     }
-    p {
-      font-size: 1.2rem;
-      color: #555;
+
+    nav {
+      margin-top: 0.5rem;
+      display: flex;
+      justify-content: center;
+      gap: 2rem;
+    }
+
+    nav a {
+      color: white;
+      text-decoration: none;
+      transition: color 0.3s;
+    }
+
+    nav a:hover {
+      color: #60b0bb;
+    }
+
+    .hero {
+      background: url('placeholder-city.jpg') center center / cover no-repeat;
+      height: 100vh;
+      position: relative;
+      display: flex;
+      align-items: flex-end;
+      justify-content: flex-end;
+      padding: 2rem;
+    }
+
+    .hover-text {
+      max-width: 300px;
+      font-size: 0.95rem;
+      text-align: justify;
+      opacity: 0;
+      transition: opacity 0.5s;
+    }
+
+    .hero:hover .hover-text {
+      opacity: 1;
+    }
+
+    footer {
+      position: absolute;
+      bottom: 1rem;
+      right: 1rem;
+      display: flex;
+      gap: 1rem;
+      z-index: 2;
+    }
+
+    footer a {
+      width: 24px;
+      height: 24px;
+      background-color: white;
+      display: inline-block;
+      border-radius: 50%;
+    }
+
+    .copyright {
+      position: absolute;
+      bottom: 1rem;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 0.75rem;
     }
   </style>
 </head>
 <body>
-  <h1>Hello, Tendrils</h1>
-  <p>Your site is live. Look at you go.</p>
+  <header>
+    <h1>NAME A. NAME</h1>
+    <nav>
+      <a href="#" style="color: #60b0bb">home</a>
+      <a href="#">about</a>
+      <a href="#">research</a>
+      <a href="#">publications</a>
+      <a href="#">cv</a>
+    </nav>
+  </header>
+
+  <section class="hero">
+    <div class="hover-text">
+      <p><em>“Los Angeles, it should be understood, is not a mere city. On the contrary, it is, and has been since 1888, a commodity; something to be advertised and sold to the people of the United States like automobiles, cigarettes and mouth wash.”</em><br>― Mike Davis, <em>City of Quartz</em></p>
+    </div>
+  </section>
+
+  <footer>
+    <a href="#" title="Email"></a>
+    <a href="#" title="Google Scholar"></a>
+    <a href="#" title="ResearchGate"></a>
+  </footer>
+  <div class="copyright">© 2025 by name A. name</div>
 </body>
 </html>
