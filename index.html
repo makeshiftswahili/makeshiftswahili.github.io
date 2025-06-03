@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Home | Seth A. Williams</title>
-  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@700&display=swap" rel="stylesheet">
+  <title>Home | NAME A. NAME</title>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@900&display=swap" rel="stylesheet">
   <style>
     * {
       margin: 0;
@@ -12,29 +12,30 @@
       box-sizing: border-box;
     }
 
-    body, html {
-      height: 100%;
-      font-family: sans-serif;
+    body {
+      background-color: #111;
+      font-family: 'Avenir', 'Helvetica Neue', Helvetica, sans-serif;
       color: white;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 2rem;
     }
 
     header {
-      position: absolute;
-      top: 0;
-      width: 100%;
       text-align: center;
-      padding: 2rem 1rem 0 1rem;
-      z-index: 2;
+      margin-bottom: 2rem;
     }
 
     header h1 {
-      font-family: 'Cormorant Garamond', serif;
-      font-size: 3rem;
-      letter-spacing: 0.05em;
+      font-family: 'Montserrat', sans-serif;
+      font-weight: 900;
+      font-size: 60pt;
+      letter-spacing: 0.06em;
+      margin-bottom: 1rem;
     }
 
     nav {
-      margin-top: 0.5rem;
       display: flex;
       justify-content: center;
       gap: 2rem;
@@ -43,57 +44,62 @@
     nav a {
       color: white;
       text-decoration: none;
+      font-size: 1rem;
       transition: color 0.3s;
     }
 
     nav a:hover {
-      color: #60b0bb;
+      color: #2CA25F;
     }
 
-    .hero {
-      background: url('placeholder-city.jpg') center center / cover no-repeat;
-      height: 100vh;
+    .active {
+      color: #2CA25F;
+    }
+
+    .image-container {
       position: relative;
-      display: flex;
-      align-items: flex-end;
-      justify-content: flex-end;
-      padding: 2rem;
+      width: 978px;
+      height: auto;
+      margin-bottom: 1.5rem;
     }
 
-    .hover-text {
-      max-width: 300px;
-      font-size: 0.95rem;
-      text-align: justify;
-      opacity: 0;
-      transition: opacity 0.5s;
+    .image-container img {
+      width: 100%;
+      height: auto;
+      display: block;
     }
 
-    .hero:hover .hover-text {
-      opacity: 1;
-    }
-
-    footer {
+    .caption {
       position: absolute;
       bottom: 1rem;
       right: 1rem;
-      display: flex;
-      gap: 1rem;
-      z-index: 2;
+      font-size: 22pt;
+      text-align: right;
+      line-height: 1.3;
     }
 
-    footer a {
+    footer {
+      width: 978px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 2rem;
+    }
+
+    .icons {
+      display: flex;
+      gap: 1rem;
+    }
+
+    .icons a {
       width: 24px;
       height: 24px;
       background-color: white;
-      display: inline-block;
       border-radius: 50%;
+      display: inline-block;
     }
 
     .copyright {
-      position: absolute;
-      bottom: 1rem;
-      left: 50%;
-      transform: translateX(-50%);
       font-size: 0.75rem;
     }
   </style>
@@ -102,7 +108,7 @@
   <header>
     <h1>NAME A. NAME</h1>
     <nav>
-      <a href="#" style="color: #60b0bb">home</a>
+      <a href="#" class="active">home</a>
       <a href="#">about</a>
       <a href="#">research</a>
       <a href="#">publications</a>
@@ -110,17 +116,23 @@
     </nav>
   </header>
 
-  <section class="hero">
-    <div class="hover-text">
-      <p><em>“Los Angeles, it should be understood, is not a mere city. On the contrary, it is, and has been since 1888, a commodity; something to be advertised and sold to the people of the United States like automobiles, cigarettes and mouth wash.”</em><br>― Mike Davis, <em>City of Quartz</em></p>
+  <div class="image-container">
+    <img src="placeholder-city.jpg" alt="City background">
+    <div class="caption">
+      Assistant Professor<br>
+      Department of Sociology<br>
+      Louisiana State University
     </div>
-  </section>
+  </div>
 
   <footer>
-    <a href="#" title="Email"></a>
-    <a href="#" title="Google Scholar"></a>
-    <a href="#" title="ResearchGate"></a>
+    <div class="icons">
+      <a href="#" title="Email"></a>
+      <a href="#" title="Google Scholar"></a>
+      <a href="#" title="ResearchGate"></a>
+    </div>
+    <div class="copyright">© 2025 by NAME A. NAME.</div>
   </footer>
-  <div class="copyright">© 2025 by name A. name</div>
 </body>
 </html>
+
