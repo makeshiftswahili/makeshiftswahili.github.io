@@ -90,6 +90,23 @@
     .publication.right {
       grid-column: 2;
     }
+
+    .publication-link {
+      display: block;
+      color: white;
+      text-decoration: none;
+      cursor: pointer;
+    }
+
+    .publication-link:hover {
+      color: white;
+      text-decoration: none;
+    }
+
+    .publication-link:hover .citation,
+    .publication-link:hover .abstract {
+      color: white;
+    }
     
     .promo-image {
       display: flex;
@@ -107,6 +124,7 @@
       display: inline-block;
       cursor: pointer;
     }
+
     .citation {
       font-size: 0.95rem;
       line-height: 1.35;
@@ -173,81 +191,81 @@
   <main class="publications-container">
 
     <div class="pub-row">
-      <article class="publication left">
+      <a class="publication publication-link left" href="https://www.tandfonline.com/doi/full/10.1080/0735648X.2025.2505034" target="_blank" rel="noopener noreferrer">
         <p class="citation">Williams, Seth A., and Matthew R. Lehnert. 2025. “Sociospatial Divisions and Neighborhood Crime: Housing Tenure as a Social Boundary.” <em>Journal of Crime and Justice</em>, 1–21.</p>
 
         <p class="abstract">This study extends the social boundaries framework by proposing housing tenure as a criminogenic boundary. Leveraging insights from the political economy of place, we theorize tenure boundaries—spatial discontinuities between owner- and renter-dominated neighborhoods—as signaling unequal access to resources, power, and locational privilege. Using areal wombling to detect boundary intensity across tenure, unit type, race, and income, we analyze their association with crime in 2014 for 5,219 Los Angeles County neighborhoods. Effects are concentrated among acquisitive crimes, including robbery, with tenure boundaries showing the strongest relationship with property crime across boundary types. We draw on crime pattern theory and the history of exclusionary zoning to theorize boundary overlap, a novel measure capturing the convergence of tenure and other social boundaries, finding associations with crime net of characteristics in focal and surrounding neighborhoods. These findings highlight tenure boundaries as a meaningful sociospatial divide with implications for neighborhood crime.</p>
-      </article>
+      </a>
     </div>
 
     <div class="pub-row">
-      <article class="publication right">
+      <a class="publication publication-link right" href="https://academic.oup.com/bjc/article-abstract/64/2/361/7249111?redirectedFrom=fulltext&amp;login=false" target="_blank" rel="noopener noreferrer">
         <p class="citation">Williams, Seth A. 2024. “Decomposing Neighborhood (In)Stability: The Structural Determinants of Turnover and Implications for Neighborhood Crime.” <em>The British Journal of Criminology</em> 64(2): 361–380.</p>
 
         <p class="abstract">While the human ecological model views neighborhood instability as a function of household-level decisions, the present study draws on a political economy of place perspective to highlight how the profit-seeking interests of outside actors shapes instability, with consequences for neighborhood crime. Using data on neighborhoods in Los Angeles County from 2007–2013, I decompose levels of stability according to housing dynamics, including displacement, development, changing rents, sales, and low-income units, and assess their direct and indirect association with violent and property crime. I find that, over a seven-year period, poorer neighborhoods are more vulnerable to these exchange-value pressures, stability is more consequential to crime in high-poverty neighborhoods, and certain housing dynamics are associated with increasing crime through their detrimental effect on renter stability.</p>
-      </article>
+      </a>
     </div>
 
     <div class="pub-row">
-      <article class="publication left">
+      <a class="publication publication-link left" href="https://journals.sagepub.com/doi/10.1177/0308518X211053642" target="_blank" rel="noopener noreferrer">
         <p class="citation">Williams, Seth A., and John R. Hipp. 2022. “The Shape of Neighborhoods to Come: Examining Patterns of Gentrification and Holistic Neighborhood Change in Los Angeles County, 1980–2010.” <em>Environment and Planning A: Economy and Space</em> 54(2): 265–294.</p>
 
         <p class="abstract">The present study examines holistic neighborhood change in Los Angeles County across three decades between 1980 and 2010. Using Census tract data, we conduct a latent class analysis to identify classes of neighborhood change for each decade according to housing dynamics, age structure, racial-ethnic composition and churning, and socioeconomic characteristics, and describe latent classes indicative of gentrification. Further, we assess the degree to which tracts experience sustained or repeated gentrification over the 30 year period. In line with more recent conceptualizations of gentrification as a broad urban process, we find that gentrification occurs in a wide range of neighborhoods, and manifests itself differently according to shifts in population characteristics, with many tracts experiencing more than one successive period of gentrification over the 30 year period.</p>
-      </article>
+      </a>
     </div>
 
     <div class="pub-row">
-      <article class="publication right">
+      <a class="publication publication-link right" href="https://www.tandfonline.com/doi/full/10.1080/00330124.2021.2000441" target="_blank" rel="noopener noreferrer">
         <p class="citation">Lehnert, Matthew R., and Seth A. Williams. 2022. “Ellis Act Eviction Notices in San Francisco: ‘Absolute’ and ‘Relative’ Clustering.” <em>The Professional Geographer</em> 74(2): 221–230.</p>
 
         <p class="abstract">The present study examines the clustering of Ellis Act eviction notices in the city of San Francisco over the 1997–2016 period. The Ellis Act is a California state law that allows landlords to go out of the rental business on a property, withdrawing the property from the market and evicting the tenants as a no-fault eviction. The law has been a source of contention since its enactment in 1986, as tenants argue it is used to displace low-income renters in a broader gentrification process. We address this question with Ripley’s K and Kuldorff’s D measures that assess the degree of “absolute” and “relative” clustering of Ellis Act evictions using all other evictions notices as the control. If the law is used as intended, we should find support for the null hypothesis that Ellis Act Evictions do not cluster spatially relative to the background of controls. The alternative hypothesis that they do cluster relative to other types might lend support to the argument that the law serves as a legal mechanism in the displacement of tenants in a process of gentrification. The authors conclude that Ellis Act eviction notices are clustered in San Francisco in both the “absolute” and “relative” sense.</p>
-      </article>
+      </a>
     </div>
 
     <div class="pub-row">
-      <article class="publication left">
+      <a class="publication publication-link left" href="https://link.springer.com/article/10.1007/s10940-020-09473-7" target="_blank" rel="noopener noreferrer">
         <p class="citation">Hipp, John R., and Seth A. Williams. 2021. “Accounting for Meso- or Micro-Level Effects When Estimating Models Using City-Level Crime Data: Introducing a Novel Imputation Technique.” <em>Journal of Quantitative Criminology</em> 37: 915–951.</p>
 
         <p class="abstract">Objectives: Criminological scholars have long been interested in how macro-level characteristics of cities, counties, or metropolitan areas are related to levels of crime. The standard analytic approach in this literature aggregates constructs of interest, including crime rates, to the macro geographic units and estimates regression models, but this strategy ignores possible sub-city-level processes that occur simultaneously. Methods: One solution uses multilevel data of crime in meso-level units within a large number of cities; however, such data is very difficult and time intensive to collect. We propose an alternative approach which utilizes insights from existing literature on meso-level processes along with meso-level socio-demographic measures in cities to impute crime data from the city to the smaller geographic units. This strategy allows researchers to estimate full multilevel models that estimate the effects of macro-level processes while controlling for sub-city-level factors. Results: We demonstrate that the strategy works as expected on a sample of 91 cities with meso-level data, and also works well when estimating the multilevel model on a sample of cities different from the imputation model, or even in a different time period. Conclusions: The results demonstrate that existing studies aggregated to macro units can yield considerably different and therefore potentially problematic results when failing to account for meso-level processes.</p>
-      </article>
+      </a>
     </div>
 
     <div class="pub-row">
-      <article class="publication right">
+      <a class="publication publication-link right" href="https://www.annualreviews.org/content/journals/10.1146/annurev-criminol-011419-041423" target="_blank" rel="noopener noreferrer">
         <p class="citation">Hipp, John R., and Seth A. Williams. 2020. “Advances in Spatial Criminology: The Spatial Scale of Crime.” <em>Annual Review of Criminology</em> 3: 75–95.</p>
 
         <p class="abstract">This review takes stock of recent advances, as well as enduring and emerging challenges, in the area of spatial criminology. Although the notions of place and space are fundamentally intertwined, spatial criminology is distinct in its attempt to measure and theorize explicitly spatial processes and relationships. This review highlights three key themes. First, the use of increasingly smaller geographic units in recent research creates an even greater need to account for spatial behavior of persons when studying the location of crime. Second, although the explosion of spatially precise data in recent years presents exciting possibilities, we argue that theory is falling behind in guiding us in analyzing these new forms of data, and explicitly inductive approaches should be considered to complement existing deductive strategies. Third, an important direction for spatial criminology in the next decade is considering the extent to which micro- and meso-level processes operate invariantly across different macro contexts.</p>
-      </article>
+      </a>
     </div>
 
     <div class="pub-row">
-      <article class="publication left">
+      <a class="publication publication-link left" href="https://www.sciencedirect.com/science/article/abs/pii/S0049089X19300468" target="_blank" rel="noopener noreferrer">
         <p class="citation">Hipp, John R., Seth A. Williams, Young-An Kim, and Jae Hong Kim. 2019. “Fight or Flight? Crime as a Driving Force in Business Death and Business Mobility.” <em>Social Science Research</em> 82: 164–180.</p>
 
         <p class="abstract">A growing body of research has documented the consequences of neighborhood crime for a myriad of individual, household, and community outcomes. Given that neighborhood businesses figure into the link between neighborhood structure and crime as sources of employment or sites for neighbor interaction, the present study examines the extent to which neighborhood crime is associated with the survival, mobility, and destination locations of businesses in the subsequent year. Using business data from Reference USA and crime data from the Southern California Crime Study, we assess this question for neighborhoods across cities in the Southern California region. We find that in general, higher violent and property crime are significantly associated with both business failure and mobility, and that higher crime in a destination neighborhood reduces the likelihood that a business locates there. We also present findings specific to industries, and discuss the implications of our findings for future research.</p>
-      </article>
+      </a>
     </div>
 
     <div class="pub-row">
-  <div class="publication left promo-image">
-    <a href="https://www.vitalcitynyc.org/how-third-places-promote-cohesion/" target="_blank" rel="noopener noreferrer">
-      <img src="vital city c.png" alt="How Third Places Promote Cohesion">
-    </a>
-  </div>
+      <div class="publication left promo-image">
+        <a href="https://www.vitalcitynyc.org/how-third-places-promote-cohesion/" target="_blank" rel="noopener noreferrer">
+          <img src="vital city c.png" alt="How Third Places Promote Cohesion">
+        </a>
+      </div>
 
-  <article class="publication right">
-    <p class="citation">Williams, Seth A., and John R. Hipp. 2019. “How Great and How Good? Third Places, Neighbor Interaction, and Cohesion in the Neighborhood Context.” <em>Social Science Research</em> 77: 68–78.</p>
+      <a class="publication publication-link right" href="https://www.sciencedirect.com/science/article/abs/pii/S0049089X17310116" target="_blank" rel="noopener noreferrer">
+        <p class="citation">Williams, Seth A., and John R. Hipp. 2019. “How Great and How Good? Third Places, Neighbor Interaction, and Cohesion in the Neighborhood Context.” <em>Social Science Research</em> 77: 68–78.</p>
 
-    <p class="abstract">Though Ray Oldenburg’s notion of “third places,” or places conducive to sociality outside of the realms of home and work, has received both scholarly and popular attention over the past several decades, many of the author’s central claims remain empirically untested. The present study considers the association between neighborhood third places, cohesion and neighbor interaction. Drawing on various literatures regarding interaction in public space and neighborhood use-value, we consider how the role of third places might vary according to neighborhood socioeconomic context. Using data from Wave I of the Los Angeles Family and Neighborhood Study and data on third places from the point-based business data of ReferenceUSA, we test the effect of third places on cohesion and neighbor interaction across neighborhood poverty strata. We find support for the hypothesis that third places are associated with greater cohesion and neighbor interaction, and that neighbor interaction mediates the relationship between third places and cohesion in poor neighborhoods.</p>
-  </article>
-</div>
+        <p class="abstract">Though Ray Oldenburg’s notion of “third places,” or places conducive to sociality outside of the realms of home and work, has received both scholarly and popular attention over the past several decades, many of the author’s central claims remain empirically untested. The present study considers the association between neighborhood third places, cohesion and neighbor interaction. Drawing on various literatures regarding interaction in public space and neighborhood use-value, we consider how the role of third places might vary according to neighborhood socioeconomic context. Using data from Wave I of the Los Angeles Family and Neighborhood Study and data on third places from the point-based business data of ReferenceUSA, we test the effect of third places on cohesion and neighbor interaction across neighborhood poverty strata. We find support for the hypothesis that third places are associated with greater cohesion and neighbor interaction, and that neighbor interaction mediates the relationship between third places and cohesion in poor neighborhoods.</p>
+      </a>
+    </div>
 
     <div class="pub-row">
-      <article class="publication left">
+      <a class="publication publication-link left" href="https://journals.sagepub.com/doi/10.1177/2378023118769536" target="_blank" rel="noopener noreferrer">
         <p class="citation">Hipp, John R., Seth A. Williams, and Adam Boessen. 2018. “Disagreement in Assessing Neighboring and Collective Efficacy: The Role of Social Distance.” <em>Socius</em> 4.</p>
 
         <p class="abstract">Whereas existing research typically treats variability in residents’ reports of collective efficacy and neighboring as measurement error, the authors consider such variability as of substantive interest in itself. This variability may indicate disagreement among residents with implications for the neighborhood collectivity. The authors propose using a general measure of social distance based on several social dimensions, rather than measures based on a single dimension such as racial or ethnic heterogeneity or income inequality, to help understand this variability in assessments. The authors use data from wave I of the Los Angeles Family and Neighborhood Survey to aggregate respondents into egohoods of two different sizes: quarter-mile and half-mile radii. Consistent with expectations, neighborhoods with higher levels of general social distance have higher variability in reports of neighboring and the two components of collective efficacy, cohesion and informal social control.</p>
-      </article>
+      </a>
     </div>
 
   </main>
