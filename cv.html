@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CV | SETH A. WILLIAMS</title>
+  <link rel="stylesheet" href="https://use.typekit.net/pgi1nbm.css">
+
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      background-color: #141414;
+      font-family: 'Avenir', 'Helvetica Neue', Helvetica, sans-serif;
+      color: white;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 2rem;
+    }
+
+    header {
+      width: 978px;
+      text-align: center;
+      margin-bottom: 5rem;
+    }
+
+    header h1 {
+      font-family: "lulo-one", sans-serif;
+      font-weight: normal;
+      font-size: 3.5rem;
+      letter-spacing: 0.16em;
+      margin-bottom: 1rem;
+      transform: translateX(12px);
+    }
+
+    .home-link {
+      color: white;
+      text-decoration: none;
+    }
+
+    .home-link:hover {
+      color: white;
+    }
+
+    nav {
+      display: flex;
+      justify-content: center;
+      gap: 2rem;
+    }
+
+    nav a {
+      font-family: "avenir-lt-pro", sans-serif;
+      font-weight: 200;
+      font-style: normal;
+      font-size: 1rem;
+      color: white;
+      text-decoration: none;
+      transition: color 0.3s ease;
+    }
+
+    nav a:hover {
+      color: #2CA25F;
+      text-decoration: none;
+    }
+
+    .active {
+      color: #2CA25F;
+    }
+
+    .cv-container {
+      width: 978px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .cv-image img {
+      width: 100%;
+      height: auto;
+      display: block;
+    }
+
+    .photo-coordinates {
+      font-size: 0.65rem;
+      color: #ccc;
+      text-align: center;
+      margin-top: 0.25rem;
+      margin-bottom: 2rem;
+    }
+
+    .cv-button {
+      display: inline-block;
+      background-color: white;
+      color: #141414;
+      font-family: "lulo-one", sans-serif;
+      font-size: 1rem;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      text-decoration: none;
+      padding: 0.85rem 1.2rem;
+      transition: background-color 0.3s ease, color 0.3s ease;
+    }
+
+    .cv-button:hover {
+      background-color: #2CA25F;
+      color: white;
+      text-decoration: none;
+    }
+
+    footer {
+      width: 978px;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      gap: 0.75rem;
+      margin-top: 5rem;
+    }
+
+    .icons {
+      display: flex;
+      gap: 1rem;
+    }
+
+    .icons a {
+      display: inline-block;
+    }
+
+    .icons img {
+      width: 24px;
+      height: 24px;
+      display: block;
+    }
+
+    .copyright {
+      font-size: 0.75rem;
+      color: #ccc;
+      text-transform: none;
+    }
+  </style>
+</head>
+
+<body>
+  <header>
+    <h1><a href="index.html" class="home-link">SETH A. WILLIAMS</a></h1>
+
+    <nav>
+      <a href="index.html">home</a>
+      <a href="about.html">about</a>
+      <a href="research.html">research</a>
+      <a href="publications.html">publications</a>
+      <a href="cv.html" class="active">cv</a>
+    </nav>
+  </header>
+
+  <main class="cv-container">
+    <div class="cv-image">
+      <img src="vital city c.png" alt="CV image">
+    </div>
+
+    <div class="photo-coordinates">(41.63398923316471, -83.5519142825024)</div>
+
+    <a class="cv-button" href="Seth_Williams_CV.pdf" download>curriculum vitae</a>
+  </main>
+
+  <footer>
+    <div class="icons">
+      <a href="mailto:sethwilliams@lsu.edu" title="Email"><img src="icons/mail.png" alt="Email"></a>
+      <a href="https://scholar.google.com/citations?user=O-2boQoAAAAJ&hl=en&oi=ao" title="Google Scholar" target="_blank" rel="noopener noreferrer"><img src="icons/google-scholar.png" alt="Google Scholar"></a>
+      <a href="https://www.researchgate.net/profile/Seth-Williams-10" title="ResearchGate" target="_blank" rel="noopener noreferrer"><img src="icons/rg.png" alt="ResearchGate"></a>
+    </div>
+
+    <div class="copyright">© 2025 by Seth A. Williams.</div>
+  </footer>
+</body>
+</html>
