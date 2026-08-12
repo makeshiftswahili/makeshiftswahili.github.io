@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="robots" content="noindex,nofollow">
+  <title>Communities & Crime | Admin</title>
+  <link rel="stylesheet" href="https://use.typekit.net/pgi1nbm.css">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <main class="shell">
+    <header>
+      <div class="eyebrow">SOCL4091 · Communities & Crime</div>
+      <h1>Neighborhood Selection Admin</h1>
+      <p>Instructor-only controls for reviewing submissions, downloading GeoJSON files, and resetting student selections.</p>
+    </header>
+
+    <section id="loginPanel" class="panel">
+      <h2>Instructor access</h2>
+      <p>Enter the admin passphrase for this page.</p>
+      <div class="login-row">
+        <input id="adminKey" type="password" autocomplete="off" placeholder="Admin passphrase">
+        <button id="loginButton" type="button">Open admin</button>
+      </div>
+      <div id="loginMessage" class="message"></div>
+    </section>
+
+    <section id="adminPanel" class="panel is-hidden">
+      <div class="toolbar">
+        <div>
+          <h2>Student submissions</h2>
+          <p id="countLabel">Loading…</p>
+        </div>
+        <div class="toolbar-actions">
+          <button id="refreshButton" class="secondary" type="button">Refresh</button>
+          <button id="logoutButton" class="secondary" type="button">Lock admin</button>
+        </div>
+      </div>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Student</th>
+              <th>LSU ID</th>
+              <th>City</th>
+              <th>Neighborhoods</th>
+              <th>Submitted</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="submissionRows"></tbody>
+        </table>
+      </div>
+      <div id="adminMessage" class="message"></div>
+    </section>
+  </main>
+
+  <div id="resetModal" class="modal-backdrop is-hidden" role="dialog" aria-modal="true" aria-labelledby="resetTitle">
+    <div class="modal">
+      <div class="eyebrow">RESET SUBMISSION</div>
+      <h2 id="resetTitle">Release these neighborhoods?</h2>
+      <p id="resetDescription"></p>
+      <p class="warning">This deletes the student submission, releases both neighborhoods back into the pool, and deletes the generated GeoJSON. The student can then submit again.</p>
+      <div class="modal-actions">
+        <button id="cancelReset" class="secondary" type="button">Cancel</button>
+        <button id="confirmReset" class="danger" type="button">Release & reset</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
