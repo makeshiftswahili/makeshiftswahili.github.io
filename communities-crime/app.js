@@ -1,3 +1,5 @@
+const API_URL = "https://rqdkfvvubiccaybubmbd.supabase.co/functions/v1/neighborhood-selection";
+
 const cityConfig = {
   NewOrleans: { label: "New Orleans, LA", file: "NewOrleans.geojson", nameField: "gnocdc_lab" },
   LA: { label: "Los Angeles, CA", file: "LA.geojson", nameField: "name" },
@@ -29,7 +31,8 @@ let map;
 let neighborhoodLayer;
 let currentCityKey = null;
 let selected = [];
-let claimedNeighborhoods = new Set(); // Supabase will populate this in the next phase.
+let claimedNeighborhoods = new Set();
+let submissionComplete = false;
 
 const styles = {
   available: { color: "#f2f2f2", weight: 1.4, fillColor: "#2CA25F", fillOpacity: 0.20 },
@@ -47,10 +50,7 @@ Object.entries(cityConfig).forEach(([key, city]) => {
 function initMap() {
   if (map) return;
 
-  map = L.map("map", {
-    zoomControl: true,
-    preferCanvas: true
-  });
+  map = L.map("map", { zoomControl: true, preferCanvas: true });
 
   const satellite = L.esri.tiledMapLayer({
     url: "https://services.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer",
@@ -86,10 +86,22 @@ function refreshStyles() {
 
 function updateSelectionSummary() {
   selectedNames.textContent = selected.length ? selected.join(" + ") : "None selected";
-  finalizeButton.disabled = selected.length !== 2;
+  finalizeButton.disabled = submissionComplete || selected.length !== 2;
+}
+
+async function refreshClaims() {
+  const response = await fetch(API_URL, { method: "GET", cache: "no-store" });
+  const payload = await response.json().catch(() => ({}));
+  if (!response.ok) throw new Error(payload.error || "Could not load neighborhood availability");
+  claimedNeighborhoods = new Set(
+    (payload.claims || [])
+      .filter(claim => claim.city === currentCityKey)
+      .map(claim => claim.neighborhood)
+  );
 }
 
 function handleNeighborhoodClick(layer) {
+  if (submissionComplete) return;
   const name = neighborhoodName(layer.feature);
   if (!name || claimedNeighborhoods.has(name)) return;
 
@@ -123,7 +135,7 @@ function bindNeighborhood(feature, layer) {
 
   layer.on("click", () => handleNeighborhoodClick(layer));
   layer.on("mouseover", () => {
-    if (!claimedNeighborhoods.has(name) && !selected.includes(name)) {
+    if (!submissionComplete && !claimedNeighborhoods.has(name) && !selected.includes(name)) {
       layer.setStyle({ weight: 2.5, fillOpacity: 0.35 });
     }
   });
@@ -133,13 +145,12 @@ function bindNeighborhood(feature, layer) {
 async function loadCity(cityKey) {
   currentCityKey = cityKey;
   selected = [];
-  claimedNeighborhoods = new Set();
+  submissionComplete = false;
   updateSelectionSummary();
-  mapMessage.textContent = "Loading neighborhood boundaries…";
+  mapMessage.textContent = "Loading neighborhood boundaries and current availability…";
 
   initMap();
   mapSection.classList.remove("is-hidden");
-
   requestAnimationFrame(() => map.invalidateSize());
 
   if (neighborhoodLayer) {
@@ -149,10 +160,13 @@ async function loadCity(cityKey) {
 
   try {
     const config = cityConfig[cityKey];
-    const response = await fetch(`data/${config.file}`, { cache: "no-store" });
-    if (!response.ok) throw new Error(`Could not load ${config.file}`);
+    const [geoResponse] = await Promise.all([
+      fetch(`data/${config.file}`, { cache: "no-store" }),
+      refreshClaims()
+    ]);
 
-    const geojson = await response.json();
+    if (!geoResponse.ok) throw new Error(`Could not load ${config.file}`);
+    const geojson = await geoResponse.json();
     if (geojson.type !== "FeatureCollection" || !Array.isArray(geojson.features)) {
       throw new Error(`${config.file} is not a GeoJSON FeatureCollection`);
     }
@@ -176,7 +190,13 @@ async function loadCity(cityKey) {
     const notices = [];
     if (missing) notices.push(`${missing} feature${missing === 1 ? "" : "s"} missing a neighborhood name`);
     if (duplicates.length) notices.push("duplicate neighborhood names detected");
-    mapMessage.textContent = notices.length ? `Data check: ${notices.join("; ")}.` : "";
+    if (notices.length) {
+      mapMessage.textContent = `Data check: ${notices.join("; ")}.`;
+    } else if (claimedNeighborhoods.size) {
+      mapMessage.textContent = `${claimedNeighborhoods.size} neighborhood${claimedNeighborhoods.size === 1 ? " is" : "s are"} already unavailable in this city.`;
+    } else {
+      mapMessage.textContent = "";
+    }
   } catch (error) {
     console.error(error);
     mapMessage.textContent = `Map error: ${error.message}.`;
@@ -196,9 +216,9 @@ finalizeButton.addEventListener("click", () => {
   const name = studentName.value.trim();
   const id = lsuId.value.trim();
 
-  if (!name || !id) {
-    mapMessage.textContent = "Enter your name and LSU ID before finalizing your selection.";
-    (!name ? studentName : lsuId).focus();
+  if (name.length < 3 || id.length < 4) {
+    mapMessage.textContent = "Enter your full name and LSU ID before finalizing your selection.";
+    (name.length < 3 ? studentName : lsuId).focus();
     return;
   }
 
@@ -212,14 +232,65 @@ finalizeButton.addEventListener("click", () => {
 cancelConfirm.addEventListener("click", () => confirmModal.classList.add("is-hidden"));
 
 confirmModal.addEventListener("click", event => {
-  if (event.target === confirmModal) confirmModal.classList.add("is-hidden");
+  if (event.target === confirmModal && !confirmSubmit.disabled) confirmModal.classList.add("is-hidden");
 });
 
 document.addEventListener("keydown", event => {
-  if (event.key === "Escape") confirmModal.classList.add("is-hidden");
+  if (event.key === "Escape" && !confirmSubmit.disabled) confirmModal.classList.add("is-hidden");
 });
 
-confirmSubmit.addEventListener("click", () => {
-  confirmModal.classList.add("is-hidden");
-  mapMessage.textContent = "Prototype only: the map selection works, but final submission and neighborhood locking will be connected to Supabase next.";
+confirmSubmit.addEventListener("click", async () => {
+  if (submissionComplete || selected.length !== 2 || !currentCityKey) return;
+
+  confirmSubmit.disabled = true;
+  cancelConfirm.disabled = true;
+  confirmSubmit.textContent = "Submitting…";
+
+  try {
+    const response = await fetch(API_URL, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        studentName: studentName.value.trim(),
+        lsuId: lsuId.value.trim(),
+        city: currentCityKey,
+        neighborhoods: [...selected]
+      })
+    });
+
+    const payload = await response.json().catch(() => ({}));
+    if (!response.ok) throw new Error(payload.error || "Selection could not be submitted");
+
+    submissionComplete = true;
+    selected.forEach(name => claimedNeighborhoods.add(name));
+    confirmModal.classList.add("is-hidden");
+    refreshStyles();
+    updateSelectionSummary();
+
+    studentName.disabled = true;
+    lsuId.disabled = true;
+    citySelect.disabled = true;
+
+    const fileNote = payload.fileGenerated
+      ? "Your two-neighborhood GeoJSON has also been generated for the instructor."
+      : "Your neighborhood selection is saved; the instructor file will be regenerated from the stored backup if needed.";
+    mapMessage.textContent = `Selection submitted successfully: ${selected.join(" and ")}. ${fileNote}`;
+  } catch (error) {
+    console.error(error);
+    confirmModal.classList.add("is-hidden");
+    mapMessage.textContent = error.message;
+
+    try {
+      await refreshClaims();
+      selected = selected.filter(name => !claimedNeighborhoods.has(name));
+      refreshStyles();
+      updateSelectionSummary();
+    } catch (refreshError) {
+      console.error(refreshError);
+    }
+  } finally {
+    confirmSubmit.disabled = false;
+    cancelConfirm.disabled = false;
+    confirmSubmit.textContent = "Confirm final selection";
+  }
 });
