@@ -12,6 +12,21 @@
   <script src="https://cdn.jsdelivr.net/npm/@turf/turf@7.3.0/turf.min.js"></script>
   <script src="../assets/core.js"></script>
   <script src="../assets/geo-field-aliases.js"></script>
+  <script>
+  (() => {
+    const C=window.SpatialCore,outcome='rtavgtvioevt2018';
+    const keep=['condis15','tblack15','tasian15','tlatino15','tothrac15','tethhet15','timm15','tsmhse15','tvac15','tsfu15'];
+    const emp=new Set(['propretail_emp15','propoffice_emp15','propother_emp15','propind_emp15','propent_emp15','propfoodetc_emp15','propedu_emp15','totjobs15']);
+    const labels=['Share of jobs in retail trade','Share of jobs in office-based sectors','Share of jobs in service-based sectors','Share of jobs in industrial sectors','Share of jobs in entertainment & arts','Share of jobs in food, hotels & drinking places','Share of jobs in educational services','Total jobs'];
+    const valid=v=>v!==null&&v!==undefined&&v!==''&&Number.isFinite(Number(v)),base=n=>String(n||'').replace(/^W:/,'');
+    const nativeW=C.buildWeights;
+    C.buildWeights=function(fc,spec){if(document.body?.dataset?.lab==='regression'&&fc?.features?.length&&outcome in(fc.features[0].properties||{})){const req=[outcome,...keep];fc.features=fc.features.filter(f=>req.every(v=>valid(f.properties?.[v])));fc.features.forEach((f,i)=>{f.id=i;f.properties._index=i;});}return nativeW.call(C,fc,spec);};
+    const nativeOls=C.ols;
+    C.ols=function(y,X,names=[]){if(document.body?.dataset?.lab!=='regression'||!names.some(n=>emp.has(base(n))))return nativeOls.call(C,y,X,names);const kept=names.map((name,i)=>({name,i})).filter(x=>!emp.has(base(x.name))),fit=nativeOls.call(C,y,X.map(r=>kept.map(x=>r[x.i])),kept.map(x=>x.name)),beta=Array(names.length).fill(0),se=Array(names.length).fill(0);kept.forEach((x,k)=>{beta[x.i]=fit.beta[k];se[x.i]=fit.se[k];});return{...fit,beta,se,names:names.slice()};};
+    const clean=()=>{document.querySelectorAll('#controls .equation-box').forEach(b=>{const old=b.innerHTML;if(old.includes('Predictors: 18 neighborhood demographic, housing, and land-use measures from 2015.'))b.innerHTML=old.replace('Predictors: 18 neighborhood demographic, housing, and land-use measures from 2015.','Predictors: 10 neighborhood demographic and housing measures from 2015.');});const s=document.getElementById('real-summary');if(s&&s.innerHTML.includes('all 18 predictors are included'))s.innerHTML=s.innerHTML.replace('all 18 predictors are included','all 10 predictors are included');document.querySelectorAll('#real-coefs tbody tr').forEach(r=>{const t=r.cells?.[0]?.textContent||'';if(labels.some(x=>t.includes(x)))r.remove();});};
+    window.addEventListener('DOMContentLoaded',()=>{const app=document.getElementById('app');if(app)new MutationObserver(clean).observe(app,{childList:true,subtree:true});clean();});
+  })();
+  </script>
   <script src="../assets/real-labs.js" defer></script>
 </head>
 <body data-lab="regression">
