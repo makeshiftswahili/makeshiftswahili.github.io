@@ -28,7 +28,8 @@
   window.fetch = async function patchedFetch(input, init) {
     const response = await originalFetch(input, init);
     const url = typeof input === 'string' ? input : (input?.url || '');
-    if (!url.includes('sa_cities_tract10.geojson') || !response.ok) return response;
+    const isCourseGeoJSON = url.includes('sa_cities_tract10.geojson') || url.includes('chi_tract10.geojson');
+    if (!isCourseGeoJSON || !response.ok) return response;
 
     return new Proxy(response, {
       get(target, prop) {
