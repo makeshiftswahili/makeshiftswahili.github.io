@@ -1,4 +1,4 @@
-const API_URL = "https://rqdkfvvubiccaybubmbd.supabase.co/functions/v1/neighborhood-admin?course=spatial";
+const API_URL = "https://rqdkfvvubiccaybubmbd.supabase.co/functions/v1/spatial-analysis-admin";
 const SPATIAL_KEYS = new Set(["sa-weights","sa-lag","sa-moran","sa-lisa","sa-maup","sa-regression"]);
 
 const loginPanel = document.getElementById("loginPanel");
