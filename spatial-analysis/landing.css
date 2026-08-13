@@ -1,0 +1,4 @@
+.tool-card.locked { opacity: .58; cursor: default; border-left: 3px solid #555; }
+.tool-card.locked .status { color: var(--muted); }
+.tool-card.locked:hover { background: var(--panel); }
+.is-hidden { display: none !important; }
