@@ -1,3 +1,8 @@
+const controlsStylesheet = document.createElement("link");
+controlsStylesheet.rel = "stylesheet";
+controlsStylesheet.href = "controls.css";
+document.head.appendChild(controlsStylesheet);
+
 const API_URL = "https://rqdkfvvubiccaybubmbd.supabase.co/functions/v1/neighborhood-selection";
 const DOC_URL = "https://rqdkfvvubiccaybubmbd.supabase.co/functions/v1/neighborhood-assignment-doc";
 
