@@ -1,0 +1,18 @@
+.admin-shell { width: min(920px, calc(100% - 32px)); }
+.admin-panel { padding: 22px; margin-bottom: 18px; }
+.is-hidden { display: none !important; }
+.login-row { display: flex; gap: 10px; align-items: stretch; max-width: 560px; }
+.login-row input { flex: 1; min-width: 0; border: 1px solid var(--line); background: #181818; color: var(--text); padding: 10px 12px; }
+.toolbar { display: flex; justify-content: space-between; gap: 18px; align-items: flex-start; margin-bottom: 18px; }
+.toolbar-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+.module-list { border-top: 1px solid var(--line); }
+.module-row { display: grid; grid-template-columns: minmax(0,1fr) 110px 150px; gap: 14px; align-items: center; padding: 14px 0; border-bottom: 1px solid var(--line); }
+.module-name { font-size: .98rem; }
+.module-status { color: var(--muted); font-size: .82rem; text-transform: uppercase; letter-spacing: .06em; }
+.module-status.available { color: var(--green); }
+.message { min-height: 1.4em; margin-top: 12px; color: var(--muted); font-size: .86rem; }
+@media (max-width: 650px) {
+  .login-row, .toolbar { flex-direction: column; }
+  .module-row { grid-template-columns: 1fr; gap: 7px; }
+  .module-row button { width: 100%; }
+}
