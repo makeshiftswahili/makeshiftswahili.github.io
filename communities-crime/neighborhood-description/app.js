@@ -5,6 +5,7 @@ document.head.appendChild(controlsStylesheet);
 
 const API_URL = "https://rqdkfvvubiccaybubmbd.supabase.co/functions/v1/neighborhood-selection";
 const DOC_URL = "https://rqdkfvvubiccaybubmbd.supabase.co/functions/v1/neighborhood-assignment-doc";
+const LOGO_URL = "../4091logo_bw.png";
 
 const lsuId = document.getElementById("lsuId");
 const loadButton = document.getElementById("loadButton");
@@ -225,10 +226,9 @@ async function captureMap(key) {
   const previousMode = basemapState[key] || "street";
 
   try {
+    await waitForIdle(map);
     if (previousMode !== "street") {
       setBasemap(key, "street");
-      await waitForIdle(map);
-    } else {
       await waitForIdle(map);
     }
 
@@ -299,7 +299,7 @@ function blobToDataUrl(blob) {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
     reader.onload = () => resolve(reader.result);
-    reader.onerror = () => reject(new Error("Could not encode a map image."));
+    reader.onerror = () => reject(new Error("Could not encode an image."));
     reader.readAsDataURL(blob);
   });
 }
@@ -309,19 +309,35 @@ async function figureData(image, targetWidth) {
   return { data: await blobToDataUrl(image.blob), width: targetWidth, height: targetHeight };
 }
 
+async function loadCourseLogo() {
+  const response = await fetch(LOGO_URL, { cache: "force-cache" });
+  if (!response.ok) throw new Error("Could not load the course logo.");
+  return blobToDataUrl(await response.blob());
+}
+
 async function buildWord() {
   if (!currentProject || readyMaps.size !== 3) return;
   setControls(false);
   documentStatus.textContent = "Capturing street-map figures and building your Word document…";
   try {
-    const [contextImage, oneImage, twoImage] = await Promise.all([captureMap("context"), captureMap("one"), captureMap("two")]);
-    const [context, one, two] = await Promise.all([figureData(contextImage, 570), figureData(oneImage, 525), figureData(twoImage, 525)]);
+    const [contextImage, oneImage, twoImage, brandingLogo] = await Promise.all([
+      captureMap("context"),
+      captureMap("one"),
+      captureMap("two"),
+      loadCourseLogo()
+    ]);
+    const [context, one, two] = await Promise.all([
+      figureData(contextImage, 570),
+      figureData(oneImage, 525),
+      figureData(twoImage, 525)
+    ]);
     const response = await fetch(DOC_URL, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         lsuId: lsuId.value.trim(),
         project: currentProject,
+        brandingLogo,
         figures: { context, one, two }
       })
     });
