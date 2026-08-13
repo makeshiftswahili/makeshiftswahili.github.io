@@ -16,6 +16,7 @@ const cityConfig = {
 
 const citySelect = document.getElementById("citySelect");
 const mapSection = document.getElementById("mapSection");
+const mapElement = document.getElementById("map");
 const selectedNames = document.getElementById("selectedNames");
 const finalizeButton = document.getElementById("finalizeButton");
 const mapMessage = document.getElementById("mapMessage");
@@ -28,6 +29,7 @@ const studentName = document.getElementById("studentName");
 const lsuId = document.getElementById("lsuId");
 
 let map;
+let mapResizeObserver;
 let neighborhoodLayer;
 let currentCityKey = null;
 let selected = [];
@@ -39,6 +41,8 @@ const styles = {
   selected: { color: "#ffffff", weight: 2.5, fillColor: "#2CA25F", fillOpacity: 0.78 },
   claimed: { color: "#c5c5c5", weight: 1, fillColor: "#777777", fillOpacity: 0.62 }
 };
+
+const nextFrame = () => new Promise(resolve => requestAnimationFrame(resolve));
 
 Object.entries(cityConfig).forEach(([key, city]) => {
   const option = document.createElement("option");
@@ -64,6 +68,15 @@ function initMap() {
 
   satellite.addTo(map);
   L.control.layers({ "Satellite imagery": satellite, "Street map": streets }, null, { collapsed: false }).addTo(map);
+
+  if ("ResizeObserver" in window) {
+    mapResizeObserver = new ResizeObserver(() => {
+      if (map && !mapSection.classList.contains("is-hidden")) {
+        map.invalidateSize({ pan: false, animate: false });
+      }
+    });
+    mapResizeObserver.observe(mapElement);
+  }
 }
 
 function neighborhoodName(feature) {
@@ -150,8 +163,11 @@ async function loadCity(cityKey) {
   mapMessage.textContent = "Loading neighborhood boundaries and current availability…";
 
   mapSection.classList.remove("is-hidden");
+  await nextFrame();
   initMap();
-  requestAnimationFrame(() => map.invalidateSize());
+  map.invalidateSize({ pan: false, animate: false });
+  await nextFrame();
+  map.invalidateSize({ pan: false, animate: false });
 
   if (neighborhoodLayer) {
     neighborhoodLayer.remove();
@@ -184,6 +200,8 @@ async function loadCity(cityKey) {
       onEachFeature: bindNeighborhood
     }).addTo(map);
 
+    await nextFrame();
+    map.invalidateSize({ pan: false, animate: false });
     const bounds = neighborhoodLayer.getBounds();
     if (bounds.isValid()) map.fitBounds(bounds, { padding: [18, 18] });
 
