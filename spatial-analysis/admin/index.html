@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="robots" content="noindex,nofollow">
+  <title>Spatial Analysis | Admin</title>
+  <link rel="stylesheet" href="https://use.typekit.net/pgi1nbm.css">
+  <link rel="stylesheet" href="../styles.css">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <main class="shell admin-shell">
+    <nav class="lab-nav"><a href="../">← Spatial Analysis</a></nav>
+    <header class="page-header">
+      <div class="eyebrow">SOCL7213 · Spatial Analysis</div>
+      <h1>Course Admin</h1>
+      <p>Instructor-only controls for lab availability.</p>
+    </header>
+
+    <section id="loginPanel" class="panel admin-panel">
+      <h2>Instructor access</h2>
+      <p>Enter the admin passphrase.</p>
+      <div class="login-row"><input id="adminKey" type="password" autocomplete="off" placeholder="Admin passphrase"><button id="loginButton" class="primary" type="button">Open admin</button></div>
+      <div id="loginMessage" class="message"></div>
+    </section>
+
+    <section id="adminPanel" class="panel admin-panel is-hidden">
+      <div class="toolbar">
+        <div><h2>Module availability</h2><p>Changes take effect on the SOCL7213 landing page.</p></div>
+        <div class="toolbar-actions"><button id="refreshButton" type="button">Refresh</button><button id="logoutButton" type="button">Lock admin</button></div>
+      </div>
+      <div id="moduleRows" class="module-list"></div>
+      <div id="moduleMessage" class="message"></div>
+    </section>
+  </main>
+  <script src="app.js"></script>
+</body>
+</html>
