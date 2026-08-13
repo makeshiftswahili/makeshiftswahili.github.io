@@ -212,7 +212,7 @@ citySelect.addEventListener("change", event => {
   loadCity(cityKey);
 });
 
-finalizeButton.addEventListener("click", () => {
+finalizeButton.addEventListener("click", async () => {
   const name = studentName.value.trim();
   const id = lsuId.value.trim();
 
@@ -224,9 +224,32 @@ finalizeButton.addEventListener("click", () => {
 
   if (selected.length !== 2 || !currentCityKey) return;
 
-  confirmNeighborhoods.textContent = selected.join(" and ");
-  confirmCity.textContent = cityConfig[currentCityKey].label;
-  confirmModal.classList.remove("is-hidden");
+  finalizeButton.disabled = true;
+  mapMessage.textContent = "Checking current neighborhood availability…";
+
+  try {
+    await refreshClaims();
+    const newlyClaimed = selected.filter(neighborhood => claimedNeighborhoods.has(neighborhood));
+
+    if (newlyClaimed.length) {
+      selected = selected.filter(neighborhood => !claimedNeighborhoods.has(neighborhood));
+      refreshStyles();
+      updateSelectionSummary();
+      const names = newlyClaimed.join(" and ");
+      mapMessage.textContent = `${names} ${newlyClaimed.length === 1 ? "was" : "were"} just selected by another student. Please choose ${newlyClaimed.length === 1 ? "another neighborhood" : "two available neighborhoods"}.`;
+      return;
+    }
+
+    mapMessage.textContent = "";
+    confirmNeighborhoods.textContent = selected.join(" and ");
+    confirmCity.textContent = cityConfig[currentCityKey].label;
+    confirmModal.classList.remove("is-hidden");
+  } catch (error) {
+    console.error(error);
+    mapMessage.textContent = "Could not verify current neighborhood availability. Please try again.";
+  } finally {
+    updateSelectionSummary();
+  }
 });
 
 cancelConfirm.addEventListener("click", () => confirmModal.classList.add("is-hidden"));
