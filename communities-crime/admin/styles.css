@@ -78,6 +78,30 @@ button.small { padding: 8px 10px; font-size: .82rem; white-space: nowrap; }
   margin-bottom: 18px;
 }
 .toolbar p { margin-bottom: 0; }
+.module-list {
+  display: grid;
+  border: 1px solid var(--line);
+}
+.module-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto auto;
+  gap: 16px;
+  align-items: center;
+  padding: 14px 16px;
+  border-bottom: 1px solid var(--line);
+  background: var(--panel);
+}
+.module-row:last-child { border-bottom: 0; }
+.module-name { font-size: .95rem; }
+.module-status {
+  font-size: .76rem;
+  letter-spacing: .07em;
+  text-transform: uppercase;
+  color: #999;
+  min-width: 92px;
+  text-align: right;
+}
+.module-status.available { color: var(--green); }
 .table-wrap { overflow-x: auto; border: 1px solid var(--line); }
 table { width: 100%; border-collapse: collapse; min-width: 920px; }
 th, td {
@@ -125,6 +149,9 @@ tbody tr:last-child td { border-bottom: 0; }
   .toolbar-actions { width: 100%; }
   .toolbar-actions button { flex: 1; }
   .login-row button { width: 100%; }
+  .module-row { grid-template-columns: 1fr auto; }
+  .module-status { text-align: left; }
+  .module-row button { grid-column: 1 / -1; width: 100%; }
   .modal-actions { flex-direction: column-reverse; }
   .modal-actions button { width: 100%; }
 }
