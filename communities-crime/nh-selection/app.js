@@ -35,6 +35,7 @@ let neighborhoodLayer;
 let currentCityKey = null;
 let selected = [];
 let claimedNeighborhoods = new Set();
+let adjacencyBlocked = new Set();
 let submissionComplete = false;
 let existingSubmissionLocked = false;
 let lookupTimer = null;
@@ -91,8 +92,8 @@ function neighborhoodName(feature) {
 
 function styleFeature(feature) {
   const name = neighborhoodName(feature);
-  if (claimedNeighborhoods.has(name)) return styles.claimed;
   if (selected.includes(name)) return styles.selected;
+  if (claimedNeighborhoods.has(name) || adjacencyBlocked.has(name)) return styles.claimed;
   return styles.available;
 }
 
@@ -101,9 +102,39 @@ function refreshStyles() {
   neighborhoodLayer.eachLayer(layer => layer.setStyle(styleFeature(layer.feature)));
 }
 
-function updateSelectionSummary() {
+function recomputeAdjacencyBlocked() {
+  adjacencyBlocked = new Set();
+  if (!neighborhoodLayer || selected.length !== 1 || !window.turf?.booleanIntersects) return;
+
+  const firstName = selected[0];
+  let firstFeature = null;
+
+  neighborhoodLayer.eachLayer(layer => {
+    if (neighborhoodName(layer.feature) === firstName) firstFeature = layer.feature;
+  });
+
+  if (!firstFeature) return;
+
+  neighborhoodLayer.eachLayer(layer => {
+    const name = neighborhoodName(layer.feature);
+    if (!name || name === firstName || claimedNeighborhoods.has(name)) return;
+    try {
+      if (turf.booleanIntersects(firstFeature, layer.feature)) adjacencyBlocked.add(name);
+    } catch (error) {
+      console.error("Adjacency check failed for", firstName, name, error);
+    }
+  });
+}
+
+function updateSelectionState() {
+  recomputeAdjacencyBlocked();
   selectedNames.textContent = selected.length ? selected.join(" + ") : "None selected";
   finalizeButton.disabled = submissionComplete || existingSubmissionLocked || selected.length !== 2;
+  refreshStyles();
+}
+
+function updateSelectionSummary() {
+  updateSelectionState();
 }
 
 function resetForIdentityEdit() {
@@ -146,6 +177,7 @@ async function checkExistingSelection() {
 
     existingSubmissionLocked = true;
     selected = [];
+    adjacencyBlocked = new Set();
     currentCityKey = null;
     citySelect.value = "";
     citySelect.disabled = true;
@@ -185,12 +217,18 @@ async function refreshClaims() {
       .filter(claim => claim.city === currentCityKey)
       .map(claim => claim.neighborhood)
   );
+  recomputeAdjacencyBlocked();
 }
 
 function handleNeighborhoodClick(layer) {
   if (submissionComplete || existingSubmissionLocked) return;
   const name = neighborhoodName(layer.feature);
   if (!name || claimedNeighborhoods.has(name)) return;
+
+  if (adjacencyBlocked.has(name)) {
+    mapMessage.textContent = `${name} is contiguous with ${selected[0]}. Choose a neighborhood that does not touch your first selection.`;
+    return;
+  }
 
   if (selected.includes(name)) {
     selected = selected.filter(item => item !== name);
@@ -203,7 +241,6 @@ function handleNeighborhoodClick(layer) {
 
   mapMessage.textContent = "";
   updateSelectionSummary();
-  refreshStyles();
 }
 
 function bindNeighborhood(feature, layer) {
@@ -222,7 +259,7 @@ function bindNeighborhood(feature, layer) {
 
   layer.on("click", () => handleNeighborhoodClick(layer));
   layer.on("mouseover", () => {
-    if (!submissionComplete && !existingSubmissionLocked && !claimedNeighborhoods.has(name) && !selected.includes(name)) {
+    if (!submissionComplete && !existingSubmissionLocked && !claimedNeighborhoods.has(name) && !adjacencyBlocked.has(name) && !selected.includes(name)) {
       layer.setStyle({ weight: 2.5, fillOpacity: 0.35 });
     }
   });
@@ -234,6 +271,7 @@ async function loadCity(cityKey) {
 
   currentCityKey = cityKey;
   selected = [];
+  adjacencyBlocked = new Set();
   submissionComplete = false;
   updateSelectionSummary();
   mapMessage.textContent = "Loading neighborhood boundaries and current availability…";
@@ -333,6 +371,7 @@ finalizeButton.addEventListener("click", async () => {
     if (lookupPayload.exists) {
       existingSubmissionLocked = true;
       selected = [];
+      adjacencyBlocked = new Set();
       currentCityKey = null;
       citySelect.value = "";
       citySelect.disabled = true;
@@ -351,7 +390,6 @@ finalizeButton.addEventListener("click", async () => {
 
     if (newlyClaimed.length) {
       selected = selected.filter(neighborhood => !claimedNeighborhoods.has(neighborhood));
-      refreshStyles();
       updateSelectionSummary();
       const names = newlyClaimed.join(" and ");
       mapMessage.textContent = `${names} ${newlyClaimed.length === 1 ? "was" : "were"} just selected by another student. Please choose ${newlyClaimed.length === 1 ? "another neighborhood" : "two available neighborhoods"}.`;
@@ -404,6 +442,7 @@ confirmSubmit.addEventListener("click", async () => {
 
     submissionComplete = true;
     selected.forEach(name => claimedNeighborhoods.add(name));
+    adjacencyBlocked = new Set();
     confirmModal.classList.add("is-hidden");
     refreshStyles();
     updateSelectionSummary();
@@ -424,7 +463,6 @@ confirmSubmit.addEventListener("click", async () => {
     try {
       await refreshClaims();
       selected = selected.filter(name => !claimedNeighborhoods.has(name));
-      refreshStyles();
       updateSelectionSummary();
     } catch (refreshError) {
       console.error(refreshError);
