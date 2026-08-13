@@ -1,1 +1,71 @@
-Neighborhood Description & City Context
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="robots" content="noindex,nofollow">
+  <meta name="description" content="SOCL4091 Communities & Crime neighborhood description and city context module">
+  <title>Neighborhood Description & City Context | SOCL4091</title>
+  <link rel="stylesheet" href="https://use.typekit.net/pgi1nbm.css">
+  <link rel="stylesheet" href="https://unpkg.com/maplibre-gl@5.7.1/dist/maplibre-gl.css">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <main class="shell">
+    <header class="page-header">
+      <a class="home-link" href="../">← Communities & Crime</a>
+      <div class="eyebrow">SOCL4091 · Comparative Neighborhood Analysis Project</div>
+      <h1>Neighborhood Description &amp; City Context</h1>
+      <p>Load your finalized neighborhood pair, create the three boundary maps used in this assignment, and access Census profile data for your city.</p>
+    </header>
+
+    <section class="panel">
+      <div class="section-heading"><span class="step-number">1</span><div><h2>Load your neighborhoods</h2><p>Enter the LSU ID you used when you finalized your neighborhood selection.</p></div></div>
+      <label class="field-label" for="lsuId">LSU ID</label>
+      <div class="lookup-row"><input id="lsuId" type="text" inputmode="numeric" autocomplete="off" placeholder="LSU ID number"><button id="loadButton" type="button">Load project</button></div>
+      <div id="lookupMessage" class="status-message" aria-live="polite"></div>
+    </section>
+
+    <div id="projectContent" class="is-hidden">
+      <section class="panel">
+        <div class="section-heading"><span class="step-number">2</span><div><h2>Your project</h2><p>Your saved city and neighborhood boundaries are loaded from your finalized selection.</p></div></div>
+        <div class="summary-grid">
+          <div><span class="summary-label">City</span><strong id="cityName"></strong></div>
+          <div><span class="summary-label">Neighborhood 1</span><strong id="neighborhoodOne"></strong></div>
+          <div><span class="summary-label">Neighborhood 2</span><strong id="neighborhoodTwo"></strong></div>
+        </div>
+        <a id="censusLink" class="census-link" href="#" target="_blank" rel="noopener noreferrer">Open your city profile on data.census.gov →</a>
+        <p class="helper-text">Use the Census profile to describe your city’s population, racial-ethnic composition, immigration, socioeconomic conditions, housing, and other relevant characteristics.</p>
+      </section>
+
+      <section class="panel">
+        <div class="section-heading"><span class="step-number">3</span><div><h2>Neighborhood boundary maps</h2><p>Figure 1 shows the relative location of both neighborhoods. Figures 2 and 3 show each neighborhood individually.</p></div></div>
+        <article class="figure-card">
+          <div class="figure-heading"><div><span class="figure-number">Figure 1</span><h3 id="contextTitle">City context</h3></div><span class="figure-note">Both neighborhoods</span></div>
+          <div id="contextMap" class="map context-map" aria-label="City context map"></div>
+          <p id="contextCaption" class="caption"></p>
+        </article>
+        <div class="map-grid">
+          <article class="figure-card">
+            <div class="figure-heading"><div><span class="figure-number">Figure 2</span><h3 id="mapOneTitle">Neighborhood 1</h3></div><span class="figure-note">Neighborhood boundary</span></div>
+            <div id="mapOne" class="map" aria-label="First neighborhood boundary map"></div>
+            <p id="mapOneCaption" class="caption"></p>
+          </article>
+          <article class="figure-card">
+            <div class="figure-heading"><div><span class="figure-number">Figure 3</span><h3 id="mapTwoTitle">Neighborhood 2</h3></div><span class="figure-note">Neighborhood boundary</span></div>
+            <div id="mapTwo" class="map" aria-label="Second neighborhood boundary map"></div>
+            <p id="mapTwoCaption" class="caption"></p>
+          </article>
+        </div>
+      </section>
+
+      <section class="panel next-step">
+        <div class="section-heading"><span class="step-number">4</span><div><h2>Assignment document</h2><p>Next, these standardized maps and project details will be inserted automatically into the Word assignment template.</p></div></div>
+        <button type="button" disabled>Build assignment document — coming next</button>
+      </section>
+    </div>
+  </main>
+  <script src="https://unpkg.com/maplibre-gl@5.7.1/dist/maplibre-gl.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
