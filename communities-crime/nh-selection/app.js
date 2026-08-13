@@ -149,8 +149,8 @@ async function loadCity(cityKey) {
   updateSelectionSummary();
   mapMessage.textContent = "Loading neighborhood boundaries and current availability…";
 
-  initMap();
   mapSection.classList.remove("is-hidden");
+  initMap();
   requestAnimationFrame(() => map.invalidateSize());
 
   if (neighborhoodLayer) {
