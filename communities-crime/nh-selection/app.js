@@ -20,6 +20,7 @@ const mapElement = document.getElementById("map");
 const selectedNames = document.getElementById("selectedNames");
 const finalizeButton = document.getElementById("finalizeButton");
 const mapMessage = document.getElementById("mapMessage");
+const studentMessage = document.getElementById("studentMessage");
 const confirmModal = document.getElementById("confirmModal");
 const confirmNeighborhoods = document.getElementById("confirmNeighborhoods");
 const confirmCity = document.getElementById("confirmCity");
@@ -35,6 +36,9 @@ let currentCityKey = null;
 let selected = [];
 let claimedNeighborhoods = new Set();
 let submissionComplete = false;
+let existingSubmissionLocked = false;
+let lookupTimer = null;
+let lookupSequence = 0;
 
 const styles = {
   available: { color: "#f2f2f2", weight: 1.4, fillColor: "#2CA25F", fillOpacity: 0.20 },
@@ -99,8 +103,78 @@ function refreshStyles() {
 
 function updateSelectionSummary() {
   selectedNames.textContent = selected.length ? selected.join(" + ") : "None selected";
-  finalizeButton.disabled = submissionComplete || selected.length !== 2;
+  finalizeButton.disabled = submissionComplete || existingSubmissionLocked || selected.length !== 2;
 }
+
+function resetForIdentityEdit() {
+  existingSubmissionLocked = false;
+  studentMessage.textContent = "";
+  citySelect.disabled = false;
+  updateSelectionSummary();
+}
+
+async function checkExistingSelection() {
+  const name = studentName.value.trim();
+  const id = lsuId.value.trim();
+  const sequence = ++lookupSequence;
+
+  if (name.length < 3 || id.length < 4 || submissionComplete) {
+    resetForIdentityEdit();
+    return;
+  }
+
+  citySelect.disabled = true;
+  studentMessage.textContent = "Checking for an existing neighborhood selection…";
+
+  try {
+    const response = await fetch(API_URL, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ action: "lookup", studentName: name, lsuId: id })
+    });
+    const payload = await response.json().catch(() => ({}));
+    if (sequence !== lookupSequence) return;
+    if (!response.ok) throw new Error(payload.error || "Could not check existing selection");
+
+    if (!payload.exists) {
+      existingSubmissionLocked = false;
+      studentMessage.textContent = "";
+      citySelect.disabled = false;
+      updateSelectionSummary();
+      return;
+    }
+
+    existingSubmissionLocked = true;
+    selected = [];
+    currentCityKey = null;
+    citySelect.value = "";
+    citySelect.disabled = true;
+    mapSection.classList.add("is-hidden");
+    updateSelectionSummary();
+
+    if (payload.matched && Array.isArray(payload.neighborhoods) && payload.neighborhoods.length === 2) {
+      studentMessage.textContent = `You have already selected ${payload.neighborhoods[0]} and ${payload.neighborhoods[1]} in ${payload.city}. Neighborhood selections are final.`;
+    } else {
+      studentMessage.textContent = "A neighborhood selection has already been submitted for that LSU ID. Check that your name and LSU ID are entered correctly; selections are final once submitted.";
+    }
+  } catch (error) {
+    if (sequence !== lookupSequence) return;
+    console.error(error);
+    existingSubmissionLocked = false;
+    citySelect.disabled = false;
+    studentMessage.textContent = "Could not verify whether this LSU ID has already submitted a selection. You may continue, but the system will check again before saving.";
+    updateSelectionSummary();
+  }
+}
+
+function scheduleExistingSelectionCheck() {
+  clearTimeout(lookupTimer);
+  resetForIdentityEdit();
+  lookupTimer = setTimeout(checkExistingSelection, 450);
+}
+
+studentName.addEventListener("input", scheduleExistingSelectionCheck);
+lsuId.addEventListener("input", scheduleExistingSelectionCheck);
 
 async function refreshClaims() {
   const response = await fetch(API_URL, { method: "GET", cache: "no-store" });
@@ -114,7 +188,7 @@ async function refreshClaims() {
 }
 
 function handleNeighborhoodClick(layer) {
-  if (submissionComplete) return;
+  if (submissionComplete || existingSubmissionLocked) return;
   const name = neighborhoodName(layer.feature);
   if (!name || claimedNeighborhoods.has(name)) return;
 
@@ -148,7 +222,7 @@ function bindNeighborhood(feature, layer) {
 
   layer.on("click", () => handleNeighborhoodClick(layer));
   layer.on("mouseover", () => {
-    if (!submissionComplete && !claimedNeighborhoods.has(name) && !selected.includes(name)) {
+    if (!submissionComplete && !existingSubmissionLocked && !claimedNeighborhoods.has(name) && !selected.includes(name)) {
       layer.setStyle({ weight: 2.5, fillOpacity: 0.35 });
     }
   });
@@ -156,6 +230,8 @@ function bindNeighborhood(feature, layer) {
 }
 
 async function loadCity(cityKey) {
+  if (existingSubmissionLocked) return;
+
   currentCityKey = cityKey;
   selected = [];
   submissionComplete = false;
@@ -240,12 +316,36 @@ finalizeButton.addEventListener("click", async () => {
     return;
   }
 
-  if (selected.length !== 2 || !currentCityKey) return;
+  if (selected.length !== 2 || !currentCityKey || existingSubmissionLocked) return;
 
   finalizeButton.disabled = true;
   mapMessage.textContent = "Checking current neighborhood availability…";
 
   try {
+    const lookupResponse = await fetch(API_URL, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ action: "lookup", studentName: name, lsuId: id })
+    });
+    const lookupPayload = await lookupResponse.json().catch(() => ({}));
+    if (!lookupResponse.ok) throw new Error(lookupPayload.error || "Could not verify existing selection");
+
+    if (lookupPayload.exists) {
+      existingSubmissionLocked = true;
+      selected = [];
+      currentCityKey = null;
+      citySelect.value = "";
+      citySelect.disabled = true;
+      mapSection.classList.add("is-hidden");
+      if (lookupPayload.matched && Array.isArray(lookupPayload.neighborhoods)) {
+        studentMessage.textContent = `You have already selected ${lookupPayload.neighborhoods[0]} and ${lookupPayload.neighborhoods[1]} in ${lookupPayload.city}. Neighborhood selections are final.`;
+      } else {
+        studentMessage.textContent = "A neighborhood selection has already been submitted for that LSU ID. Check that your name and LSU ID are entered correctly; selections are final once submitted.";
+      }
+      updateSelectionSummary();
+      return;
+    }
+
     await refreshClaims();
     const newlyClaimed = selected.filter(neighborhood => claimedNeighborhoods.has(neighborhood));
 
@@ -281,7 +381,7 @@ document.addEventListener("keydown", event => {
 });
 
 confirmSubmit.addEventListener("click", async () => {
-  if (submissionComplete || selected.length !== 2 || !currentCityKey) return;
+  if (submissionComplete || existingSubmissionLocked || selected.length !== 2 || !currentCityKey) return;
 
   confirmSubmit.disabled = true;
   cancelConfirm.disabled = true;
