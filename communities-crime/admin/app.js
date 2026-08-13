@@ -10,6 +10,8 @@ const logoutButton = document.getElementById("logoutButton");
 const submissionRows = document.getElementById("submissionRows");
 const countLabel = document.getElementById("countLabel");
 const adminMessage = document.getElementById("adminMessage");
+const moduleRows = document.getElementById("moduleRows");
+const moduleMessage = document.getElementById("moduleMessage");
 const resetModal = document.getElementById("resetModal");
 const resetDescription = document.getElementById("resetDescription");
 const cancelReset = document.getElementById("cancelReset");
@@ -17,6 +19,7 @@ const confirmReset = document.getElementById("confirmReset");
 
 let adminKey = sessionStorage.getItem("cc_admin_key") || "";
 let submissions = [];
+let modules = [];
 let pendingReset = null;
 
 const cityLabels = {
@@ -59,14 +62,68 @@ function escapeHtml(value) {
     .replaceAll("'", "&#039;");
 }
 
-async function loadSubmissions() {
-  adminMessage.textContent = "Loading submissions…";
+async function fetchAdminState() {
   const response = await fetch(API_URL, { method: "GET", headers: apiHeaders(), cache: "no-store" });
   const payload = await response.json().catch(() => ({}));
-  if (!response.ok) throw new Error(payload.error || "Could not load submissions");
+  if (!response.ok) throw new Error(payload.error || "Could not load admin data");
   submissions = payload.submissions || [];
+  modules = payload.modules || [];
   renderRows();
+  renderModules();
+}
+
+async function loadAdminState() {
+  adminMessage.textContent = "Loading submissions…";
+  moduleMessage.textContent = "Loading module availability…";
+  await fetchAdminState();
   adminMessage.textContent = "";
+  moduleMessage.textContent = "";
+}
+
+function renderModules() {
+  if (!modules.length) {
+    moduleRows.innerHTML = `<div class="module-row"><div class="module-name">No module records found.</div></div>`;
+    return;
+  }
+
+  moduleRows.innerHTML = modules.map(module => `
+    <div class="module-row">
+      <div class="module-name">${escapeHtml(module.label)}</div>
+      <div class="module-status ${module.is_available ? "available" : ""}">${module.is_available ? "Available" : "Unavailable"}</div>
+      <button type="button" class="${module.is_available ? "secondary" : ""} small" data-module-toggle="${escapeHtml(module.module_key)}" data-next-state="${module.is_available ? "false" : "true"}">
+        ${module.is_available ? "Hide module" : "Make available"}
+      </button>
+    </div>
+  `).join("");
+
+  document.querySelectorAll("[data-module-toggle]").forEach(button => {
+    button.addEventListener("click", () => {
+      toggleModule(button.dataset.moduleToggle, button.dataset.nextState === "true", button);
+    });
+  });
+}
+
+async function toggleModule(moduleKey, isAvailable, button) {
+  button.disabled = true;
+  moduleMessage.textContent = isAvailable ? "Making module available…" : "Hiding module…";
+
+  try {
+    const response = await fetch(API_URL, {
+      method: "POST",
+      headers: apiHeaders(),
+      body: JSON.stringify({ action: "set-module", moduleKey, isAvailable })
+    });
+    const payload = await response.json().catch(() => ({}));
+    if (!response.ok) throw new Error(payload.error || "Could not update module availability");
+
+    const updated = payload.module;
+    modules = modules.map(module => module.module_key === updated.module_key ? updated : module);
+    renderModules();
+    moduleMessage.textContent = `${updated.label} is now ${updated.is_available ? "available" : "unavailable"}.`;
+  } catch (error) {
+    moduleMessage.textContent = error.message;
+    button.disabled = false;
+  }
 }
 
 function renderRows() {
@@ -169,7 +226,7 @@ confirmReset.addEventListener("click", async () => {
     resetModal.classList.add("is-hidden");
     pendingReset = null;
     adminMessage.textContent = `${target.student_name}'s submission was reset. Both neighborhoods are available again.${payload.warning ? ` ${payload.warning}` : ""}`;
-    await loadSubmissions();
+    await fetchAdminState();
   } catch (error) {
     resetModal.classList.add("is-hidden");
     pendingReset = null;
@@ -199,10 +256,12 @@ async function login() {
 
     sessionStorage.setItem("cc_admin_key", adminKey);
     submissions = payload.submissions || [];
+    modules = payload.modules || [];
     loginPanel.classList.add("is-hidden");
     adminPanel.classList.remove("is-hidden");
     loginMessage.textContent = "";
     renderRows();
+    renderModules();
   } catch (error) {
     adminKey = "";
     sessionStorage.removeItem("cc_admin_key");
@@ -219,9 +278,10 @@ adminKeyInput.addEventListener("keydown", event => {
 
 refreshButton.addEventListener("click", async () => {
   try {
-    await loadSubmissions();
+    await loadAdminState();
   } catch (error) {
     adminMessage.textContent = error.message;
+    moduleMessage.textContent = error.message;
   }
 });
 
