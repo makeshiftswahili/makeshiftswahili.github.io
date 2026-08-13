@@ -16,7 +16,7 @@
       <a class="home-link" href="../">← Communities & Crime</a>
       <div class="eyebrow">SOCL4091 · Comparative Neighborhood Analysis Project</div>
       <h1>Neighborhood Description &amp; City Context</h1>
-      <p>Load your finalized neighborhood pair, create the three boundary maps used in this assignment, and access Census profile data for your city.</p>
+      <p>Load your finalized neighborhood pair, create the three boundary maps used in this assignment, and build a personalized Word document with your maps and project details already inserted.</p>
     </header>
 
     <section class="panel">
@@ -39,33 +39,47 @@
       </section>
 
       <section class="panel">
-        <div class="section-heading"><span class="step-number">3</span><div><h2>Neighborhood boundary maps</h2><p>Figure 1 shows the relative location of both neighborhoods. Figures 2 and 3 show each neighborhood individually.</p></div></div>
+        <div class="section-heading"><span class="step-number">3</span><div><h2>Neighborhood boundary maps</h2><p>Figure 1 shows the relative location of both neighborhoods. Figures 2 and 3 show each neighborhood individually. You can download any figure separately, or let the assignment builder insert all three automatically.</p></div></div>
         <article class="figure-card">
-          <div class="figure-heading"><div><span class="figure-number">Figure 1</span><h3 id="contextTitle">City context</h3></div><span class="figure-note">Both neighborhoods</span></div>
+          <div class="figure-heading">
+            <div><span class="figure-number">Figure 1</span><h3 id="contextTitle">City context</h3></div>
+            <button id="downloadContext" class="secondary small" type="button" disabled>Download PNG</button>
+          </div>
           <div id="contextMap" class="map context-map" aria-label="City context map"></div>
           <p id="contextCaption" class="caption"></p>
         </article>
         <div class="map-grid">
           <article class="figure-card">
-            <div class="figure-heading"><div><span class="figure-number">Figure 2</span><h3 id="mapOneTitle">Neighborhood 1</h3></div><span class="figure-note">Neighborhood boundary</span></div>
+            <div class="figure-heading">
+              <div><span class="figure-number">Figure 2</span><h3 id="mapOneTitle">Neighborhood 1</h3></div>
+              <button id="downloadOne" class="secondary small" type="button" disabled>Download PNG</button>
+            </div>
             <div id="mapOne" class="map" aria-label="First neighborhood boundary map"></div>
             <p id="mapOneCaption" class="caption"></p>
           </article>
           <article class="figure-card">
-            <div class="figure-heading"><div><span class="figure-number">Figure 3</span><h3 id="mapTwoTitle">Neighborhood 2</h3></div><span class="figure-note">Neighborhood boundary</span></div>
+            <div class="figure-heading">
+              <div><span class="figure-number">Figure 3</span><h3 id="mapTwoTitle">Neighborhood 2</h3></div>
+              <button id="downloadTwo" class="secondary small" type="button" disabled>Download PNG</button>
+            </div>
             <div id="mapTwo" class="map" aria-label="Second neighborhood boundary map"></div>
             <p id="mapTwoCaption" class="caption"></p>
           </article>
         </div>
+        <div id="mapStatus" class="status-message" aria-live="polite"></div>
       </section>
 
       <section class="panel next-step">
-        <div class="section-heading"><span class="step-number">4</span><div><h2>Assignment document</h2><p>Next, these standardized maps and project details will be inserted automatically into the Word assignment template.</p></div></div>
-        <button type="button" disabled>Build assignment document — coming next</button>
+        <div class="section-heading"><span class="step-number">4</span><div><h2>Build your assignment document</h2><p>The Word file will contain your LSU ID, city, neighborhood headings, Census profile link, all three maps, automatic figure captions, and red writing prompts in the correct assignment order.</p></div></div>
+        <div class="document-actions">
+          <button id="buildDocument" type="button" disabled>Build Word assignment</button>
+          <span id="documentStatus" class="document-status" aria-live="polite">Maps must finish loading first.</span>
+        </div>
+        <p class="helper-text">Open the downloaded file in Word, write your responses where the red prompts appear, and delete the red prompt text as you go. The maps and captions are already formatted.</p>
       </section>
     </div>
   </main>
   <script src="https://unpkg.com/maplibre-gl@5.7.1/dist/maplibre-gl.js"></script>
-  <script src="app.js"></script>
+  <script type="module" src="app.js"></script>
 </body>
 </html>
