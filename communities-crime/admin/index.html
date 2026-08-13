@@ -12,8 +12,8 @@
   <main class="shell">
     <header>
       <div class="eyebrow">SOCL4091 · Communities & Crime</div>
-      <h1>Neighborhood Selection Admin</h1>
-      <p>Instructor-only controls for reviewing submissions, downloading GeoJSON files, and resetting student selections.</p>
+      <h1>Course Project Admin</h1>
+      <p>Instructor-only controls for module availability, neighborhood submissions, GeoJSON downloads, and selection resets.</p>
     </header>
 
     <section id="loginPanel" class="panel">
@@ -26,35 +26,48 @@
       <div id="loginMessage" class="message"></div>
     </section>
 
-    <section id="adminPanel" class="panel is-hidden">
-      <div class="toolbar">
-        <div>
-          <h2>Student submissions</h2>
-          <p id="countLabel">Loading…</p>
+    <div id="adminPanel" class="is-hidden">
+      <section class="panel">
+        <div class="toolbar">
+          <div>
+            <h2>Module availability</h2>
+            <p>Neighborhood Selection is always available. Use these controls to release or hide the remaining course modules.</p>
+          </div>
+          <div class="toolbar-actions">
+            <button id="refreshButton" class="secondary" type="button">Refresh</button>
+            <button id="logoutButton" class="secondary" type="button">Lock admin</button>
+          </div>
         </div>
-        <div class="toolbar-actions">
-          <button id="refreshButton" class="secondary" type="button">Refresh</button>
-          <button id="logoutButton" class="secondary" type="button">Lock admin</button>
-        </div>
-      </div>
+        <div id="moduleRows" class="module-list"></div>
+        <div id="moduleMessage" class="message"></div>
+      </section>
 
-      <div class="table-wrap">
-        <table>
-          <thead>
-            <tr>
-              <th>Student</th>
-              <th>LSU ID</th>
-              <th>City</th>
-              <th>Neighborhoods</th>
-              <th>Submitted</th>
-              <th>Actions</th>
-            </tr>
-          </thead>
-          <tbody id="submissionRows"></tbody>
-        </table>
-      </div>
-      <div id="adminMessage" class="message"></div>
-    </section>
+      <section class="panel">
+        <div class="toolbar">
+          <div>
+            <h2>Student submissions</h2>
+            <p id="countLabel">Loading…</p>
+          </div>
+        </div>
+
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Student</th>
+                <th>LSU ID</th>
+                <th>City</th>
+                <th>Neighborhoods</th>
+                <th>Submitted</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="submissionRows"></tbody>
+          </table>
+        </div>
+        <div id="adminMessage" class="message"></div>
+      </section>
+    </div>
   </main>
 
   <div id="resetModal" class="modal-backdrop is-hidden" role="dialog" aria-modal="true" aria-labelledby="resetTitle">
