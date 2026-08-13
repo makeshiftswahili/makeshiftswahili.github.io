@@ -39,11 +39,23 @@
       </section>
 
       <section class="panel">
-        <div class="section-heading"><span class="step-number">3</span><div><h2>Neighborhood boundary maps</h2><p>Figure 1 shows the relative location of both neighborhoods. Figures 2 and 3 show each neighborhood individually. You can download any figure separately, or let the assignment builder insert all three automatically.</p></div></div>
+        <div class="section-heading"><span class="step-number">3</span><div><h2>Neighborhood boundary maps</h2><p>Figure 1 shows the relative location of both neighborhoods. Figures 2 and 3 show each neighborhood individually. Use satellite imagery to inspect the built environment and land use, then frame the map exactly as you want it to appear in your assignment.</p></div></div>
+
+        <div class="map-instructions">
+          <p><strong>Map controls:</strong> Use the + and − buttons to zoom in and out. For finer-grained zooming, click the map, hold <strong>Ctrl</strong>, and use your mouse wheel. Drag the map to reposition it.</p>
+          <p><strong>Satellite imagery is for exploration:</strong> Toggle between Street map and Satellite as you inspect each neighborhood. Your PNGs and Word document will always export the <strong>Street map</strong> basemap at the same zoom and position you selected.</p>
+        </div>
+
         <article class="figure-card">
           <div class="figure-heading">
             <div><span class="figure-number">Figure 1</span><h3 id="contextTitle">City context</h3></div>
-            <button id="downloadContext" class="secondary small" type="button" disabled>Download PNG</button>
+            <div class="figure-controls">
+              <div class="basemap-toggle" role="group" aria-label="Figure 1 basemap">
+                <button type="button" class="basemap-option active" data-map-key="context" data-basemap="street">Street map</button>
+                <button type="button" class="basemap-option" data-map-key="context" data-basemap="satellite">Satellite</button>
+              </div>
+              <button id="downloadContext" class="secondary small" type="button" disabled>Download PNG</button>
+            </div>
           </div>
           <div id="contextMap" class="map context-map" aria-label="City context map"></div>
           <p id="contextCaption" class="caption"></p>
@@ -52,7 +64,13 @@
           <article class="figure-card">
             <div class="figure-heading">
               <div><span class="figure-number">Figure 2</span><h3 id="mapOneTitle">Neighborhood 1</h3></div>
-              <button id="downloadOne" class="secondary small" type="button" disabled>Download PNG</button>
+              <div class="figure-controls">
+                <div class="basemap-toggle" role="group" aria-label="Figure 2 basemap">
+                  <button type="button" class="basemap-option active" data-map-key="one" data-basemap="street">Street map</button>
+                  <button type="button" class="basemap-option" data-map-key="one" data-basemap="satellite">Satellite</button>
+                </div>
+                <button id="downloadOne" class="secondary small" type="button" disabled>Download PNG</button>
+              </div>
             </div>
             <div id="mapOne" class="map" aria-label="First neighborhood boundary map"></div>
             <p id="mapOneCaption" class="caption"></p>
@@ -60,7 +78,13 @@
           <article class="figure-card">
             <div class="figure-heading">
               <div><span class="figure-number">Figure 3</span><h3 id="mapTwoTitle">Neighborhood 2</h3></div>
-              <button id="downloadTwo" class="secondary small" type="button" disabled>Download PNG</button>
+              <div class="figure-controls">
+                <div class="basemap-toggle" role="group" aria-label="Figure 3 basemap">
+                  <button type="button" class="basemap-option active" data-map-key="two" data-basemap="street">Street map</button>
+                  <button type="button" class="basemap-option" data-map-key="two" data-basemap="satellite">Satellite</button>
+                </div>
+                <button id="downloadTwo" class="secondary small" type="button" disabled>Download PNG</button>
+              </div>
             </div>
             <div id="mapTwo" class="map" aria-label="Second neighborhood boundary map"></div>
             <p id="mapTwoCaption" class="caption"></p>
@@ -70,12 +94,12 @@
       </section>
 
       <section class="panel next-step">
-        <div class="section-heading"><span class="step-number">4</span><div><h2>Build your assignment document</h2><p>The Word file will contain your LSU ID, city, neighborhood headings, Census profile link, all three maps, automatic figure captions, and red writing prompts in the correct assignment order.</p></div></div>
+        <div class="section-heading"><span class="step-number">4</span><div><h2>Build your assignment document</h2><p>The Word file will contain the course branding, your LSU ID, city, neighborhood headings, Census profile link, all three maps, automatic figure captions, and red writing prompts in the correct assignment order.</p></div></div>
         <div class="document-actions">
           <button id="buildDocument" type="button" disabled>Build Word assignment</button>
           <span id="documentStatus" class="document-status" aria-live="polite">Maps must finish loading first.</span>
         </div>
-        <p class="helper-text">Open the downloaded file in Word, write your responses where the red prompts appear, and delete the red prompt text as you go. The maps and captions are already formatted.</p>
+        <p class="helper-text"><strong>Before submitting:</strong> replace your prompts with your own writing, then delete <strong>all red prompt text</strong> and the temporary <strong>Census profile link</strong>. Refer to the <strong>Example Assignment</strong> provided for this module for a model of the expected structure, depth, and formatting.</p>
       </section>
     </div>
   </main>
