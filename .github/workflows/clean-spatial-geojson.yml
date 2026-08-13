@@ -1,0 +1,138 @@
+name: Clean spatial GeoJSON fields
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/clean-spatial-geojson.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  clean:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Remove ArcGIS field qualification
+        shell: bash
+        run: |
+          python - <<'PY'
+          import json
+          import re
+          from pathlib import Path
+
+          files = [
+              Path('spatial-analysis/data/chicago/sa_cities_tract10.geojson'),
+              Path('spatial-analysis/data/chicago/chi_tract10.geojson'),
+          ]
+
+          def proposed_name(key):
+              source = 'other'
+              name = key
+              if key.startswith('sa_cities_clip_tracts10_AddSpatialJoin.'):
+                  source = 'place'
+                  name = key.split('.', 1)[1]
+              elif key.startswith('sa_cities_clip_tracts10.'):
+                  source = 'tract'
+                  name = key.split('.', 1)[1]
+              elif key.startswith('main__'):
+                  source = 'tract'
+
+              # Restore the original Census tract field names from ArcGIS table-qualified names.
+              name = re.sub(r'^main__.*?_tract10_', '', name)
+              return name, source
+
+          def build_mapping(features):
+              keys = []
+              seen = set()
+              for feature in features:
+                  for key in (feature.get('properties') or {}):
+                      if key not in seen:
+                          seen.add(key)
+                          keys.append(key)
+
+              groups = {}
+              metadata = {}
+              for key in keys:
+                  candidate, source = proposed_name(key)
+                  groups.setdefault(candidate, []).append(key)
+                  metadata[key] = (candidate, source)
+
+              mapping = {}
+              for candidate, originals in groups.items():
+                  if len(originals) == 1:
+                      mapping[originals[0]] = candidate
+                      continue
+
+                  # Prefer tract/plain fields for the unqualified canonical name.
+                  def priority(k):
+                      src = metadata[k][1]
+                      return {'tract': 0, 'other': 1, 'place': 2}.get(src, 3)
+
+                  ordered = sorted(originals, key=priority)
+                  mapping[ordered[0]] = candidate
+                  used = {candidate}
+                  for key in ordered[1:]:
+                      _, source = metadata[key]
+                      if source == 'place':
+                          alias = f'place_{candidate}'
+                      else:
+                          alias = re.sub(r'[^A-Za-z0-9_]+', '_', key).strip('_')
+                      base = alias
+                      n = 2
+                      while alias in used:
+                          alias = f'{base}_{n}'
+                          n += 1
+                      mapping[key] = alias
+                      used.add(alias)
+              return mapping
+
+          for path in files:
+              with path.open('r', encoding='utf-8') as f:
+                  data = json.load(f)
+              features = data.get('features') or []
+              mapping = build_mapping(features)
+
+              for feature in features:
+                  old = feature.get('properties') or {}
+                  new = {}
+                  for key, value in old.items():
+                      target = mapping[key]
+                      if target in new:
+                          raise RuntimeError(f'Collision in {path}: {key} -> {target}')
+                      new[target] = value
+                  feature['properties'] = new
+
+              sample_keys = set((features[0].get('properties') or {}).keys()) if features else set()
+              if path.name == 'sa_cities_tract10.geojson':
+                  if 'GEOID10' not in sample_keys or 'NAME20' not in sample_keys:
+                      raise RuntimeError(f'{path}: expected GEOID10 and NAME20 after cleanup; got {sorted(sample_keys)}')
+              if path.name == 'chi_tract10.geojson' and 'GEOID10' not in sample_keys:
+                  raise RuntimeError(f'{path}: expected GEOID10 after cleanup; got {sorted(sample_keys)}')
+
+              with path.open('w', encoding='utf-8') as f:
+                  json.dump(data, f, ensure_ascii=False, separators=(',', ':'))
+                  f.write('\n')
+
+              changed = [(k, v) for k, v in mapping.items() if k != v]
+              print(f'{path}: {len(features)} features; renamed {len(changed)} fields')
+              print('  GEOID10 present:', 'GEOID10' in sample_keys)
+              if path.name == 'sa_cities_tract10.geojson':
+                  print('  NAME20 present:', 'NAME20' in sample_keys)
+          PY
+
+      - name: Commit cleaned GeoJSONs and remove one-time workflow
+        shell: bash
+        run: |
+          rm -f .github/workflows/clean-spatial-geojson.yml
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add spatial-analysis/data/chicago/sa_cities_tract10.geojson \
+                  spatial-analysis/data/chicago/chi_tract10.geojson \
+                  .github/workflows/clean-spatial-geojson.yml
+          git commit -m "Clean spatial GeoJSON field names"
+          git push origin HEAD:main
