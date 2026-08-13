@@ -1,6 +1,5 @@
-import { buildAssignmentDoc } from "./document-builder.js";
-
 const API_URL = "https://rqdkfvvubiccaybubmbd.supabase.co/functions/v1/neighborhood-selection";
+const DOC_URL = "https://rqdkfvvubiccaybubmbd.supabase.co/functions/v1/neighborhood-assignment-doc";
 
 const lsuId = document.getElementById("lsuId");
 const loadButton = document.getElementById("loadButton");
@@ -182,7 +181,7 @@ async function captureMap(map) {
   ctx.font = `${size}px Arial, sans-serif`;
   const width = ctx.measureText(label).width;
   const pad = Math.round(5 * scale);
-  const x = canvas.width - width - pad * 2 - pad;
+  const x = canvas.width - width - pad * 3;
   const y = canvas.height - size - pad * 3;
   ctx.fillStyle = "rgba(255,255,255,.88)";
   ctx.fillRect(x, y, width + pad * 2, size + pad * 2);
@@ -224,9 +223,18 @@ async function downloadFigure(key, number) {
   }
 }
 
-function figureData(image, targetWidth) {
+function blobToDataUrl(blob) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(reader.result);
+    reader.onerror = () => reject(new Error("Could not encode a map image."));
+    reader.readAsDataURL(blob);
+  });
+}
+
+async function figureData(image, targetWidth) {
   const targetHeight = Math.round(targetWidth * image.height / image.width);
-  return image.blob.arrayBuffer().then(buffer => ({ data: new Uint8Array(buffer), width: targetWidth, height: targetHeight }));
+  return { data: await blobToDataUrl(image.blob), width: targetWidth, height: targetHeight };
 }
 
 async function buildWord() {
@@ -236,7 +244,20 @@ async function buildWord() {
   try {
     const [contextImage, oneImage, twoImage] = await Promise.all([captureMap(maps.context), captureMap(maps.one), captureMap(maps.two)]);
     const [context, one, two] = await Promise.all([figureData(contextImage, 570), figureData(oneImage, 525), figureData(twoImage, 525)]);
-    const blob = await buildAssignmentDoc({ project: currentProject, lsuId: lsuId.value.trim(), figures: { context, one, two } });
+    const response = await fetch(DOC_URL, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        lsuId: lsuId.value.trim(),
+        project: currentProject,
+        figures: { context, one, two }
+      })
+    });
+    if (!response.ok) {
+      const payload = await response.json().catch(() => ({}));
+      throw new Error(payload.error || "The document generator returned an error.");
+    }
+    const blob = await response.blob();
     downloadBlob(blob, `${safe(lsuId.value)}_neighborhood_description_city_context.docx`);
     documentStatus.textContent = "Word assignment downloaded. Write in place of the red prompts and delete the prompt text as you go.";
   } catch (error) {
