@@ -6,7 +6,9 @@ async function loadModuleAvailability() {
     const payload = await response.json().catch(() => ({}));
     if (!response.ok) throw new Error(payload.error || "Could not load module availability");
 
-    const moduleState = new Map((payload.modules || []).map(module => [module.module_key, !!module.is_available]));
+    const moduleState = payload.modules instanceof Array
+      ? new Map(payload.modules.map(module => [module.module_key, !!module.is_available]))
+      : new Map(Object.entries(payload.modules || {}).map(([key, value]) => [key, value === true]));
 
     document.querySelectorAll("[data-module]").forEach(card => {
       const available = moduleState.get(card.dataset.module) === true;
