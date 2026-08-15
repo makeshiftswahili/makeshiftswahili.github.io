@@ -15,7 +15,7 @@ const lsuId=document.getElementById("lsuId"),loadButton=document.getElementById(
 let currentProject=null,evictionData=null,hmdaData=null,maps={},readyMaps=new Set(),classInfo={},neighborhoodFeatures=[];
 
 function baseStyle(){return{version:8,sources:{},layers:[{id:"background",type:"background",paint:{"background-color":"#ffffff"}}]}}
-function num(v){const n=Number(v);return Number.isFinite(n)?n:null}
+function num(v){if(v===null||v===undefined||v==="")return null;const n=Number(v);return Number.isFinite(n)?n:null}
 function featureCollection(features){return{type:"FeatureCollection",features}}
 function findFeatureByName(geojson,name){return geojson.features.find(f=>Object.values(f?.properties||{}).some(v=>String(v).trim()===name))}
 function geomCoords(geometry,out=[]){const walk=v=>{if(!Array.isArray(v))return;if(typeof v[0]==="number"&&typeof v[1]==="number")out.push([v[0],v[1]]);else v.forEach(walk)};if(geometry)walk(geometry.coordinates);return out}
@@ -40,9 +40,9 @@ function evictionPositiveBreaks(data){const v=sortedValues(data,"evictrate",{pos
 function fmt(v,d=1){const n=num(v);return n===null?"No data":`${n.toFixed(d)}%`}
 function cleanBreak(v){if(Math.abs(v)>=10)return v.toFixed(1).replace(/\.0$/,'');return v.toFixed(2).replace(/0+$/,'').replace(/\.$/,'')}
 
-function renterExpression(){return["case",["!",["has","prenter"]],"rgba(0,0,0,0)",["step",["to-number",["get","prenter"],-999],palettes.renter[0],20,palettes.renter[1],40,palettes.renter[2],60,palettes.renter[3],80,palettes.renter[4]]]}
-function evictionExpression(b){return["case",["!",["has","evictrate"]],"rgba(0,0,0,0)",["<=",["to-number",["get","evictrate"],0],0],palettes.eviction[0],["step",["to-number",["get","evictrate"],0],palettes.eviction[1],b[0],palettes.eviction[2],b[1],palettes.eviction[3],b[2],palettes.eviction[4]]]}
-function hmdaExpression(b){return["case",["!",["has","pdenied"]],"rgba(0,0,0,0)",["step",["to-number",["get","pdenied"],-999],palettes.hmda[0],b[0],palettes.hmda[1],b[1],palettes.hmda[2],b[2],palettes.hmda[3],b[3],palettes.hmda[4]]]}
+function renterExpression(){return["case",["any",["!",["has","prenter"]],["==",["get","prenter"],null]],"rgba(0,0,0,0)",["step",["to-number",["get","prenter"],-999],palettes.renter[0],20,palettes.renter[1],40,palettes.renter[2],60,palettes.renter[3],80,palettes.renter[4]]]}
+function evictionExpression(b){return["case",["any",["!",["has","evictrate"]],["==",["get","evictrate"],null]],"rgba(0,0,0,0)",["<=",["to-number",["get","evictrate"],0],0],palettes.eviction[0],["step",["to-number",["get","evictrate"],0],palettes.eviction[1],b[0],palettes.eviction[2],b[1],palettes.eviction[3],b[2],palettes.eviction[4]]]}
+function hmdaExpression(b){return["case",["any",["!",["has","pdenied"]],["==",["get","pdenied"],null]],"rgba(0,0,0,0)",["step",["to-number",["get","pdenied"],-999],palettes.hmda[0],b[0],palettes.hmda[1],b[1],palettes.hmda[2],b[2],palettes.hmda[3],b[3],palettes.hmda[4]]]}
 
 function renterLegendItems(){return[{c:palettes.renter[0],t:"0–20%"},{c:palettes.renter[1],t:">20–40%"},{c:palettes.renter[2],t:">40–60%"},{c:palettes.renter[3],t:">60–80%"},{c:palettes.renter[4],t:">80–100%"}]}
 function evictionLegendItems(b){return[{c:palettes.eviction[0],t:"0%"},{c:palettes.eviction[1],t:`>0–${cleanBreak(b[0])}%`},{c:palettes.eviction[2],t:`>${cleanBreak(b[0])}–${cleanBreak(b[1])}%`},{c:palettes.eviction[3],t:`>${cleanBreak(b[1])}–${cleanBreak(b[2])}%`},{c:palettes.eviction[4],t:`>${cleanBreak(b[2])}%`}]}
