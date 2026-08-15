@@ -8,7 +8,7 @@
   <title>Segregation | SOCL4091</title>
   <link rel="stylesheet" href="https://use.typekit.net/pgi1nbm.css">
   <link rel="stylesheet" href="https://unpkg.com/maplibre-gl@5.7.1/dist/maplibre-gl.css">
-  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="styles.css?v=20260815-seg2">
 </head>
 <body>
 <main class="shell">
@@ -37,7 +37,7 @@
     </section>
 
     <section class="panel">
-      <div class="section-heading"><span class="step-number">3</span><div><h2>Create your five maps</h2><p>The racial-ethnic layer uses solid, fully opaque colors. Click any block group to inspect exact group shares, including Other/Multiracial, before interpreting boundaries.</p></div></div>
+      <div class="section-heading"><span class="step-number">3</span><div><h2>Create your five maps</h2><p>Click any block group to inspect exact group shares before interpreting boundaries.</p></div></div>
       <div class="map-instructions">
         <p><strong>Map controls:</strong> Use the + and − buttons to zoom. For finer-grained zooming, click the map, hold <strong>Ctrl</strong>, and use your mouse wheel. Drag to reposition the map.</p>
         <p><strong>Racial-ethnic categories:</strong> Each block group is colored by the largest of four groups—White, Latino, Black, or Asian. Other/Multiracial residents are included in the popup percentages but are not used as a fifth map category.</p>
@@ -48,7 +48,7 @@
     </section>
 
     <section class="panel next-step">
-      <div class="section-heading"><span class="step-number">4</span><div><h2>Build your assignment document</h2><p>The Word file follows the Segregation template, fills in your city and neighborhood names, inserts all five maps and captions, and preserves the red writing prompts.</p></div></div>
+      <div class="section-heading"><span class="step-number">4</span><div><h2>Build your assignment document</h2></div></div>
       <div class="document-actions">
         <button id="buildDocument" type="button" disabled>Build Word assignment</button>
         <span id="documentStatus" class="document-status" aria-live="polite">Maps must finish loading first.</span>
@@ -58,6 +58,6 @@
   </div>
 </main>
 <script src="https://unpkg.com/maplibre-gl@5.7.1/dist/maplibre-gl.js"></script>
-<script type="module" src="app.js?v=20260815-seg1"></script>
+<script type="module" src="app.js?v=20260815-seg2"></script>
 </body>
 </html>
