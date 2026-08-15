@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="robots" content="noindex,nofollow">
+  <meta name="description" content="SOCL4091 Communities & Crime segregation module">
+  <title>Segregation | SOCL4091</title>
+  <link rel="stylesheet" href="https://use.typekit.net/pgi1nbm.css">
+  <link rel="stylesheet" href="https://unpkg.com/maplibre-gl@5.7.1/dist/maplibre-gl.css">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<main class="shell">
+  <header class="page-header">
+    <a class="home-link" href="../">← Communities & Crime</a>
+    <div class="eyebrow">SOCL4091 · Comparative Neighborhood Analysis Project</div>
+    <h1>Segregation</h1>
+    <p>Map the broader racial-spatial structure of your city, compare concentrated disadvantage across your two neighborhoods, identify sharp and fuzzy racial-ethnic boundaries, and build your personalized Word assignment.</p>
+  </header>
+
+  <section class="panel">
+    <div class="section-heading"><span class="step-number">1</span><div><h2>Load your neighborhoods</h2><p>Enter the LSU ID you used when you finalized your neighborhood selection.</p></div></div>
+    <label class="field-label" for="lsuId">LSU ID</label>
+    <div class="lookup-row"><input id="lsuId" type="text" inputmode="numeric" autocomplete="off" placeholder="LSU ID number"><button id="loadButton" type="button">Load project</button></div>
+    <div id="lookupMessage" class="status-message" aria-live="polite"></div>
+  </section>
+
+  <div id="projectContent" class="is-hidden">
+    <section class="panel">
+      <div class="section-heading"><span class="step-number">2</span><div><h2>Your project</h2><p>Your city and neighborhood boundaries are loaded from your finalized selection.</p></div></div>
+      <div class="summary-grid">
+        <div><span class="summary-label">City</span><strong id="cityName"></strong></div>
+        <div><span class="summary-label">Neighborhood 1</span><strong id="neighborhoodOne"></strong></div>
+        <div><span class="summary-label">Neighborhood 2</span><strong id="neighborhoodTwo"></strong></div>
+      </div>
+    </section>
+
+    <section class="panel">
+      <div class="section-heading"><span class="step-number">3</span><div><h2>Create your five maps</h2><p>The racial-ethnic layer uses solid, fully opaque colors. Click any block group to inspect exact group shares, including Other/Multiracial, before interpreting boundaries.</p></div></div>
+      <div class="map-instructions">
+        <p><strong>Map controls:</strong> Use the + and − buttons to zoom. For finer-grained zooming, click the map, hold <strong>Ctrl</strong>, and use your mouse wheel. Drag to reposition the map.</p>
+        <p><strong>Racial-ethnic categories:</strong> Each block group is colored by the largest of four groups—White, Latino, Black, or Asian. Other/Multiracial residents are included in the popup percentages but are not used as a fifth map category.</p>
+        <p><strong>Boundary figures:</strong> Use <strong>Draw sharp</strong> for solid orange boundaries and <strong>Draw fuzzy</strong> for black zig-zag boundaries. Click to add vertices and double-click to finish. Not every neighborhood must contain either type of boundary.</p>
+      </div>
+      <div id="mapStatus" class="status-message" aria-live="polite"></div>
+      <div id="figureSections"></div>
+    </section>
+
+    <section class="panel next-step">
+      <div class="section-heading"><span class="step-number">4</span><div><h2>Build your assignment document</h2><p>The Word file follows the Segregation template, fills in your city and neighborhood names, inserts all five maps and captions, and preserves the red writing prompts.</p></div></div>
+      <div class="document-actions">
+        <button id="buildDocument" type="button" disabled>Build Word assignment</button>
+        <span id="documentStatus" class="document-status" aria-live="polite">Maps must finish loading first.</span>
+      </div>
+      <p class="helper-text"><strong>Before submitting:</strong> replace the prompts with your own writing and delete all red/bracketed prompt text. Use the assigned readings and course material as directed in the template.</p>
+    </section>
+  </div>
+</main>
+<script src="https://unpkg.com/maplibre-gl@5.7.1/dist/maplibre-gl.js"></script>
+<script type="module" src="app.js?v=20260815-seg1"></script>
+</body>
+</html>
