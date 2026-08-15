@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="robots" content="noindex,nofollow">
+  <meta name="description" content="SOCL4091 Communities & Crime political economy module">
+  <title>Political Economy of Place | SOCL4091</title>
+  <link rel="stylesheet" href="https://use.typekit.net/pgi1nbm.css">
+  <link rel="stylesheet" href="https://unpkg.com/maplibre-gl@5.7.1/dist/maplibre-gl.css">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<main class="shell">
+  <header class="page-header">
+    <a class="home-link" href="../">← Communities & Crime</a>
+    <div class="eyebrow">SOCL4091 · Comparative Neighborhood Analysis Project</div>
+    <h1>Political Economy of Place</h1>
+    <p>Examine how housing-market institutions and external actors shape neighborhood stability, access to housing, and the distribution of crime-relevant conditions.</p>
+  </header>
+
+  <section class="panel">
+    <div class="section-heading"><span class="step-number">1</span><div><h2>Load your neighborhoods</h2><p>Enter the LSU ID you used when you finalized your neighborhood selection.</p></div></div>
+    <label class="field-label" for="lsuId">LSU ID</label>
+    <div class="lookup-row"><input id="lsuId" type="text" inputmode="numeric" autocomplete="off" placeholder="LSU ID number"><button id="loadButton" type="button">Load project</button></div>
+    <div id="lookupMessage" class="status-message" aria-live="polite"></div>
+  </section>
+
+  <div id="projectContent" class="is-hidden">
+    <section class="panel">
+      <div class="section-heading"><span class="step-number">2</span><div><h2>Your project</h2><p>Your city and neighborhood boundaries are loaded from your finalized selection.</p></div></div>
+      <div class="summary-grid">
+        <div><span class="summary-label">City</span><strong id="cityName"></strong></div>
+        <div><span class="summary-label">Neighborhood 1</span><strong id="neighborhoodOne"></strong></div>
+        <div><span class="summary-label">Neighborhood 2</span><strong id="neighborhoodTwo"></strong></div>
+      </div>
+    </section>
+
+    <section class="panel reference-panel">
+      <div class="section-heading"><span class="step-number">3</span><div><h2>Reference: renter population</h2><p>Use this map to help interpret the eviction-rate maps. An area with few or no renters has little or no population at risk of eviction.</p></div></div>
+      <div class="reference-note"><strong>Reference only.</strong> This map is not part of the assignment and will not be included in your Word document.</div>
+      <div class="reference-toolbar" id="referenceToolbar"></div>
+      <div class="map-shell"><div id="map-renter" class="map reference-map" aria-label="Percent renter reference map"></div></div>
+      <div id="renterLegend" class="map-legend"></div>
+    </section>
+
+    <section class="panel">
+      <div class="section-heading"><span class="step-number">4</span><div><h2>Create your four assignment maps</h2><p>Compare eviction rates at the block-group level and HMDA mortgage denial rates at the tract level. Click any geography to inspect its exact value.</p></div></div>
+      <div class="map-instructions">
+        <p><strong>Map controls:</strong> Use the + and − buttons to zoom. For finer-grained zooming, click the map, hold <strong>Ctrl</strong>, and use your mouse wheel. Drag to reposition.</p>
+        <p><strong>Eviction-rate maps:</strong> zero is shown separately from positive eviction rates. Use the renter reference map above when deciding how to interpret a zero.</p>
+        <p><strong>HMDA maps:</strong> colors are based on the distribution of mortgage denial rates across the tracts in your city. The same class breaks are used for both of your neighborhoods.</p>
+      </div>
+      <div id="mapStatus" class="status-message" aria-live="polite"></div>
+      <div id="figureSections"></div>
+    </section>
+
+    <section class="panel next-step">
+      <div class="section-heading"><span class="step-number">5</span><div><h2>Build your assignment document</h2></div></div>
+      <div class="document-actions">
+        <button id="buildDocument" type="button" disabled>Build Word assignment</button>
+        <span id="documentStatus" class="document-status" aria-live="polite">Maps must finish loading first.</span>
+      </div>
+      <p class="helper-text"><strong>Before submitting:</strong> replace the prompts with your own writing and delete all red/bracketed prompt text. Engage assigned or optional readings as directed; do not use direct quotes.</p>
+    </section>
+  </div>
+</main>
+<script src="https://unpkg.com/maplibre-gl@5.7.1/dist/maplibre-gl.js"></script>
+<script type="module" src="app.js?v=20260815-pe1"></script>
+</body>
+</html>
