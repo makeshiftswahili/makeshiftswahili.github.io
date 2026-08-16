@@ -1,0 +1,43 @@
+name: Political Economy New Data QC
+
+on:
+  push:
+    paths:
+      - '.github/workflows/pe-newdata-qc.yml'
+
+jobs:
+  qc:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Inspect new political economy files
+        run: |
+          python - <<'PY'
+          import json,glob,os,math,statistics
+          D='communities-crime/data'
+          for prefix in ['pe_evict_','pe_hmda_']:
+              print('\n===',prefix,'===')
+              files=sorted(glob.glob(f'{D}/{prefix}*.geojson'))
+              print('FILES', [os.path.basename(x) for x in files])
+              for p in files:
+                  with open(p,encoding='utf-8') as f:d=json.load(f)
+                  rows=[x.get('properties',{}) for x in d.get('features',[])]
+                  keys=sorted(rows[0].keys()) if rows else []
+                  print('\n',os.path.basename(p),'n=',len(rows))
+                  print('FIELDS',keys)
+                  # print numeric summaries for likely target fields
+                  candidates=[k for k in keys if any(s in k.lower() for s in ['evict','fil','rent','orig','approv','loan','mort','hmda','rate','pct','percent','owner','occup'])]
+                  for k in candidates:
+                      vals=[]
+                      for r in rows:
+                          v=r.get(k)
+                          try:
+                              if v is not None and v!='':
+                                  z=float(v)
+                                  if math.isfinite(z): vals.append(z)
+                          except: pass
+                      if vals:
+                          vals.sort()
+                          q=lambda p: vals[int(round((len(vals)-1)*p))]
+                          print('STAT',k,'n',len(vals),'min',vals[0],'p20',q(.2),'med',q(.5),'p80',q(.8),'max',vals[-1])
+          PY
