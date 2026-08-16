@@ -1,0 +1,74 @@
+name: Political Economy Loanrate Redo
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/pe-loanrate-redo.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  update-module:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Revise Political Economy module
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+
+          app_path = Path('communities-crime/political-economy/app.js')
+          idx_path = Path('communities-crime/political-economy/index.html')
+          app = app_path.read_text(encoding='utf-8')
+          idx = idx_path.read_text(encoding='utf-8')
+
+          # Data field: corrected HMDA files use loanrate.
+          if 'ploaned' not in app:
+              raise SystemExit('Expected old ploaned field not found in app.js')
+          app = app.replace('ploaned', 'loanrate')
+
+          # Do not expose raw loanrate values to students; classify into city-specific quintiles.
+          old = 'function hmdaLegendItems(b){return[{c:palettes.hmda[0],t:`≤${cleanBreak(b[0])}%`},{c:palettes.hmda[1],t:`>${cleanBreak(b[0])}–${cleanBreak(b[1])}%`},{c:palettes.hmda[2],t:`>${cleanBreak(b[1])}–${cleanBreak(b[2])}%`},{c:palettes.hmda[3],t:`>${cleanBreak(b[2])}–${cleanBreak(b[3])}%`},{c:palettes.hmda[4],t:`>${cleanBreak(b[3])}%`}]}'
+          new = 'function hmdaLegendItems(){return[{c:palettes.hmda[0],t:"Very Low"},{c:palettes.hmda[1],t:"Low"},{c:palettes.hmda[2],t:"Moderate"},{c:palettes.hmda[3],t:"High"},{c:palettes.hmda[4],t:"Very High"}]}\nfunction hmdaCategory(v,b){const n=num(v);if(n===null)return "No data";if(n<b[0])return "Very Low";if(n<b[1])return "Low";if(n<b[2])return "Moderate";if(n<b[3])return "High";return "Very High"}'
+          if old not in app:
+              raise SystemExit('Expected hmdaLegendItems function not found')
+          app = app.replace(old, new)
+
+          app = app.replace('HMDA mortgage origination rate', 'Mortgage investment, 2018–2021')
+          app = app.replace('HMDA Mortgage Origination Rate', 'Mortgage Investment, 2018–2021')
+          app = app.replace('<h2>Mortgage Origination</h2><p>Compare the geography of mortgage lending as an external housing-market investment across your neighborhoods.</p>', '<h2>Mortgage Investment</h2><p>Compare the geography of external mortgage investment using 2018–2021 home-purchase mortgage originations standardized by the 2020 owner-occupied housing stock.</p>')
+          app = app.replace('City-specific quintiles; the same breaks are used for both neighborhoods.', 'City-specific quintiles of 2018–2021 mortgage originations per 1,000 owner-occupied housing units (2020); the same breaks are used for both neighborhoods.')
+          app = app.replace('note:"City-specific quintiles."', 'note:"City-specific quintiles (Very Low–Very High)."')
+          app = app.replace('Adjust the framing and inspect exact values as needed before building the Word document.', 'Adjust the framing and inspect the spatial patterns as needed before building the Word document.')
+
+          old_popup = '<dt>Mortgage investment, 2018–2021</dt><dd>${fmt(p.loanrate,2)}</dd>'
+          new_popup = '<dt>Relative mortgage investment</dt><dd>${hmdaCategory(p.loanrate,classInfo.hmda)}</dd>'
+          if old_popup not in app:
+              raise SystemExit('Expected HMDA popup fragment not found')
+          app = app.replace(old_popup, new_popup)
+
+          # Student-facing instructions and cache bust.
+          idx = idx.replace('Compare pooled 2012–2016 eviction rates at the block-group level and HMDA mortgage origination rates at the tract level. Click any geography to inspect its exact value.', 'Compare pooled 2012–2016 eviction rates at the block-group level and mortgage investment at the tract level. The mortgage measure is the total number of home-purchase mortgages originated from 2018–2021 per 1,000 owner-occupied housing units in 2020. Click any geography for details.')
+          idx = idx.replace('<p><strong>HMDA maps:</strong> colors are based on the distribution of mortgage origination rates across the tracts in your city. Higher values indicate relatively greater mortgage origination activity. The same class breaks are used for both of your neighborhoods.</p>', '<p><strong>Mortgage-investment maps:</strong> the measure follows the count-based logic used by Velez, Lyons, and Boursaw (2012), adapted to a four-year window: total 2018–2021 home-purchase mortgage originations per 1,000 owner-occupied housing units in 2020. Tracts are divided into city-specific quintiles labeled <strong>Very Low, Low, Moderate, High,</strong> and <strong>Very High</strong>. These are relative positions within your city, not absolute thresholds, and the same class breaks are used for both neighborhoods.</p>')
+          idx = idx.replace('app.js?v=20260816-pe3', 'app.js?v=20260816-pe4')
+
+          app_path.write_text(app, encoding='utf-8')
+          idx_path.write_text(idx, encoding='utf-8')
+          PY
+      - name: Sanity checks
+        run: |
+          grep -q 'loanrate' communities-crime/political-economy/app.js
+          ! grep -q 'ploaned' communities-crime/political-economy/app.js
+          grep -q 'Very Low' communities-crime/political-economy/app.js
+          grep -q '2018–2021 home-purchase mortgage originations' communities-crime/political-economy/index.html
+      - name: Commit module revision
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add communities-crime/political-economy/app.js communities-crime/political-economy/index.html
+          git commit -m 'Revise political economy mortgage investment maps' || exit 0
+          git push
