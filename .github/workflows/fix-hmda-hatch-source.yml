@@ -23,7 +23,6 @@ jobs:
           import json
           import re
 
-          # Confirm the actual owner-occupied-unit field before patching.
           for path in sorted(Path('communities-crime/data').glob('pe_hmda_*.geojson')):
               data = json.loads(path.read_text())
               zeros = positives = missing = 0
@@ -43,20 +42,22 @@ jobs:
 
           app = Path('communities-crime/political-economy/app.js')
           s = app.read_text()
-          new_function = '''function addThematicLayer(map,data,type,breaks){
- map.addSource("thematic",{type:"geojson",data});
- let color;
- if(type==="renter")color=renterExpression();else if(type==="eviction")color=evictionExpression(breaks);else color=hmdaExpression(breaks);
- map.addLayer({id:"thematic-fill",type:"fill",source:"thematic",paint:{"fill-color":color,"fill-opacity":1}});
- if(type==="hmda"){
-   const noOwner=featureCollection(data.features.filter(f=>num(f?.properties?.numownunits)===0));
-   ensureNoOwnerPattern(map);
-   map.addSource("hmda-no-owner",{type:"geojson",data:noOwner});
-   map.addLayer({id:"hmda-no-owner-hatch",type:"fill",source:"hmda-no-owner",paint:{"fill-pattern":"no-owner-hatch","fill-opacity":1}});
- }
- map.addLayer({id:"thematic-line",type:"line",source:"thematic",paint:{"line-color":"#777777","line-width":.6,"line-opacity":.72}});
- addPopup(map,"thematic-fill",type)
-}'''
+          new_function = (
+              'function addThematicLayer(map,data,type,breaks){\n'
+              ' map.addSource("thematic",{type:"geojson",data});\n'
+              ' let color;\n'
+              ' if(type==="renter")color=renterExpression();else if(type==="eviction")color=evictionExpression(breaks);else color=hmdaExpression(breaks);\n'
+              ' map.addLayer({id:"thematic-fill",type:"fill",source:"thematic",paint:{"fill-color":color,"fill-opacity":1}});\n'
+              ' if(type==="hmda"){\n'
+              '   const noOwner=featureCollection(data.features.filter(f=>num(f?.properties?.numownunits)===0));\n'
+              '   ensureNoOwnerPattern(map);\n'
+              '   map.addSource("hmda-no-owner",{type:"geojson",data:noOwner});\n'
+              '   map.addLayer({id:"hmda-no-owner-hatch",type:"fill",source:"hmda-no-owner",paint:{"fill-pattern":"no-owner-hatch","fill-opacity":1}});\n'
+              ' }\n'
+              ' map.addLayer({id:"thematic-line",type:"line",source:"thematic",paint:{"line-color":"#777777","line-width":.6,"line-opacity":.72}});\n'
+              ' addPopup(map,"thematic-fill",type)\n'
+              '}'
+          )
           pattern = r'function addThematicLayer\(map,data,type,breaks\)\{.*?\}\n\nfunction createReferenceMap'
           replaced, count = re.subn(pattern, new_function + '\n\nfunction createReferenceMap', s, count=1, flags=re.S)
           if count != 1:
@@ -65,7 +66,7 @@ jobs:
 
           idx = Path('communities-crime/political-economy/index.html')
           h = idx.read_text()
-          h2, count = re.subn(r'app\.js\?v=[^"\']+', 'app.js?v=20260816-pe7', h, count=1)
+          h2, count = re.subn(r'app\.js\?v=[^"\x27]+', 'app.js?v=20260816-pe7', h, count=1)
           if count != 1:
               raise SystemExit('Could not update Political Economy JS cache-buster')
           idx.write_text(h2)
