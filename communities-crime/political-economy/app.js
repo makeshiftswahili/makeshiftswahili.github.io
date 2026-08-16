@@ -55,7 +55,20 @@ function popupHtml(type,p){if(type==="renter")return `<div class="value-popup"><
 function addPopup(map,layerId,type){let activePopup=null,activeId=null;map.on("mouseenter",layerId,()=>map.getCanvas().style.cursor="pointer");map.on("mouseleave",layerId,()=>map.getCanvas().style.cursor="");map.on("click",layerId,e=>{const f=e.features?.[0];if(!f)return;const p=f.properties||{},id=String(p.GEOID10||p.bgidfp10||p.trctidfp10||"");if(activePopup&&id===activeId){activePopup.remove();activePopup=null;activeId=null;return}if(activePopup)activePopup.remove();activeId=id;activePopup=new maplibregl.Popup({closeButton:true,closeOnClick:false,maxWidth:"300px"}).setLngLat(e.lngLat).setHTML(popupHtml(type,p)).addTo(map);activePopup.on("close",()=>{activePopup=null;activeId=null})})}
 
 function ensureNoOwnerPattern(map){if(map.hasImage("no-owner-hatch"))return;const size=12,canvas=document.createElement("canvas");canvas.width=size;canvas.height=size;const ctx=canvas.getContext("2d");ctx.fillStyle="#ffffff";ctx.fillRect(0,0,size,size);ctx.strokeStyle="#111111";ctx.lineWidth=1.6;for(let off=-size;off<size*2;off+=6){ctx.beginPath();ctx.moveTo(off,size);ctx.lineTo(off+size,0);ctx.stroke()}map.addImage("no-owner-hatch",ctx.getImageData(0,0,size,size),{pixelRatio:1})}
-function addThematicLayer(map,data,type,breaks){map.addSource("thematic",{type:"geojson",data});let color;if(type==="renter")color=renterExpression();else if(type==="eviction")color=evictionExpression(breaks);else color=hmdaExpression(breaks);map.addLayer({id:"thematic-fill",type:"fill",source:"thematic",paint:{"fill-color":color,"fill-opacity":1}});if(type==="hmda"){ensureNoOwnerPattern(map);map.addLayer({id:"hmda-no-owner-hatch",type:"fill",source:"thematic",filter:["==",["to-number",["get","numownunits"],-1],0],paint:{"fill-pattern":"no-owner-hatch","fill-opacity":1}})}map.addLayer({id:"thematic-line",type:"line",source:"thematic",paint:{"line-color":"#777777","line-width":.6,"line-opacity":.72}});addPopup(map,"thematic-fill",type)}
+function addThematicLayer(map,data,type,breaks){
+ map.addSource("thematic",{type:"geojson",data});
+ let color;
+ if(type==="renter")color=renterExpression();else if(type==="eviction")color=evictionExpression(breaks);else color=hmdaExpression(breaks);
+ map.addLayer({id:"thematic-fill",type:"fill",source:"thematic",paint:{"fill-color":color,"fill-opacity":1}});
+ if(type==="hmda"){
+   const noOwner=featureCollection(data.features.filter(f=>num(f?.properties?.numownunits)===0));
+   ensureNoOwnerPattern(map);
+   map.addSource("hmda-no-owner",{type:"geojson",data:noOwner});
+   map.addLayer({id:"hmda-no-owner-hatch",type:"fill",source:"hmda-no-owner",paint:{"fill-pattern":"no-owner-hatch","fill-opacity":1}});
+ }
+ map.addLayer({id:"thematic-line",type:"line",source:"thematic",paint:{"line-color":"#777777","line-width":.6,"line-opacity":.72}});
+ addPopup(map,"thematic-fill",type)
+}
 
 function createReferenceMap(n1f,n2f){const key="renter",b1=expandBox(bboxThing(n1f),.72),b2=expandBox(bboxThing(n2f),.72),data=filteredData(evictionData,unionBox(b1,b2)),map=new maplibregl.Map({container:"map-renter",style:baseStyle(),interactive:true,attributionControl:false,canvasContextAttributes:{preserveDrawingBuffer:true}});map.addControl(new maplibregl.NavigationControl({showCompass:false}),"top-right");addFineZoom(map);map.on("load",()=>{addThematicLayer(map,data,"renter",renterBreaks);addNeighborhoodOutline(map,n1f,"n1",3.5);addNeighborhoodOutline(map,n2f,"n2",3.5);fit(map,b1,22,14);map.once("idle",()=>markReady(key));setTimeout(()=>{if(!readyMaps.has(key))markReady(key)},6500)});maps[key]=map;renterLegend.innerHTML=legendHtml("Percent renter",renterLegendItems(),"Reference only — not included in the assignment.");referenceToolbar.innerHTML=`<button type="button" class="reference-choice active" data-ref="0">${currentProject.neighborhoods[0]}</button><button type="button" class="reference-choice" data-ref="1">${currentProject.neighborhoods[1]}</button>`;referenceToolbar.querySelectorAll(".reference-choice").forEach(btn=>btn.addEventListener("click",()=>{const i=Number(btn.dataset.ref);referenceToolbar.querySelectorAll(".reference-choice").forEach(b=>b.classList.toggle("active",b===btn));fit(map,i===0?b1:b2,22,14)}))}
 
