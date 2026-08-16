@@ -1,0 +1,35 @@
+name: Inspect HMDA GeoJSON schema
+
+on:
+  push:
+    paths:
+      - '.github/workflows/inspect-hmda-schema.yml'
+
+jobs:
+  inspect:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Inspect HMDA fields and missing loan rates
+        shell: bash
+        run: |
+          python <<'PY'
+          from pathlib import Path
+          import json
+
+          for path in sorted(Path('communities-crime/data').glob('pe_hmda_*.geojson')):
+              data=json.loads(path.read_text())
+              feats=data.get('features',[])
+              keys=sorted(set().union(*[(f.get('properties') or {}).keys() for f in feats[:300]])) if feats else []
+              interesting=[k for k in keys if any(x in k.lower() for x in ('own','unit','loan','rate','mort'))]
+              missing=[f.get('properties') or {} for f in feats if (f.get('properties') or {}).get('loanrate') in (None,'')]
+              zero=[f.get('properties') or {} for f in feats if (f.get('properties') or {}).get('loanrate') == 0]
+              print('\n###',path.name)
+              print('KEYS:', keys)
+              print('INTERESTING:', interesting)
+              print('N=',len(feats),'loanrate_missing=',len(missing),'loanrate_zero=',len(zero))
+              for label, rows in [('MISSING_SAMPLE',missing[:3]),('ZERO_SAMPLE',zero[:3])]:
+                  print(label)
+                  for p in rows:
+                      print({k:p.get(k) for k in keys})
+          PY
