@@ -49,7 +49,7 @@
       <div class="map-instructions">
         <p><strong>Map controls:</strong> Use the + and − buttons to zoom. For finer-grained zooming, click the map, hold <strong>Ctrl</strong>, and use your mouse wheel. Drag to reposition.</p>
         <p><strong>Eviction-rate maps:</strong> the rate pools eviction activity across 2012–2016 to reduce the instability of a single-year measure. Zero is shown separately from positive eviction rates. Use the renter reference map above when deciding how to interpret a zero.</p>
-        <p><strong>Mortgage-investment maps:</strong> the measure follows the count-based logic used by Velez, Lyons, and Boursaw (2012), adapted to a four-year window: total 2018–2021 home-purchase mortgage originations per 1,000 owner-occupied housing units in 2020. Tracts are divided into city-specific quintiles labeled <strong>Very Low, Low, Moderate, High,</strong> and <strong>Very High</strong>. These are relative positions within your city, not absolute thresholds, and the same class breaks are used for both neighborhoods.</p>
+        <p><strong>Mortgage-investment maps:</strong> the measure follows the count-based logic used by Velez, Lyons, and Boursaw (2012), adapted to a four-year window: total 2018–2021 home-purchase mortgage originations per 1,000 owner-occupied housing units in 2020. Tracts are divided into city-specific quintiles labeled <strong>Very Low, Low, Moderate, High,</strong> and <strong>Very High</strong>. These are relative positions within your city, not absolute thresholds, and the same class breaks are used for both neighborhoods. Tracts shown with black diagonal hatching have 0 owner-occupied housing units in 2020, so a mortgage-investment rate cannot be calculated.</p>
       </div>
       <div id="mapStatus" class="status-message" aria-live="polite"></div>
       <div id="figureSections"></div>
@@ -66,6 +66,6 @@
   </div>
 </main>
 <script src="https://unpkg.com/maplibre-gl@5.7.1/dist/maplibre-gl.js"></script>
-<script type="module" src="app.js?v=20260816-pe5"></script>
+<script type="module" src="app.js?v=20260816-pe6"></script>
 </body>
 </html>

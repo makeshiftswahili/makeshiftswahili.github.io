@@ -68,12 +68,18 @@ function popupHtml(props){
  return `<div class="race-popup"><strong>Block group ${props.GEOID10||props.bgidfp10||""}</strong><div class="popup-dominant">Mapped category: ${raceLabels[d.dominant]} (${pct(d.share)})</div><dl><dt>White</dt><dd>${pct(d.white)}</dd><dt>Latino</dt><dd>${pct(d.latino)}</dd><dt>Black</dt><dd>${pct(d.black)}</dd><dt>Asian</dt><dd>${pct(d.asian)}</dd><dt>Other / Multiracial</dt><dd>${pct(d.other)}</dd>${d.pop?`<dt>2020 population</dt><dd>${Math.round(d.pop).toLocaleString()}</dd>`:""}</dl><small>The mapped category is the largest of the four named groups; Other/Multiracial is reported here but is not used as a map category.</small></div>`;
 }
 function addRacePopup(map,key){
+ let activePopup=null,activeId=null;
  map.on("mouseenter","race-fill",()=>{if(!drawStates[key]?.mode)map.getCanvas().style.cursor="pointer"});
  map.on("mouseleave","race-fill",()=>{if(!drawStates[key]?.mode)map.getCanvas().style.cursor=""});
  map.on("click","race-fill",e=>{
    if(drawStates[key]?.mode)return;
    const f=e.features?.[0];if(!f)return;
-   new maplibregl.Popup({closeButton:true,maxWidth:"300px"}).setLngLat(e.lngLat).setHTML(popupHtml(f.properties||{})).addTo(map);
+   const p=f.properties||{},id=String(p.GEOID10||p.bgidfp10||"");
+   if(activePopup&&id===activeId){activePopup.remove();activePopup=null;activeId=null;return}
+   if(activePopup)activePopup.remove();
+   activeId=id;
+   activePopup=new maplibregl.Popup({closeButton:true,closeOnClick:false,maxWidth:"300px"}).setLngLat(e.lngLat).setHTML(popupHtml(p)).addTo(map);
+   activePopup.on("close",()=>{activePopup=null;activeId=null});
  });
 }
 function raceLegendRows(){return ["white","latino","black","asian"].map(k=>`<div class="legend-row"><span class="legend-square" style="background:${raceColors[k]}"></span><span>${raceLabels[k]}</span></div>`).join("")}
