@@ -1,7 +1,7 @@
 const API_URL="https://rqdkfvvubiccaybubmbd.supabase.co/functions/v1/neighborhood-selection";
 const DOC_URL="https://rqdkfvvubiccaybubmbd.supabase.co/functions/v1/political-economy-assignment-doc";
 const DATA_BASE="../data/";
-const HMDA_DATA_VERSION="20260816-hmda-alltracts-v2";
+const HMDA_DATA_VERSION="20260816-hmda-alltracts-v3";
 
 const citySlug={NewOrleans:"neworleans",LA:"losangeles",Philadelphia:"philadelphia",Chicago:"chicago",Houston:"houston",SanFrancisco:"sanfrancisco",Atlanta:"atlanta",Milwaukee:"milwaukee",Detroit:"detroit",Denver:"denver",Seattle:"seattle"};
 const palettes={
@@ -36,14 +36,14 @@ function sortedValues(data,field,{positive=false}={}){return data.features.map(f
 function quantile(sorted,q){if(!sorted.length)return 0;const p=(sorted.length-1)*q,b=Math.floor(p),r=p-b;return sorted[b+1]!==undefined?sorted[b]+r*(sorted[b+1]-sorted[b]):sorted[b]}
 function uniqueAscending(values){const out=[];for(const v of values){const n=Number(v);if(Number.isFinite(n)&&(!out.length||n>out[out.length-1]+1e-9))out.push(n)}return out}
 function fallbackBreaks(values,count=4){if(!values.length)return Array.from({length:count},(_,i)=>i+1);const min=values[0],max=values[values.length-1];if(max<=min)return Array.from({length:count},(_,i)=>min+(i+1));return Array.from({length:count},(_,i)=>min+(max-min)*(i+1)/(count+1))}
-function hmdaBreaks(data){const v=data.features.filter(f=>num(f?.properties?.numownunits)>0).map(f=>num(f?.properties?.loanrate)).filter(v=>v!==null).sort((a,b)=>a-b);let b=uniqueAscending([.2,.4,.6,.8].map(q=>quantile(v,q)));if(b.length<4)b=fallbackBreaks(v,4);return b.slice(0,4)}
+function hmdaBreaks(data){const v=sortedValues(data,"loanrate");let b=uniqueAscending([.2,.4,.6,.8].map(q=>quantile(v,q)));if(b.length<4)b=fallbackBreaks(v,4);return b.slice(0,4)}
 function evictionPositiveBreaks(data){const v=sortedValues(data,"evictrate",{positive:true});let b=uniqueAscending([.25,.5,.75].map(q=>quantile(v,q)));if(b.length<3)b=fallbackBreaks(v,3);return b.slice(0,3)}
 function fmt(v,d=1){const n=num(v);return n===null?"No data":`${n.toFixed(d)}%`}
 function cleanBreak(v){if(Math.abs(v)>=10)return v.toFixed(1).replace(/\.0$/,'');return v.toFixed(2).replace(/0+$/,'').replace(/\.$/,'')}
 
 function renterExpression(){return["case",["any",["!",["has","prenter"]],["==",["get","prenter"],null]],"rgba(0,0,0,0)",["step",["to-number",["get","prenter"],-999],palettes.renter[0],20,palettes.renter[1],40,palettes.renter[2],60,palettes.renter[3],80,palettes.renter[4]]]}
 function evictionExpression(b){return["case",["any",["!",["has","evictrate"]],["==",["get","evictrate"],null]],"rgba(0,0,0,0)",["<=",["to-number",["get","evictrate"],0],0],palettes.eviction[0],["step",["to-number",["get","evictrate"],0],palettes.eviction[1],b[0],palettes.eviction[2],b[1],palettes.eviction[3],b[2],palettes.eviction[4]]]}
-function hmdaExpression(b){return["case",["any",["!",["has","loanrate"]],["==",["get","loanrate"],null]],"rgba(0,0,0,0)",["step",["to-number",["get","loanrate"],-999],palettes.hmda[0],b[0],palettes.hmda[1],b[1],palettes.hmda[2],b[2],palettes.hmda[3],b[3],palettes.hmda[4]]]}
+function hmdaExpression(b){return["case",["==",["get","_noOwner"],true],"#ffffff",["any",["!",["has","loanrate"]],["==",["get","loanrate"],null]],"rgba(0,0,0,0)",["step",["to-number",["get","loanrate"],-999],palettes.hmda[0],b[0],palettes.hmda[1],b[1],palettes.hmda[2],b[2],palettes.hmda[3],b[3],palettes.hmda[4]]]}
 
 function renterLegendItems(){return[{c:palettes.renter[0],t:"0–20%"},{c:palettes.renter[1],t:">20–40%"},{c:palettes.renter[2],t:">40–60%"},{c:palettes.renter[3],t:">60–80%"},{c:palettes.renter[4],t:">80–100%"}]}
 function evictionLegendItems(b){return[{c:palettes.eviction[0],t:"0%"},{c:palettes.eviction[1],t:`>0–${cleanBreak(b[0])}%`},{c:palettes.eviction[2],t:`>${cleanBreak(b[0])}–${cleanBreak(b[1])}%`},{c:palettes.eviction[3],t:`>${cleanBreak(b[1])}–${cleanBreak(b[2])}%`},{c:palettes.eviction[4],t:`>${cleanBreak(b[2])}%`}]}
@@ -51,17 +51,16 @@ function hmdaLegendItems(){return[{c:palettes.hmda[0],t:"Very Low"},{c:palettes.
 function hmdaCategory(v,b){const n=num(v);if(n===null)return "No data";if(n<b[0])return "Very Low";if(n<b[1])return "Low";if(n<b[2])return "Moderate";if(n<b[3])return "High";return "Very High"}
 function legendHtml(title,items,note=""){return `<span class="legend-title">${title}</span>${items.map(i=>`<span class="legend-item"><span class="legend-swatch" style="${i.pattern?"background:repeating-linear-gradient(135deg,#fff 0,#fff 4px,#111 4px,#111 6px)":`background:${i.c}`}"></span><span>${i.t}</span></span>`).join("")}${note?`<span class="legend-note">${note}</span>`:""}`}
 
-function popupHtml(type,p){if(type==="renter")return `<div class="value-popup"><strong>Block group ${p.GEOID10||p.bgidfp10||""}</strong><dl><dt>Percent renter</dt><dd>${fmt(p.prenter)}</dd><dt>2012–2016 pooled annual eviction rate</dt><dd>${fmt(p.evictrate,2)}</dd></dl><small>Use renter share as context when interpreting zero or very low eviction rates.</small></div>`;if(type==="eviction")return `<div class="value-popup"><strong>Block group ${p.GEOID10||p.bgidfp10||""}</strong><dl><dt>2012–2016 pooled annual eviction rate</dt><dd>${fmt(p.evictrate,2)}</dd><dt>Percent renter</dt><dd>${fmt(p.prenter)}</dd><dt>Eviction filing rate</dt><dd>${fmt(p.filerate,2)}</dd></dl></div>`;if(num(p.numownunits)===0)return `<div class="value-popup"><strong>Tract ${p.GEOID10||p.trctidfp10||""}</strong><dl><dt>Relative mortgage investment</dt><dd>No data</dd><dt>Owner-occupied units (2020)</dt><dd>0</dd></dl><small>No mortgage-investment rate can be calculated because the tract has 0 owner-occupied housing units.</small></div>`;return `<div class="value-popup"><strong>Tract ${p.GEOID10||p.trctidfp10||""}</strong><dl><dt>Relative mortgage investment</dt><dd>${hmdaCategory(p.loanrate,classInfo.hmda)}</dd></dl></div>`}
+function popupHtml(type,p){if(type==="renter")return `<div class="value-popup"><strong>Block group ${p.GEOID10||p.bgidfp10||""}</strong><dl><dt>Percent renter</dt><dd>${fmt(p.prenter)}</dd><dt>2012–2016 pooled annual eviction rate</dt><dd>${fmt(p.evictrate,2)}</dd></dl><small>Use renter share as context when interpreting zero or very low eviction rates.</small></div>`;if(type==="eviction")return `<div class="value-popup"><strong>Block group ${p.GEOID10||p.bgidfp10||""}</strong><dl><dt>2012–2016 pooled annual eviction rate</dt><dd>${fmt(p.evictrate,2)}</dd><dt>Percent renter</dt><dd>${fmt(p.prenter)}</dd><dt>Eviction filing rate</dt><dd>${fmt(p.filerate,2)}</dd></dl></div>`;if(p._noOwner===true||p._noOwner==="true")return `<div class="value-popup"><strong>Tract ${p.GEOID10||p.trctidfp10||""}</strong><dl><dt>Relative mortgage investment</dt><dd>No data</dd><dt>Owner-occupied units (2020)</dt><dd>0</dd></dl><small>No mortgage-investment rate can be calculated because the tract has 0 owner-occupied housing units.</small></div>`;return `<div class="value-popup"><strong>Tract ${p.GEOID10||p.trctidfp10||""}</strong><dl><dt>Relative mortgage investment</dt><dd>${hmdaCategory(p.loanrate,classInfo.hmda)}</dd></dl></div>`}
 function addPopup(map,layerId,type){let activePopup=null,activeId=null;map.on("mouseenter",layerId,()=>map.getCanvas().style.cursor="pointer");map.on("mouseleave",layerId,()=>map.getCanvas().style.cursor="");map.on("click",layerId,e=>{const f=e.features?.[0];if(!f)return;const p=f.properties||{},id=String(p.GEOID10||p.bgidfp10||p.trctidfp10||"");if(activePopup&&id===activeId){activePopup.remove();activePopup=null;activeId=null;return}if(activePopup)activePopup.remove();activeId=id;activePopup=new maplibregl.Popup({closeButton:true,closeOnClick:false,maxWidth:"300px"}).setLngLat(e.lngLat).setHTML(popupHtml(type,p)).addTo(map);activePopup.on("close",()=>{activePopup=null;activeId=null})})}
 
 function ensureNoOwnerPattern(map){if(map.hasImage("no-owner-hatch"))return;const size=12,canvas=document.createElement("canvas");canvas.width=size;canvas.height=size;const ctx=canvas.getContext("2d");ctx.fillStyle="#ffffff";ctx.fillRect(0,0,size,size);ctx.strokeStyle="#111111";ctx.lineWidth=1.6;for(let off=-size;off<size*2;off+=6){ctx.beginPath();ctx.moveTo(off,size);ctx.lineTo(off+size,0);ctx.stroke()}map.addImage("no-owner-hatch",ctx.getImageData(0,0,size,size),{pixelRatio:1})}
 function addThematicLayer(map,data,type,breaks){
  map.addSource("thematic",{type:"geojson",data});
- let color;
- if(type==="renter")color=renterExpression();else if(type==="eviction")color=evictionExpression(breaks);else color=hmdaExpression(breaks);
+ let color;if(type==="renter")color=renterExpression();else if(type==="eviction")color=evictionExpression(breaks);else color=hmdaExpression(breaks);
  map.addLayer({id:"thematic-fill",type:"fill",source:"thematic",paint:{"fill-color":color,"fill-opacity":1}});
  if(type==="hmda"){
-   const noOwner=featureCollection(data.features.filter(f=>num(f?.properties?.numownunits)===0));
+   const noOwner=featureCollection(data.features.filter(f=>f?.properties?._noOwner===true));
    ensureNoOwnerPattern(map);
    map.addSource("hmda-no-owner",{type:"geojson",data:noOwner});
    map.addLayer({id:"hmda-no-owner-hatch",type:"fill",source:"hmda-no-owner",paint:{"fill-pattern":"no-owner-hatch","fill-opacity":1}});
@@ -77,7 +76,24 @@ function renderSections(){const[n1,n2]=currentProject.neighborhoods,city=current
 function createAssignmentMap(key,feature,type){const view=expandBox(bboxThing(feature),.72),data=filteredData(type==="eviction"?evictionData:hmdaData,view),breaks=type==="eviction"?classInfo.eviction:classInfo.hmda,map=new maplibregl.Map({container:`map-${key}`,style:baseStyle(),interactive:true,attributionControl:false,canvasContextAttributes:{preserveDrawingBuffer:true}});map.addControl(new maplibregl.NavigationControl({showCompass:false}),"top-right");addFineZoom(map);map.on("load",()=>{addThematicLayer(map,data,type,breaks);addNeighborhoodOutline(map,feature,"neighborhood",3.5);fit(map,view,22,14);map.once("idle",()=>markReady(key));setTimeout(()=>{if(!readyMaps.has(key))markReady(key)},6500)});maps[key]=map}
 function renderMaps(){const[n1,n2]=currentProject.neighborhoods,n1f=findFeatureByName(currentProject.geojson,n1),n2f=findFeatureByName(currentProject.geojson,n2);if(!n1f||!n2f)throw new Error("Your saved neighborhood boundaries could not be matched.");neighborhoodFeatures=[n1f,n2f];destroyMaps();classInfo.eviction=evictionPositiveBreaks(evictionData);classInfo.hmda=hmdaBreaks(hmdaData);renderSections();mapStatus.textContent="Rendering political economy maps…";requestAnimationFrame(()=>{createReferenceMap(n1f,n2f);createAssignmentMap("eviction-1",n1f,"eviction");createAssignmentMap("eviction-2",n2f,"eviction");createAssignmentMap("hmda-1",n1f,"hmda");createAssignmentMap("hmda-2",n2f,"hmda")})}
 
-async function loadDatasets(slug){const [e,h]=await Promise.all([fetch(`${DATA_BASE}pe_evict_${slug}.geojson`,{cache:"force-cache"}),fetch(`${DATA_BASE}pe_hmda_${slug}.geojson?v=${HMDA_DATA_VERSION}`,{cache:"force-cache"})]);if(!e.ok)throw new Error(`Eviction data for this city are not available yet (${slug}).`);if(!h.ok)throw new Error(`HMDA data for this city are not available yet (${slug}).`);[evictionData,hmdaData]=await Promise.all([e.json(),h.json()]);if(!evictionData?.features?.length)throw new Error("The eviction file is empty.");if(!hmdaData?.features?.length)throw new Error("The HMDA file is empty.")}
+async function loadDatasets(slug){
+ const [e,h,d]=await Promise.all([
+   fetch(`${DATA_BASE}pe_evict_${slug}.geojson`,{cache:"force-cache"}),
+   fetch(`${DATA_BASE}pe_hmda_${slug}.geojson?v=${HMDA_DATA_VERSION}`,{cache:"force-cache"}),
+   fetch(`${DATA_BASE}pe_denials_${slug}.geojson?v=${HMDA_DATA_VERSION}`,{cache:"force-cache"})
+ ]);
+ if(!e.ok)throw new Error(`Eviction data for this city are not available yet (${slug}).`);
+ if(!h.ok)throw new Error(`HMDA data for this city are not available yet (${slug}).`);
+ if(!d.ok)throw new Error(`HMDA tract scaffold for this city is not available yet (${slug}).`);
+ const [evict,hmda,scaffold]=await Promise.all([e.json(),h.json(),d.json()]);
+ if(!evict?.features?.length)throw new Error("The eviction file is empty.");
+ if(!hmda?.features?.length)throw new Error("The HMDA file is empty.");
+ const id=f=>String(f?.properties?.GEOID10||f?.properties?.trctidfp10||"");
+ const hmdaIds=new Set(hmda.features.map(id).filter(Boolean));
+ const noOwner=(scaffold?.features||[]).filter(f=>{const g=id(f);return g&&!hmdaIds.has(g)}).map(f=>({type:"Feature",geometry:f.geometry,properties:{GEOID10:f?.properties?.GEOID10||f?.properties?.trctidfp10||"",trctidfp10:f?.properties?.trctidfp10||f?.properties?.GEOID10||"",loanrate:null,_noOwner:true}}));
+ evictionData=evict;
+ hmdaData=featureCollection([...hmda.features,...noOwner]);
+}
 async function loadProject(){const id=lsuId.value.trim();if(id.length<4){lookupMessage.textContent="Enter a valid LSU ID.";lsuId.focus();return}loadButton.disabled=true;lookupMessage.textContent="Loading your project and political economy data…";projectContent.classList.add("is-hidden");destroyMaps();try{const r=await fetch(API_URL,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({action:"moduleLookup",lsuId:id})});const p=await r.json().catch(()=>({}));if(!r.ok)throw new Error(p.error||"Could not load your project.");const slug=citySlug[p.cityKey];if(!slug)throw new Error("Your city is not configured for this module.");currentProject=p;cityName.textContent=p.city;neighborhoodOne.textContent=p.neighborhoods[0];neighborhoodTwo.textContent=p.neighborhoods[1];await loadDatasets(slug);projectContent.classList.remove("is-hidden");renderMaps();lookupMessage.textContent=""}catch(e){console.error(e);lookupMessage.textContent=e.message}finally{loadButton.disabled=false}}
 
 function waitForIdle(map){return new Promise(resolve=>{let done=false;const finish=()=>{if(!done){done=true;resolve()}};map.once("idle",finish);setTimeout(finish,2500)})}
