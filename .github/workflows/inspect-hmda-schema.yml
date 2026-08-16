@@ -1,4 +1,4 @@
-name: Inspect HMDA GeoJSON schema
+name: Inspect HMDA GeoJSON coverage
 
 on:
   push:
@@ -10,26 +10,27 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Inspect HMDA fields and missing loan rates
+      - name: Compare HMDA files to archived tract coverage
         shell: bash
         run: |
           python <<'PY'
           from pathlib import Path
           import json
 
-          for path in sorted(Path('communities-crime/data').glob('pe_hmda_*.geojson')):
-              data=json.loads(path.read_text())
-              feats=data.get('features',[])
-              keys=sorted(set().union(*[(f.get('properties') or {}).keys() for f in feats[:300]])) if feats else []
-              interesting=[k for k in keys if any(x in k.lower() for x in ('own','unit','loan','rate','mort'))]
-              missing=[f.get('properties') or {} for f in feats if (f.get('properties') or {}).get('loanrate') in (None,'')]
-              zero=[f.get('properties') or {} for f in feats if (f.get('properties') or {}).get('loanrate') == 0]
-              print('\n###',path.name)
-              print('KEYS:', keys)
-              print('INTERESTING:', interesting)
-              print('N=',len(feats),'loanrate_missing=',len(missing),'loanrate_zero=',len(zero))
-              for label, rows in [('MISSING_SAMPLE',missing[:3]),('ZERO_SAMPLE',zero[:3])]:
-                  print(label)
-                  for p in rows:
-                      print({k:p.get(k) for k in keys})
+          base=Path('communities-crime/data')
+          for hp in sorted(base.glob('pe_hmda_*.geojson')):
+              slug=hp.stem.replace('pe_hmda_','')
+              dp=base/f'pe_denials_{slug}.geojson'
+              h=json.loads(hp.read_text())
+              d=json.loads(dp.read_text())
+              def gid(f):
+                  p=f.get('properties') or {}
+                  return str(p.get('GEOID10') or p.get('trctidfp10') or '')
+              hi={gid(f) for f in h.get('features',[]) if gid(f)}
+              di={gid(f) for f in d.get('features',[]) if gid(f)}
+              absent=sorted(di-hi)
+              extra=sorted(hi-di)
+              print(f'{slug}: hmda={len(hi)} scaffold={len(di)} absent_from_hmda={len(absent)} extra={len(extra)}')
+              print('  absent IDs:', ','.join(absent))
+              print('  extra IDs:', ','.join(extra))
           PY
