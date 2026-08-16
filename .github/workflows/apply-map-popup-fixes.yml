@@ -1,27 +1,26 @@
-name: Apply map popup and HMDA fixes
+name: Validate map popup and HMDA fixes
 
 on:
   push:
     paths:
       - '.github/workflows/apply-map-popup-fixes.yml'
 
-permissions:
-  contents: write
-
 jobs:
-  patch:
+  validate:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
         with:
           ref: main
-      - name: Apply patches
-        run: python .github/scripts/apply_map_fixes.py
-      - name: Commit changes
+      - name: Check JavaScript syntax
         run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add communities-crime/political-economy communities-crime/segregation
-          git diff --cached --check
-          git commit -m "Improve map no-data symbology and popup controls"
-          git push origin main
+          node --check communities-crime/political-economy/app.js
+          node --check communities-crime/segregation/app.js
+      - name: Verify expected changes
+        run: |
+          grep -q 'No data: 0 owner-occupied units' communities-crime/political-economy/app.js
+          grep -q 'hmda-no-owner-hatch' communities-crime/political-economy/app.js
+          grep -q 'closeOnClick:false' communities-crime/political-economy/app.js
+          grep -q 'closeOnClick:false' communities-crime/segregation/app.js
+          grep -q 'Explicit close control for interactive map popups' communities-crime/political-economy/styles.css
+          grep -q 'Explicit close control for interactive map popups' communities-crime/segregation/styles.css
