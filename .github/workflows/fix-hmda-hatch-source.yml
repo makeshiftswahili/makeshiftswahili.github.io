@@ -1,0 +1,85 @@
+name: Fix HMDA zero-owner hatch rendering
+
+on:
+  push:
+    paths:
+      - '.github/workflows/fix-hmda-hatch-source.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+      - name: Patch HMDA hatch layer
+        shell: bash
+        run: |
+          python <<'PY'
+          from pathlib import Path
+          import json
+          import re
+
+          # Confirm the actual owner-occupied-unit field before patching.
+          for path in sorted(Path('communities-crime/data').glob('pe_hmda_*.geojson')):
+              data = json.loads(path.read_text())
+              zeros = positives = missing = 0
+              for f in data.get('features', []):
+                  raw = (f.get('properties') or {}).get('numownunits')
+                  try:
+                      n = float(raw)
+                  except (TypeError, ValueError):
+                      n = None
+                  if n == 0:
+                      zeros += 1
+                  elif n is not None and n > 0:
+                      positives += 1
+                  else:
+                      missing += 1
+              print(f'{path.name}: zero={zeros}, positive={positives}, missing={missing}')
+
+          app = Path('communities-crime/political-economy/app.js')
+          s = app.read_text()
+          new_function = '''function addThematicLayer(map,data,type,breaks){
+ map.addSource("thematic",{type:"geojson",data});
+ let color;
+ if(type==="renter")color=renterExpression();else if(type==="eviction")color=evictionExpression(breaks);else color=hmdaExpression(breaks);
+ map.addLayer({id:"thematic-fill",type:"fill",source:"thematic",paint:{"fill-color":color,"fill-opacity":1}});
+ if(type==="hmda"){
+   const noOwner=featureCollection(data.features.filter(f=>num(f?.properties?.numownunits)===0));
+   ensureNoOwnerPattern(map);
+   map.addSource("hmda-no-owner",{type:"geojson",data:noOwner});
+   map.addLayer({id:"hmda-no-owner-hatch",type:"fill",source:"hmda-no-owner",paint:{"fill-pattern":"no-owner-hatch","fill-opacity":1}});
+ }
+ map.addLayer({id:"thematic-line",type:"line",source:"thematic",paint:{"line-color":"#777777","line-width":.6,"line-opacity":.72}});
+ addPopup(map,"thematic-fill",type)
+}'''
+          pattern = r'function addThematicLayer\(map,data,type,breaks\)\{.*?\}\n\nfunction createReferenceMap'
+          replaced, count = re.subn(pattern, new_function + '\n\nfunction createReferenceMap', s, count=1, flags=re.S)
+          if count != 1:
+              raise SystemExit(f'Expected to replace one addThematicLayer function; replaced {count}')
+          app.write_text(replaced)
+
+          idx = Path('communities-crime/political-economy/index.html')
+          h = idx.read_text()
+          h2, count = re.subn(r'app\.js\?v=[^"\']+', 'app.js?v=20260816-pe7', h, count=1)
+          if count != 1:
+              raise SystemExit('Could not update Political Economy JS cache-buster')
+          idx.write_text(h2)
+          PY
+      - name: Validate JavaScript
+        run: node --check communities-crime/political-economy/app.js
+      - name: Commit fix and remove one-off workflow
+        shell: bash
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          rm .github/workflows/fix-hmda-hatch-source.yml
+          git add communities-crime/political-economy/app.js communities-crime/political-economy/index.html
+          git add -u .github/workflows/fix-hmda-hatch-source.yml
+          git diff --cached --check
+          git commit -m 'Render HMDA zero-owner tracts from explicit source'
+          git push origin main
