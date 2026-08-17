@@ -25,9 +25,11 @@ svgToPng = function(svg) {
     const url = URL.createObjectURL(blob);
     const img = new Image();
     img.onload = () => {
+      const viewBox = (clone.getAttribute("viewBox") || "0 0 560 400").split(/\s+/).map(Number);
+      const ratio = viewBox[3] / viewBox[2];
       const canvas = document.createElement("canvas");
       canvas.width = 1200;
-      canvas.height = 792;
+      canvas.height = Math.round(1200 * ratio);
       const ctx = canvas.getContext("2d");
       ctx.fillStyle = "#ffffff";
       ctx.fillRect(0, 0, canvas.width, canvas.height);
