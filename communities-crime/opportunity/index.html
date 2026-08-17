@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="robots" content="noindex,nofollow">
-  <meta name="description" content="SOCL4091 Communities & Crime Opportunity module draft">
+  <meta name="description" content="SOCL4091 Communities & Crime Opportunity module">
   <title>Opportunity | SOCL4091</title>
   <link rel="stylesheet" href="https://use.typekit.net/pgi1nbm.css">
   <link rel="stylesheet" href="https://unpkg.com/maplibre-gl@5.7.1/dist/maplibre-gl.css">
@@ -16,7 +16,7 @@
     <a class="home-link" href="../">← Communities & Crime</a>
     <div class="eyebrow">SOCL4091 · Comparative Neighborhood Analysis Project</div>
     <h1>Opportunity</h1>
-    <p>This draft uses OpenStreetMap directly so you can inspect streets, paths, buildings, land use, and water within your two selected neighborhoods before we add any course-specific overlays.</p>
+    <p>Compare the street networks of your two neighborhoods and consider how road hierarchy, connectivity, access, and physical barriers shape opportunities for movement, interaction, and crime.</p>
   </header>
 
   <section class="panel">
@@ -28,7 +28,7 @@
 
   <div id="projectContent" class="is-hidden">
     <section class="panel">
-      <div class="section-heading"><span class="step-number">2</span><div><h2>Your project</h2><p>Your saved neighborhood boundaries are drawn over the OpenStreetMap basemap.</p></div></div>
+      <div class="section-heading"><span class="step-number">2</span><div><h2>Your project</h2><p>Your saved neighborhoods are used to frame the street-network maps below.</p></div></div>
       <div class="summary-grid">
         <div><span class="summary-label">City</span><strong id="cityName"></strong></div>
         <div><span class="summary-label">Neighborhood 1</span><strong id="neighborhoodOne"></strong></div>
@@ -37,21 +37,29 @@
     </section>
 
     <section class="panel">
-      <div class="section-heading"><span class="step-number">3</span><div><h2>Explore the neighborhoods</h2><p>Zoom in and move around. The point of this draft is simply to see how much of the opportunity structure is already legible in the standard OSM map.</p></div></div>
+      <div class="section-heading"><span class="step-number">3</span><div><h2>Compare street networks</h2><p>The same road hierarchy is shown for both neighborhoods. Zoom and pan to inspect the structure within each neighborhood and the surrounding area.</p></div></div>
 
       <div class="map-instructions">
-        <p><strong>Look for:</strong> major roads and local streets, pedestrian paths, building footprints, commercial or industrial-looking areas, parks/open space, waterways, bridges, and other physical features that may shape movement and activity.</p>
-        <p><strong>Zoom matters:</strong> OpenStreetMap reveals more detail as you zoom in. Building footprints, paths, and smaller streets may not appear at the initial neighborhood-wide view.</p>
+        <p><strong>Look for:</strong> dense versus sparse local street networks, major arterials cutting through neighborhoods, freeway barriers, multiple versus limited routes in and out, and differences in connectivity between the two neighborhoods.</p>
+        <p><strong>Interpret the hierarchy:</strong> local streets organize movement within neighborhoods, while larger roads can increase accessibility and traffic but may also divide residential areas or channel activity into particular corridors.</p>
+      </div>
+
+      <div class="road-legend" aria-label="Street classification legend">
+        <span class="legend-title">Street hierarchy</span>
+        <span><i class="road-sample freeway"></i>Freeway</span>
+        <span><i class="road-sample major"></i>Major arterial</span>
+        <span><i class="road-sample secondary"></i>Secondary street</span>
+        <span><i class="road-sample residential"></i>Residential / local street</span>
       </div>
 
       <div class="map-grid">
         <article class="figure-card">
           <div class="figure-heading"><div><span class="figure-number">Neighborhood 1</span><h3 id="mapOneTitle"></h3></div></div>
-          <div id="mapOne" class="map" aria-label="First neighborhood OpenStreetMap"></div>
+          <div id="mapOne" class="map" aria-label="First neighborhood street-network map"></div>
         </article>
         <article class="figure-card">
           <div class="figure-heading"><div><span class="figure-number">Neighborhood 2</span><h3 id="mapTwoTitle"></h3></div></div>
-          <div id="mapTwo" class="map" aria-label="Second neighborhood OpenStreetMap"></div>
+          <div id="mapTwo" class="map" aria-label="Second neighborhood street-network map"></div>
         </article>
       </div>
 
@@ -61,6 +69,6 @@
   </div>
 </main>
 <script src="https://unpkg.com/maplibre-gl@5.7.1/dist/maplibre-gl.js"></script>
-<script src="app.js?v=20260816-osm-draft"></script>
+<script src="app.js?v=20260816-roadnet-v1"></script>
 </body>
 </html>
