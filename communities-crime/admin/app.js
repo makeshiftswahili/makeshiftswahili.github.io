@@ -12,7 +12,6 @@ const countLabel = document.getElementById("countLabel");
 const adminMessage = document.getElementById("adminMessage");
 const communityModuleRows = document.getElementById("communityModuleRows");
 const groupModuleRows = document.getElementById("groupModuleRows");
-const spatialModuleRows = document.getElementById("spatialModuleRows");
 const moduleMessage = document.getElementById("moduleMessage");
 const resetModal = document.getElementById("resetModal");
 const resetDescription = document.getElementById("resetDescription");
@@ -45,13 +44,7 @@ const moduleLinks = {
   "opportunity": "../opportunity/",
   "political-economy": "../political-economy/",
   "segregation": "../segregation/",
-  "group-map-interpretation": "../group-work/choropleth-interpretation/",
-  "sa-weights": "../../spatial-analysis/weights/",
-  "sa-lag": "../../spatial-analysis/lag/",
-  "sa-moran": "../../spatial-analysis/moran/",
-  "sa-lisa": "../../spatial-analysis/lisa/",
-  "sa-maup": "../../spatial-analysis/maup/",
-  "sa-regression": "../../spatial-analysis/regression/"
+  "group-map-interpretation": "../group-work/choropleth-interpretation/"
 };
 
 const communityModuleKeys = [
@@ -65,15 +58,6 @@ const communityModuleKeys = [
 
 const groupModuleKeys = [
   "group-map-interpretation"
-];
-
-const spatialModuleKeys = [
-  "sa-weights",
-  "sa-lag",
-  "sa-moran",
-  "sa-lisa",
-  "sa-maup",
-  "sa-regression"
 ];
 
 function apiHeaders() {
@@ -150,7 +134,6 @@ async function loadAdminState() {
 function renderModules() {
   renderModuleGroup(communityModuleRows, communityModuleKeys);
   renderModuleGroup(groupModuleRows, groupModuleKeys);
-  renderModuleGroup(spatialModuleRows, spatialModuleKeys);
 
   document.querySelectorAll("[data-module-toggle]").forEach(button => {
     button.addEventListener("click", () => {
