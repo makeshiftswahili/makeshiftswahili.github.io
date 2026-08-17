@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="robots" content="noindex,nofollow">
+  <meta name="description" content="SOCL4091 interactive choropleth interpretation activity">
+  <title>Interpreting Choropleth Maps | SOCL4091</title>
+  <link rel="stylesheet" href="https://use.typekit.net/pgi1nbm.css">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <main class="shell">
+    <header class="masthead">
+      <a class="home-link" href="../">← In-Class Group Work</a>
+      <div class="brand-row">
+        <img src="../../4091logo_bw.png" alt="" class="brand-logo">
+        <div>
+          <div class="eyebrow">SOCL4091 · Communities &amp; Crime</div>
+          <h1>Interpreting Choropleth Maps</h1>
+        </div>
+      </div>
+      <div class="rule"></div>
+      <p class="lead"><strong>Describe what the map shows before you try to explain why the pattern exists.</strong> This activity practices the map-reading skills you will use throughout the comparative neighborhood assignments.</p>
+    </header>
+
+    <nav class="mode-tabs" aria-label="Activity mode">
+      <button class="mode-tab active" type="button" data-mode="walkthrough">Instructor Walkthrough</button>
+      <button class="mode-tab" type="button" data-mode="group">Group Exercise</button>
+    </nav>
+
+    <section id="walkthroughMode" class="mode-panel">
+      <div class="section-intro">
+        <div>
+          <span class="section-kicker">Part I · Guided practice</span>
+          <h2>See it → describe it → compare it → theorize about it</h2>
+          <p>We will work through a series of fictional neighborhoods together. The geography stays simple so we can focus on what the values are doing spatially.</p>
+        </div>
+        <div class="time-chip">≈ 20–25 minutes</div>
+      </div>
+
+      <article class="walkthrough-card">
+        <div class="walkthrough-topline">
+          <div>
+            <span id="sceneNumber" class="scene-number">Scene 1 of 6</span>
+            <h3 id="sceneTitle"></h3>
+            <p id="scenePrompt" class="scene-prompt"></p>
+          </div>
+          <div class="scene-nav">
+            <button id="prevScene" class="secondary" type="button">← Previous</button>
+            <button id="nextScene" type="button">Next →</button>
+          </div>
+        </div>
+
+        <div id="sceneMapArea" class="scene-map-area"></div>
+
+        <div class="legend" aria-label="Map legend">
+          <span><i class="swatch q1"></i>Very low</span>
+          <span><i class="swatch q2"></i>Low</span>
+          <span><i class="swatch q3"></i>Moderate</span>
+          <span><i class="swatch q4"></i>High</span>
+          <span><i class="swatch q5"></i>Very high</span>
+        </div>
+
+        <div class="observation-panel">
+          <div class="observation-heading">
+            <div>
+              <span class="section-kicker">Build the description</span>
+              <h4>What should we notice?</h4>
+            </div>
+            <button id="revealObservation" class="secondary" type="button">Reveal next observation</button>
+          </div>
+          <ol id="observationList" class="observation-list"></ol>
+          <div id="modelSentence" class="model-sentence is-hidden"></div>
+        </div>
+      </article>
+
+      <article class="principle-card">
+        <div>
+          <span class="section-kicker">The basic routine</span>
+          <h3>Four things to look for</h3>
+        </div>
+        <div class="principle-grid">
+          <div><strong>1. Level</strong><span>Are values generally high, low, or mixed?</span></div>
+          <div><strong>2. Pattern</strong><span>Are similar values clustered, dispersed, concentrated in a pocket, or arranged in a gradient?</span></div>
+          <div><strong>3. Location</strong><span>Where in the neighborhood is the pattern occurring?</span></div>
+          <div><strong>4. Comparison</strong><span>How do the neighborhoods differ in both overall level and internal spatial pattern?</span></div>
+        </div>
+      </article>
+
+      <article class="theory-bridge">
+        <div class="bridge-label">Description → Theory</div>
+        <div class="bridge-grid">
+          <div>
+            <span>What the map shows</span>
+            <p>Higher poverty is clustered in the eastern portion of the neighborhood.</p>
+          </div>
+          <div class="bridge-arrow">→</div>
+          <div>
+            <span>What theory helps us interpret</span>
+            <p>Why disadvantage might be spatially concentrated there and why that concentration could matter for community organization and crime.</p>
+          </div>
+        </div>
+      </article>
+
+      <div class="walkthrough-finish">
+        <button id="beginGroup" type="button">Ready for the group exercise →</button>
+      </div>
+    </section>
+
+    <section id="groupMode" class="mode-panel is-hidden">
+      <div class="section-intro">
+        <div>
+          <span class="section-kicker">Part II · Group application</span>
+          <h2>Apply the same routine to new maps</h2>
+          <p>Work from empirical description to comparison and then to a short theoretical interpretation. Your responses autosave while you work.</p>
+        </div>
+        <div class="time-chip">≈ 30–35 minutes</div>
+      </div>
+
+      <section id="groupSetup" class="setup-card">
+        <h3>Start your group session</h3>
+        <p>Enter the LSU ID for every group member. One person should keep this page open and submit the final PDF for the group.</p>
+        <div id="idFields" class="id-fields"></div>
+        <div class="setup-actions">
+          <button id="addMember" class="secondary" type="button">+ Add group member</button>
+          <button id="startSession" type="button">Start group exercise</button>
+        </div>
+        <div id="resumeArea" class="resume-area is-hidden">
+          <span>A saved session is available on this browser.</span>
+          <button id="resumeSession" class="secondary" type="button">Resume saved session</button>
+        </div>
+        <div id="setupMessage" class="status-message" aria-live="polite"></div>
+      </section>
+
+      <div id="exerciseContent" class="is-hidden">
+        <div class="session-bar">
+          <div><span>Group members</span><strong id="groupIds"></strong></div>
+          <div><span>Autosave</span><strong id="saveStatus">Ready</strong></div>
+        </div>
+
+        <article class="task-card" data-task="1">
+          <div class="task-heading"><span class="task-number">1</span><div><h3>Describe the pattern</h3><p>Start with the scaffold, then turn those observations into a concise description.</p></div></div>
+          <div class="task-layout">
+            <div>
+              <div id="task1Map" class="map-slot"></div>
+              <div class="legend compact">
+                <span><i class="swatch q1"></i>Very low</span><span><i class="swatch q2"></i>Low</span><span><i class="swatch q3"></i>Moderate</span><span><i class="swatch q4"></i>High</span><span><i class="swatch q5"></i>Very high</span>
+              </div>
+            </div>
+            <div class="response-stack">
+              <label>Overall level
+                <select data-response="task1_level"><option value="">Choose…</option><option>Generally low</option><option>Generally moderate</option><option>Generally high</option><option>Mixed</option></select>
+              </label>
+              <label>Spatial pattern
+                <select data-response="task1_pattern"><option value="">Choose…</option><option>High values clustered</option><option>Low values clustered</option><option>High values dispersed</option><option>Isolated high-value pocket</option><option>Gradient</option><option>No clear pattern</option></select>
+              </label>
+              <label>Location
+                <select data-response="task1_location"><option value="">Choose…</option><option>Northern portion</option><option>Southern portion</option><option>Eastern portion</option><option>Western portion</option><option>Central portion</option><option>Throughout the neighborhood</option></select>
+              </label>
+              <label>Write a 1–2 sentence description.
+                <textarea data-response="task1_description" rows="5" placeholder="Describe what the map shows. Do not explain why the pattern exists yet."></textarea>
+              </label>
+            </div>
+          </div>
+        </article>
+
+        <article class="task-card" data-task="2">
+          <div class="task-heading"><span class="task-number">2</span><div><h3>Handle a more complicated map</h3><p>This neighborhood is less tidy. Identify the main pattern without pretending every tract fits it.</p></div></div>
+          <div class="task-layout">
+            <div>
+              <div id="task2Map" class="map-slot"></div>
+              <div class="legend compact">
+                <span><i class="swatch q1"></i>Very low</span><span><i class="swatch q2"></i>Low</span><span><i class="swatch q3"></i>Moderate</span><span><i class="swatch q4"></i>High</span><span><i class="swatch q5"></i>Very high</span>
+              </div>
+            </div>
+            <div class="response-stack">
+              <label>Describe the overall level, the main spatial pattern, its location, and any important exception.
+                <textarea data-response="task2_description" rows="8" placeholder="Write 2–3 sentences."></textarea>
+              </label>
+              <details class="hint-box"><summary>Need a reminder?</summary><p>Think: level → pattern → location → exception. A single unusual tract does not necessarily define the neighborhood.</p></details>
+            </div>
+          </div>
+        </article>
+
+        <article class="task-card" data-task="3">
+          <div class="task-heading"><span class="task-number">3</span><div><h3>Compare two neighborhoods</h3><p>Do more than say which neighborhood is “higher.” Compare their internal spatial organization too.</p></div></div>
+          <div class="comparison-maps">
+            <div><h4>Neighborhood A</h4><div id="task3MapA" class="map-slot"></div></div>
+            <div><h4>Neighborhood B</h4><div id="task3MapB" class="map-slot"></div></div>
+          </div>
+          <div class="legend compact centered">
+            <span><i class="swatch q1"></i>Very low</span><span><i class="swatch q2"></i>Low</span><span><i class="swatch q3"></i>Moderate</span><span><i class="swatch q4"></i>High</span><span><i class="swatch q5"></i>Very high</span>
+          </div>
+          <label class="full-response">Compare the two neighborhoods in 2–4 sentences. Address both overall level and spatial pattern.
+            <textarea data-response="task3_comparison" rows="7"></textarea>
+          </label>
+        </article>
+
+        <article class="task-card" data-task="4">
+          <div class="task-heading"><span class="task-number">4</span><div><h3>From map description to theory</h3><p>The variable is now <strong>concentrated disadvantage</strong>. Keep the empirical description separate from your theoretical interpretation.</p></div></div>
+          <div class="task-layout">
+            <div>
+              <div id="task4Map" class="map-slot"></div>
+              <div class="legend compact">
+                <span><i class="swatch q1"></i>Very low</span><span><i class="swatch q2"></i>Low</span><span><i class="swatch q3"></i>Moderate</span><span><i class="swatch q4"></i>High</span><span><i class="swatch q5"></i>Very high</span>
+              </div>
+            </div>
+            <div class="response-stack">
+              <label><strong>A. Empirical description:</strong> What does the map show?
+                <textarea data-response="task4_description" rows="5"></textarea>
+              </label>
+              <label><strong>B. Theoretical interpretation:</strong> How could social disorganization theory help you interpret why this pattern could matter for community organization or crime?
+                <textarea data-response="task4_theory" rows="6"></textarea>
+              </label>
+            </div>
+          </div>
+        </article>
+
+        <section class="submit-card">
+          <div>
+            <span class="section-kicker">Finish</span>
+            <h3>Finalize your group work</h3>
+            <p>Review your responses first. Finalizing locks the saved session and generates a PDF containing your LSU IDs, maps, and written responses.</p>
+          </div>
+          <div class="submit-actions">
+            <button id="finalizeButton" type="button">Finalize &amp; generate PDF</button>
+            <button id="downloadPdfButton" class="secondary is-hidden" type="button">Download PDF again</button>
+          </div>
+          <div id="submitMessage" class="status-message" aria-live="polite"></div>
+        </section>
+      </div>
+    </section>
+  </main>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.2/jspdf.umd.min.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
