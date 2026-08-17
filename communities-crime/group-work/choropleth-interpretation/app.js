@@ -73,9 +73,10 @@ const scenes = [
     observations: [
       "Level: The two maps have the same mean, range, and distribution of values.",
       "Pattern: In the first map, the highest values form a compact southwestern cluster; in the second, the highest values are dispersed around the neighborhood.",
-      "Comparison: Similar neighborhood averages can conceal very different internal spatial patterns."
+      "Comparison: The two maps have identical overall values, but the first concentrates the highest values in the southwestern corner while the second disperses them across the neighborhood."
     ],
-    model: "The two maps have identical overall values, but the first concentrates the highest values in the southwestern corner while the second disperses them across the neighborhood."
+    modelLabel: "Big-picture takeaway",
+    model: "Similar neighborhood averages can conceal very different internal spatial patterns."
   },
   {
     title: "Describe the main pattern without ignoring exceptions",
@@ -171,13 +172,19 @@ const matchingPatterns = {
   ]
 };
 
-const MATCH_CORRECT = { match_a: "1", match_b: "2", match_c: "3", match_d: "4" };
-const DESCRIPTION_TEXT = {
-  "1": "The highest values form a compact cluster in the northeastern corner.",
-  "2": "The lowest values are clustered in the southwestern corner while most of the neighborhood is moderate.",
-  "3": "Values increase steadily from north to south, forming a clear gradient.",
-  "4": "High values are dispersed across the neighborhood rather than concentrated in one area.",
-  "5": "Most values are low, with one isolated very-high pocket near the center."
+const DESCRIPTION_DEFS = {
+  ne_high: "The highest values form a compact cluster in the northeastern corner.",
+  sw_low: "The lowest values are clustered in the southwestern corner while most of the neighborhood is moderate.",
+  ns_gradient: "Values increase steadily from north to south, forming a clear gradient.",
+  dispersed_high: "High values are dispersed across the neighborhood rather than concentrated in one area.",
+  distractor: "Most values are low, with one isolated very-high pocket near the center."
+};
+
+const MAP_ANSWER_KEYS = {
+  match_a: "ne_high",
+  match_b: "sw_low",
+  match_c: "ns_gradient",
+  match_d: "dispersed_high"
 };
 
 const taskPatterns = {
@@ -196,25 +203,18 @@ const taskPatterns = {
     1,1,2,3,4,5,5
   ],
   task4a: [
-    4,4,4,4,4,4,4,
-    4,4,5,4,4,5,4,
-    4,4,4,4,4,4,4,
-    3,4,4,4,4,4,3,
-    3,3,4,4,4,3,3
+    2,2,2,2,2,2,2,
+    2,1,2,2,3,4,4,
+    1,1,2,3,4,5,5,
+    1,2,2,3,4,5,5,
+    2,2,2,2,3,4,4
   ],
   task4b: [
-    2,2,2,2,1,1,1,
-    2,2,3,2,1,1,1,
-    2,3,3,3,2,2,2,
-    4,5,5,4,2,2,2,
-    4,5,5,4,2,2,2
-  ],
-  task5: [
-    2,3,4,5,5,4,2,
-    2,3,4,5,5,4,2,
-    1,2,3,4,4,3,2,
-    1,2,2,3,3,2,1,
-    1,1,2,2,2,1,1
+    1,1,2,3,4,4,3,
+    1,1,2,3,4,5,4,
+    2,2,3,4,4,4,5,
+    3,3,4,4,3,4,4,
+    3,4,4,5,4,4,3
   ]
 };
 
@@ -225,6 +225,8 @@ let saveTimer = null;
 let saving = false;
 let pendingSave = false;
 let submitted = false;
+let labelToDescriptionKey = {};
+let descriptionKeyToLabel = {};
 
 function seededOffset(seed, x, y) {
   const n = Math.sin((x + 1) * 12.9898 + (y + 1) * 78.233 + seed * 37.719) * 43758.5453;
@@ -316,11 +318,11 @@ function revealNext() {
     li.textContent = scene.observations[revealCount];
     list.appendChild(li);
     revealCount++;
-    if (revealCount === scene.observations.length) document.getElementById("revealObservation").textContent = "Reveal model description";
+    if (revealCount === scene.observations.length) document.getElementById("revealObservation").textContent = `Reveal ${scene.modelLabel ? scene.modelLabel.toLowerCase() : "model description"}`;
     return;
   }
   const model = document.getElementById("modelSentence");
-  model.innerHTML = `<strong>Model description:</strong> ${scene.model}`;
+  model.innerHTML = `<strong>${scene.modelLabel || "Model description"}:</strong> ${scene.model}`;
   model.classList.remove("is-hidden");
   document.getElementById("revealObservation").textContent = "Reset observations";
   revealCount++;
@@ -395,6 +397,67 @@ async function unlockGroup() {
   }
 }
 
+function hashString(value) {
+  let h = 2166136261;
+  for (let i = 0; i < value.length; i++) {
+    h ^= value.charCodeAt(i);
+    h = Math.imul(h, 16777619);
+  }
+  return h >>> 0;
+}
+
+function seededRandom(seed) {
+  let a = seed >>> 0;
+  return () => {
+    a += 0x6D2B79F5;
+    let t = a;
+    t = Math.imul(t ^ (t >>> 15), t | 1);
+    t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
+}
+
+function shuffled(items, seed) {
+  const out = [...items];
+  const rand = seededRandom(seed);
+  for (let i = out.length - 1; i > 0; i--) {
+    const j = Math.floor(rand() * (i + 1));
+    [out[i], out[j]] = [out[j], out[i]];
+  }
+  return out;
+}
+
+function configureMatchingForSession() {
+  const semanticKeys = Object.keys(DESCRIPTION_DEFS);
+  const seed = hashString(session?.access_token || session?.id || "fallback");
+  const assignedKeys = shuffled(semanticKeys, seed);
+  labelToDescriptionKey = {};
+  descriptionKeyToLabel = {};
+  assignedKeys.forEach((key, index) => {
+    const label = String(index + 1);
+    labelToDescriptionKey[label] = key;
+    descriptionKeyToLabel[key] = label;
+  });
+
+  const displayLabels = shuffled(["1","2","3","4","5"], seed ^ 0x9e3779b9);
+  const bank = document.getElementById("descriptionBank");
+  bank.innerHTML = displayLabels.map(label => `<div><strong>${label}</strong><span>${DESCRIPTION_DEFS[labelToDescriptionKey[label]]}</span></div>`).join("");
+
+  document.querySelectorAll("[data-match-select]").forEach(select => {
+    const savedValue = select.value;
+    select.innerHTML = `<option value="">Choose…</option>` + ["1","2","3","4","5"].map(label => `<option value="${label}">Description ${label}</option>`).join("");
+    if (savedValue) select.value = savedValue;
+  });
+}
+
+function correctMatchLabels() {
+  return Object.fromEntries(Object.entries(MAP_ANSWER_KEYS).map(([responseKey, descriptionKey]) => [responseKey, descriptionKeyToLabel[descriptionKey]]));
+}
+
+function descriptionTextForLabel(label) {
+  return DESCRIPTION_DEFS[labelToDescriptionKey[label]] || "";
+}
+
 function renderTaskMaps() {
   renderMapInto(document.getElementById("matchMapA"), matchingPatterns.a, "", 20);
   renderMapInto(document.getElementById("matchMapB"), matchingPatterns.b, "", 21);
@@ -402,9 +465,8 @@ function renderTaskMaps() {
   renderMapInto(document.getElementById("matchMapD"), matchingPatterns.d, "", 23);
   renderMapInto(document.getElementById("task2Map"), taskPatterns.task2, "Index score", 6);
   renderMapInto(document.getElementById("task3Map"), taskPatterns.task3, "Index score", 11);
-  renderMapInto(document.getElementById("task4MapA"), taskPatterns.task4a, "", 14);
-  renderMapInto(document.getElementById("task4MapB"), taskPatterns.task4b, "", 15);
-  renderMapInto(document.getElementById("task5Map"), taskPatterns.task5, "Concentrated disadvantage", 18);
+  renderMapInto(document.getElementById("task4MapA"), taskPatterns.task4a, "", 31);
+  renderMapInto(document.getElementById("task4MapB"), taskPatterns.task4b, "", 32);
 }
 
 function collectResponses() {
@@ -453,6 +515,7 @@ function showExercise(loadedSession) {
   document.getElementById("exerciseContent").classList.remove("is-hidden");
   document.getElementById("memberEditor").classList.add("is-hidden");
   refreshGroupIds();
+  configureMatchingForSession();
   populateResponses(loadedSession.responses || {});
   renderTaskMaps();
   document.querySelectorAll("[data-response]").forEach(el => el.disabled = submitted);
@@ -532,7 +595,8 @@ async function saveMembers() {
 
 function checkMatches() {
   const r = collectResponses();
-  const keys = Object.keys(MATCH_CORRECT);
+  const correctMap = correctMatchLabels();
+  const keys = Object.keys(correctMap);
   const picks = keys.map(k => r[k]).filter(Boolean);
   const message = document.getElementById("matchMessage");
   if (picks.length < 4) {
@@ -545,7 +609,7 @@ function checkMatches() {
     message.className = "inline-message error";
     return;
   }
-  const correct = keys.filter(k => r[k] === MATCH_CORRECT[k]).length;
+  const correct = keys.filter(k => r[k] === correctMap[k]).length;
   if (correct === 4) {
     message.textContent = "All four matches are correct. One description is correctly left unused.";
     message.className = "inline-message success";
@@ -556,7 +620,7 @@ function checkMatches() {
 }
 
 function validateResponses() {
-  const required = ["match_a","match_b","match_c","match_d","task2_level","task2_pattern","task2_location","task2_description","task3_description","task4_comparison","task5_description","task5_theory"];
+  const required = ["match_a","match_b","match_c","match_d","task2_level","task2_pattern","task2_location","task2_description","task3_description","task4_comparison"];
   const r = collectResponses();
   const missing = required.filter(k => !r[k]);
   if (!missing.length) return true;
@@ -619,7 +683,6 @@ async function generatePdf() {
     t3: await svgToPng(document.querySelector("#task3Map svg")),
     t4a: await svgToPng(document.querySelector("#task4MapA svg")),
     t4b: await svgToPng(document.querySelector("#task4MapB svg")),
-    t5: await svgToPng(document.querySelector("#task5Map svg")),
   };
 
   doc.setFont("helvetica","bold"); doc.setFontSize(18); doc.setTextColor(20,20,20);
@@ -641,7 +704,7 @@ async function generatePdf() {
   y += 124;
   ["a","b","c","d"].forEach(letter => {
     const choice = responses[`match_${letter}`];
-    y = addWrappedText(doc, `Map ${letter.toUpperCase()} → Description ${choice}: ${DESCRIPTION_TEXT[choice] || ""}`, 18, y, 180, 9, false);
+    y = addWrappedText(doc, `Map ${letter.toUpperCase()} → Description ${choice}: ${descriptionTextForLabel(choice)}`, 18, y, 180, 9, false);
   });
   y += 3;
 
@@ -670,10 +733,6 @@ async function generatePdf() {
   ]);
   await section(3,"Handle a more complicated map",maps.t3,[{label:"Group description",text:responses.task3_description}]);
   await section(4,"Compare two neighborhoods",maps.t4a,[{label:"Group comparison",text:responses.task4_comparison}],maps.t4b);
-  await section(5,"From map description to theory",maps.t5,[
-    {label:"A. Empirical description",text:responses.task5_description},
-    {label:"B. Theoretical interpretation",text:responses.task5_theory}
-  ]);
 
   doc.setFontSize(8); doc.setTextColor(100,100,100);
   doc.text("Generated by the SOCL4091 Communities & Crime in-class activity.",18,272);
@@ -709,18 +768,15 @@ async function finalize() {
   }
 }
 
-// Instructor walkthrough controls
 document.querySelectorAll(".mode-tab").forEach(b => b.addEventListener("click", () => setMode(b.dataset.mode)));
 document.getElementById("prevScene").addEventListener("click", () => { if (currentScene > 0) { currentScene--; renderScene(); } });
 document.getElementById("nextScene").addEventListener("click", () => { if (currentScene < scenes.length - 1) { currentScene++; renderScene(); } });
 document.getElementById("revealObservation").addEventListener("click", revealNext);
 document.getElementById("beginGroup").addEventListener("click", () => setMode("group"));
 
-// Password gate
 document.getElementById("unlockGroup").addEventListener("click", unlockGroup);
 document.getElementById("groupPassword").addEventListener("keydown", e => { if (e.key === "Enter") unlockGroup(); });
 
-// Group setup and work
 document.getElementById("addMember").addEventListener("click", () => addIdFieldTo("idFields"));
 document.getElementById("startSession").addEventListener("click", startSession);
 document.getElementById("resumeSession").addEventListener("click", resumeSession);
