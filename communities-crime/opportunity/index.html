@@ -8,7 +8,7 @@
   <title>Opportunity | SOCL4091</title>
   <link rel="stylesheet" href="https://use.typekit.net/pgi1nbm.css">
   <link rel="stylesheet" href="https://unpkg.com/maplibre-gl@5.7.1/dist/maplibre-gl.css">
-  <link rel="stylesheet" href="styles.css?v=20260817-layers1">
+  <link rel="stylesheet" href="styles.css?v=20260817-micro1">
 </head>
 <body>
 <main class="shell">
@@ -37,12 +37,12 @@
     </section>
 
     <section class="panel stage-panel">
-      <div class="section-heading"><span class="step-number">3</span><div><h2>Street networks</h2><p>Begin with the circulation system: the routes that organize movement into, through, and around each neighborhood.</p></div></div>
+      <div class="section-heading"><span class="step-number">3</span><div><h2>Street networks</h2><p>Begin with the street network: the routes that organize movement into, through, and around each neighborhood, shaping the flow of ambient populations. Note that your neighborhood boundary may overlap with important features like freeways or major arterials.</p></div></div>
       <div class="layer-stack"><span class="active">1 · Street network</span><span>2 · Land use</span><span>3 · Bars</span></div>
 
       <div class="map-instructions">
         <p><strong>Look for:</strong> dense versus sparse local street networks, major arterials cutting through neighborhoods, freeway barriers, multiple versus limited routes in and out, and differences in connectivity.</p>
-        <p><strong>Interpret the hierarchy:</strong> local streets organize movement within neighborhoods, while larger roads can increase accessibility and traffic but may also divide residential areas or channel activity into particular corridors.</p>
+        <p><strong>Interpret the hierarchy:</strong> local streets organize movement within neighborhoods, while larger roads can increase accessibility and traffic but may also divide residential areas or channel activity into particular corridors. Consider how street networks shape the activity spaces of local residents vs. visitors, and the awareness spaces of potential offenders.</p>
       </div>
 
       <div class="road-legend" aria-label="Street classification legend">
@@ -72,7 +72,7 @@
       <div class="layer-stack"><span class="active">1 · Street network</span><span class="active">2 · Land use</span><span>3 · Bars</span></div>
 
       <div class="map-instructions">
-        <p><strong>Look for:</strong> commercial corridors, industrial districts, government and educational clusters, mixed activity areas, and places where land uses line up with major roads or remain embedded in local street networks.</p>
+        <p><strong>Look for:</strong> commercial corridors, industrial districts, government and educational clusters, mixed activity areas, and places where land uses line up with major roads or remain embedded in local street networks. Explore your neighborhood at the micro-level, zooming in to make note of where <strong>edges</strong> (sharp changes in land use) exist. Note that residential buildings are omitted from the maps; toggle between the street map and satellite imagery to get a better sense of the built environment.</p>
         <p><strong>Use cautiously:</strong> these building classifications are derived from OpenStreetMap and should be treated as a spatial inventory for comparison rather than a complete census of every establishment or building use.</p>
       </div>
 
@@ -86,11 +86,23 @@
 
       <div class="map-grid">
         <article class="figure-card">
-          <div class="figure-heading"><div><span class="figure-number">Neighborhood 1</span><h3 data-neighborhood-title="0"></h3></div></div>
+          <div class="figure-heading figure-heading-with-controls">
+            <div><span class="figure-number">Neighborhood 1</span><h3 data-neighborhood-title="0"></h3></div>
+            <div class="basemap-toggle" role="group" aria-label="Neighborhood 1 land-use basemap">
+              <button type="button" class="basemap-option active" data-map-container="landUseMapOne" data-basemap="street" aria-pressed="true">Street map</button>
+              <button type="button" class="basemap-option" data-map-container="landUseMapOne" data-basemap="satellite" aria-pressed="false">Satellite</button>
+            </div>
+          </div>
           <div id="landUseMapOne" class="map" aria-label="First neighborhood street-network and land-use map"></div>
         </article>
         <article class="figure-card">
-          <div class="figure-heading"><div><span class="figure-number">Neighborhood 2</span><h3 data-neighborhood-title="1"></h3></div></div>
+          <div class="figure-heading figure-heading-with-controls">
+            <div><span class="figure-number">Neighborhood 2</span><h3 data-neighborhood-title="1"></h3></div>
+            <div class="basemap-toggle" role="group" aria-label="Neighborhood 2 land-use basemap">
+              <button type="button" class="basemap-option active" data-map-container="landUseMapTwo" data-basemap="street" aria-pressed="true">Street map</button>
+              <button type="button" class="basemap-option" data-map-container="landUseMapTwo" data-basemap="satellite" aria-pressed="false">Satellite</button>
+            </div>
+          </div>
           <div id="landUseMapTwo" class="map" aria-label="Second neighborhood street-network and land-use map"></div>
         </article>
       </div>
@@ -123,9 +135,42 @@
       </div>
       <div id="barsStatus" class="status-message" aria-live="polite"></div>
     </section>
+
+    <section class="panel stage-panel micro-place-panel">
+      <div class="section-heading"><span class="step-number">6</span><div><h2>Identify a crime-opportunity micro-place</h2><p>Use the two maps below to zoom in to <strong>one micro-place per neighborhood</strong> where you think crime opportunities are more likely to concentrate—that is, where spatiotemporal convergence between motivated offenders and suitable targets is more likely to occur in the absence of capable guardians.</p></div></div>
+
+      <div class="map-instructions micro-instructions">
+        <p><strong>Think in space and time:</strong> in addition to where these conditions may converge, consider the times of day when motivated offenders, suitable targets, and the absence of capable guardians are most likely to come together.</p>
+        <p><strong>Choose a micro-place:</strong> zoom and pan each map until it is centered on the specific place you think offers the strongest opportunity structure. Use the street network, land uses, bars, and—when useful—satellite imagery as evidence for your choice.</p>
+      </div>
+
+      <div class="map-grid">
+        <article class="figure-card micro-card">
+          <div class="figure-heading figure-heading-with-controls">
+            <div><span class="figure-number">Neighborhood 1 · Micro-place</span><h3 data-neighborhood-title="0"></h3></div>
+            <div class="basemap-toggle" role="group" aria-label="Neighborhood 1 micro-place basemap">
+              <button type="button" class="basemap-option active" data-map-container="microMapOne" data-basemap="street" aria-pressed="true">Street map</button>
+              <button type="button" class="basemap-option" data-map-container="microMapOne" data-basemap="satellite" aria-pressed="false">Satellite</button>
+            </div>
+          </div>
+          <div id="microMapOne" class="map micro-map" aria-label="First neighborhood crime-opportunity micro-place map"></div>
+        </article>
+        <article class="figure-card micro-card">
+          <div class="figure-heading figure-heading-with-controls">
+            <div><span class="figure-number">Neighborhood 2 · Micro-place</span><h3 data-neighborhood-title="1"></h3></div>
+            <div class="basemap-toggle" role="group" aria-label="Neighborhood 2 micro-place basemap">
+              <button type="button" class="basemap-option active" data-map-container="microMapTwo" data-basemap="street" aria-pressed="true">Street map</button>
+              <button type="button" class="basemap-option" data-map-container="microMapTwo" data-basemap="satellite" aria-pressed="false">Satellite</button>
+            </div>
+          </div>
+          <div id="microMapTwo" class="map micro-map" aria-label="Second neighborhood crime-opportunity micro-place map"></div>
+        </article>
+      </div>
+      <div id="microStatus" class="status-message" aria-live="polite"></div>
+    </section>
   </div>
 </main>
 <script src="https://unpkg.com/maplibre-gl@5.7.1/dist/maplibre-gl.js"></script>
-<script src="app.js?v=20260817-layers1"></script>
+<script src="app.js?v=20260817-micro1"></script>
 </body>
 </html>
