@@ -10,7 +10,9 @@ const logoutButton = document.getElementById("logoutButton");
 const submissionRows = document.getElementById("submissionRows");
 const countLabel = document.getElementById("countLabel");
 const adminMessage = document.getElementById("adminMessage");
-const moduleRows = document.getElementById("moduleRows");
+const communityModuleRows = document.getElementById("communityModuleRows");
+const groupModuleRows = document.getElementById("groupModuleRows");
+const spatialModuleRows = document.getElementById("spatialModuleRows");
 const moduleMessage = document.getElementById("moduleMessage");
 const resetModal = document.getElementById("resetModal");
 const resetDescription = document.getElementById("resetDescription");
@@ -37,11 +39,13 @@ const cityLabels = {
 };
 
 const moduleLinks = {
+  "neighborhood-selection": "../nh-selection/",
   "neighborhood-context": "../neighborhood-description/",
   "social-disorganization": "../social-disorganization/",
   "opportunity": "../opportunity/",
   "political-economy": "../political-economy/",
   "segregation": "../segregation/",
+  "group-map-interpretation": "../group-work/choropleth-interpretation/",
   "sa-weights": "../../spatial-analysis/weights/",
   "sa-lag": "../../spatial-analysis/lag/",
   "sa-moran": "../../spatial-analysis/moran/",
@@ -49,6 +53,28 @@ const moduleLinks = {
   "sa-maup": "../../spatial-analysis/maup/",
   "sa-regression": "../../spatial-analysis/regression/"
 };
+
+const communityModuleKeys = [
+  "neighborhood-selection",
+  "neighborhood-context",
+  "social-disorganization",
+  "opportunity",
+  "political-economy",
+  "segregation"
+];
+
+const groupModuleKeys = [
+  "group-map-interpretation"
+];
+
+const spatialModuleKeys = [
+  "sa-weights",
+  "sa-lag",
+  "sa-moran",
+  "sa-lisa",
+  "sa-maup",
+  "sa-regression"
+];
 
 function apiHeaders() {
   return {
@@ -83,6 +109,26 @@ function moduleNameMarkup(module) {
   return `<a class="module-link" href="${href}" target="_blank" rel="noopener noreferrer">${label}<span aria-hidden="true"> ↗</span></a>`;
 }
 
+function renderModuleGroup(container, keys) {
+  const lookup = new Map(modules.map(module => [module.module_key, module]));
+  const groupModules = keys.map(key => lookup.get(key)).filter(Boolean);
+
+  if (!groupModules.length) {
+    container.innerHTML = `<div class="module-row"><div class="module-name">No module records found.</div></div>`;
+    return;
+  }
+
+  container.innerHTML = groupModules.map(module => `
+    <div class="module-row">
+      <div class="module-name">${moduleNameMarkup(module)}</div>
+      <div class="module-status ${module.is_available ? "available" : ""}">${module.is_available ? "Available" : "Unavailable"}</div>
+      <button type="button" class="${module.is_available ? "secondary" : ""} small" data-module-toggle="${escapeHtml(module.module_key)}" data-next-state="${module.is_available ? "false" : "true"}">
+        ${module.is_available ? "Hide module" : "Make available"}
+      </button>
+    </div>
+  `).join("");
+}
+
 async function fetchAdminState() {
   const response = await fetch(API_URL, { method: "GET", headers: apiHeaders(), cache: "no-store" });
   const payload = await response.json().catch(() => ({}));
@@ -102,20 +148,9 @@ async function loadAdminState() {
 }
 
 function renderModules() {
-  if (!modules.length) {
-    moduleRows.innerHTML = `<div class="module-row"><div class="module-name">No module records found.</div></div>`;
-    return;
-  }
-
-  moduleRows.innerHTML = modules.map(module => `
-    <div class="module-row">
-      <div class="module-name">${moduleNameMarkup(module)}</div>
-      <div class="module-status ${module.is_available ? "available" : ""}">${module.is_available ? "Available" : "Unavailable"}</div>
-      <button type="button" class="${module.is_available ? "secondary" : ""} small" data-module-toggle="${escapeHtml(module.module_key)}" data-next-state="${module.is_available ? "false" : "true"}">
-        ${module.is_available ? "Hide module" : "Make available"}
-      </button>
-    </div>
-  `).join("");
+  renderModuleGroup(communityModuleRows, communityModuleKeys);
+  renderModuleGroup(groupModuleRows, groupModuleKeys);
+  renderModuleGroup(spatialModuleRows, spatialModuleKeys);
 
   document.querySelectorAll("[data-module-toggle]").forEach(button => {
     button.addEventListener("click", () => {
