@@ -287,7 +287,7 @@ function addNeighborhoodLayer(map, feature) {
     type: "fill",
     source: "neighborhood",
     paint: {
-      "fill-color": "#2CA25F",
+      "fill-color": "#ffffff",
       "fill-opacity": 0.025
     }
   });
@@ -308,7 +308,7 @@ function addNeighborhoodLayer(map, feature) {
     type: "line",
     source: "neighborhood",
     paint: {
-      "line-color": "#2CA25F",
+      "line-color": "#ffffff",
       "line-width": 5.2,
       "line-opacity": 1
     }
