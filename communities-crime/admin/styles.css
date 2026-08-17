@@ -32,9 +32,10 @@ header { margin-bottom: 32px; }
   text-transform: uppercase;
   margin-bottom: 8px;
 }
-h1, h2, p { margin-top: 0; }
+h1, h2, h3, p { margin-top: 0; }
 h1 { font-size: clamp(2rem, 5vw, 3.3rem); margin-bottom: 12px; font-weight: 500; }
 h2 { font-size: 1.2rem; margin-bottom: 6px; font-weight: 500; }
+h3 { font-size: 1rem; margin-bottom: 10px; font-weight: 500; }
 p { color: var(--muted); line-height: 1.55; }
 .panel {
   border-top: 1px solid var(--line);
@@ -78,6 +79,8 @@ button.small { padding: 8px 10px; font-size: .82rem; white-space: nowrap; }
   margin-bottom: 18px;
 }
 .toolbar p { margin-bottom: 0; }
+.module-group { margin-top: 26px; }
+.module-group:first-of-type { margin-top: 18px; }
 .module-list {
   display: grid;
   border: 1px solid var(--line);
