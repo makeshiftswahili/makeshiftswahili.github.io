@@ -1,6 +1,15 @@
 const API_URL = "https://rqdkfvvubiccaybubmbd.supabase.co/functions/v1/spatial-analysis-admin";
 const SPATIAL_KEYS = new Set(["sa-weights","sa-lag","sa-moran","sa-lisa","sa-maup","sa-regression"]);
 
+const moduleLinks = {
+  "sa-weights": "../weights/",
+  "sa-lag": "../lag/",
+  "sa-moran": "../moran/",
+  "sa-lisa": "../lisa/",
+  "sa-maup": "../maup/",
+  "sa-regression": "../regression/"
+};
+
 const loginPanel = document.getElementById("loginPanel");
 const adminPanel = document.getElementById("adminPanel");
 const adminKeyInput = document.getElementById("adminKey");
@@ -17,11 +26,19 @@ let modules = [];
 function headers() { return { "Content-Type": "application/json", "x-admin-key": adminKey }; }
 function escapeHtml(value) { return String(value ?? "").replaceAll("&","&amp;").replaceAll("<","&lt;").replaceAll(">","&gt;").replaceAll('"',"&quot;").replaceAll("'","&#039;"); }
 
+function moduleNameMarkup(module) {
+  const label = escapeHtml(module.label);
+  const href = moduleLinks[module.module_key];
+  return href
+    ? `<a class="module-link" href="${href}" target="_blank" rel="noopener noreferrer">${label}<span aria-hidden="true"> ↗</span></a>`
+    : label;
+}
+
 function renderModules() {
   const visible = modules.filter(m => SPATIAL_KEYS.has(m.module_key));
   moduleRows.innerHTML = visible.map(module => `
     <div class="module-row">
-      <div class="module-name">${escapeHtml(module.label)}</div>
+      <div class="module-name">${moduleNameMarkup(module)}</div>
       <div class="module-status ${module.is_available ? "available" : ""}">${module.is_available ? "Available" : "Hidden"}</div>
       <button type="button" data-module="${escapeHtml(module.module_key)}" data-next="${module.is_available ? "false" : "true"}">${module.is_available ? "Hide module" : "Make available"}</button>
     </div>`).join("") || '<div class="module-row"><div class="module-name">No spatial-analysis modules found.</div></div>';
