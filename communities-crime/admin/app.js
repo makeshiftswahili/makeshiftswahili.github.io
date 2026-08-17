@@ -36,6 +36,20 @@ const cityLabels = {
   Seattle: "Seattle, WA"
 };
 
+const moduleLinks = {
+  "neighborhood-context": "../neighborhood-description/",
+  "social-disorganization": "../social-disorganization/",
+  "opportunity": "../opportunity/",
+  "political-economy": "../political-economy/",
+  "segregation": "../segregation/",
+  "sa-weights": "../../spatial-analysis/weights/",
+  "sa-lag": "../../spatial-analysis/lag/",
+  "sa-moran": "../../spatial-analysis/moran/",
+  "sa-lisa": "../../spatial-analysis/lisa/",
+  "sa-maup": "../../spatial-analysis/maup/",
+  "sa-regression": "../../spatial-analysis/regression/"
+};
+
 function apiHeaders() {
   return {
     "Content-Type": "application/json",
@@ -60,6 +74,13 @@ function escapeHtml(value) {
     .replaceAll(">", "&gt;")
     .replaceAll('"', "&quot;")
     .replaceAll("'", "&#039;");
+}
+
+function moduleNameMarkup(module) {
+  const label = escapeHtml(module.label);
+  const href = moduleLinks[module.module_key];
+  if (!href) return label;
+  return `<a class="module-link" href="${href}" target="_blank" rel="noopener noreferrer">${label}<span aria-hidden="true"> ↗</span></a>`;
 }
 
 async function fetchAdminState() {
@@ -88,7 +109,7 @@ function renderModules() {
 
   moduleRows.innerHTML = modules.map(module => `
     <div class="module-row">
-      <div class="module-name">${escapeHtml(module.label)}</div>
+      <div class="module-name">${moduleNameMarkup(module)}</div>
       <div class="module-status ${module.is_available ? "available" : ""}">${module.is_available ? "Available" : "Unavailable"}</div>
       <button type="button" class="${module.is_available ? "secondary" : ""} small" data-module-toggle="${escapeHtml(module.module_key)}" data-next-state="${module.is_available ? "false" : "true"}">
         ${module.is_available ? "Hide module" : "Make available"}
