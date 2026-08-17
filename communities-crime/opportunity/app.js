@@ -189,8 +189,8 @@ function makeNeighborhoodMap(containerId, feature, roads) {
       source: "neighborhood",
       paint: {
         "line-color": "#141414",
-        "line-width": 7,
-        "line-opacity": 0.9
+        "line-width": 10,
+        "line-opacity": 0.95
       }
     });
 
@@ -200,7 +200,7 @@ function makeNeighborhoodMap(containerId, feature, roads) {
       source: "neighborhood",
       paint: {
         "line-color": "#2CA25F",
-        "line-width": 3.2,
+        "line-width": 5.2,
         "line-opacity": 1
       }
     });
