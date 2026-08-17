@@ -1,0 +1,1 @@
+SOCL4091 in-class choropleth interpretation activity. Walkthrough and group exercise use fictional tract-like geometries. Group responses autosave to Supabase and export to PDF.
