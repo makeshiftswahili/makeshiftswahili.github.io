@@ -8,6 +8,9 @@
 .module-list { border-top: 1px solid var(--line); }
 .module-row { display: grid; grid-template-columns: minmax(0,1fr) 110px 150px; gap: 14px; align-items: center; padding: 14px 0; border-bottom: 1px solid var(--line); }
 .module-name { font-size: .98rem; }
+.module-link { color: var(--text); text-decoration: none; border-bottom: 1px solid transparent; transition: color .15s ease, border-color .15s ease; }
+.module-link:hover, .module-link:focus-visible { color: var(--green); border-bottom-color: var(--green); }
+.module-link span { color: var(--muted); font-size: .82em; }
 .module-status { color: var(--muted); font-size: .82rem; text-transform: uppercase; letter-spacing: .06em; }
 .module-status.available { color: var(--green); }
 .message { min-height: 1.4em; margin-top: 12px; color: var(--muted); font-size: .86rem; }
