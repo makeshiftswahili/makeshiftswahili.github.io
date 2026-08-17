@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="robots" content="noindex,nofollow">
+  <meta name="description" content="SOCL4091 Communities & Crime Opportunity module draft">
+  <title>Opportunity | SOCL4091</title>
+  <link rel="stylesheet" href="https://use.typekit.net/pgi1nbm.css">
+  <link rel="stylesheet" href="https://unpkg.com/maplibre-gl@5.7.1/dist/maplibre-gl.css">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<main class="shell">
+  <header class="page-header">
+    <a class="home-link" href="../">← Communities & Crime</a>
+    <div class="eyebrow">SOCL4091 · Comparative Neighborhood Analysis Project</div>
+    <h1>Opportunity</h1>
+    <p>This draft uses OpenStreetMap directly so you can inspect streets, paths, buildings, land use, and water within your two selected neighborhoods before we add any course-specific overlays.</p>
+  </header>
+
+  <section class="panel">
+    <div class="section-heading"><span class="step-number">1</span><div><h2>Load your neighborhoods</h2><p>Enter the LSU ID associated with your finalized neighborhood selection.</p></div></div>
+    <label class="field-label" for="lsuId">LSU ID</label>
+    <div class="lookup-row"><input id="lsuId" type="text" inputmode="numeric" autocomplete="off" placeholder="LSU ID number"><button id="loadButton" type="button">Load project</button></div>
+    <div id="lookupMessage" class="status-message" aria-live="polite"></div>
+  </section>
+
+  <div id="projectContent" class="is-hidden">
+    <section class="panel">
+      <div class="section-heading"><span class="step-number">2</span><div><h2>Your project</h2><p>Your saved neighborhood boundaries are drawn over the OpenStreetMap basemap.</p></div></div>
+      <div class="summary-grid">
+        <div><span class="summary-label">City</span><strong id="cityName"></strong></div>
+        <div><span class="summary-label">Neighborhood 1</span><strong id="neighborhoodOne"></strong></div>
+        <div><span class="summary-label">Neighborhood 2</span><strong id="neighborhoodTwo"></strong></div>
+      </div>
+    </section>
+
+    <section class="panel">
+      <div class="section-heading"><span class="step-number">3</span><div><h2>Explore the neighborhoods</h2><p>Zoom in and move around. The point of this draft is simply to see how much of the opportunity structure is already legible in the standard OSM map.</p></div></div>
+
+      <div class="map-instructions">
+        <p><strong>Look for:</strong> major roads and local streets, pedestrian paths, building footprints, commercial or industrial-looking areas, parks/open space, waterways, bridges, and other physical features that may shape movement and activity.</p>
+        <p><strong>Zoom matters:</strong> OpenStreetMap reveals more detail as you zoom in. Building footprints, paths, and smaller streets may not appear at the initial neighborhood-wide view.</p>
+      </div>
+
+      <div class="map-grid">
+        <article class="figure-card">
+          <div class="figure-heading"><div><span class="figure-number">Neighborhood 1</span><h3 id="mapOneTitle"></h3></div></div>
+          <div id="mapOne" class="map" aria-label="First neighborhood OpenStreetMap"></div>
+        </article>
+        <article class="figure-card">
+          <div class="figure-heading"><div><span class="figure-number">Neighborhood 2</span><h3 id="mapTwoTitle"></h3></div></div>
+          <div id="mapTwo" class="map" aria-label="Second neighborhood OpenStreetMap"></div>
+        </article>
+      </div>
+
+      <div class="key"><span class="boundary-sample"></span><span>Selected neighborhood boundary</span></div>
+      <div id="mapStatus" class="status-message" aria-live="polite"></div>
+    </section>
+  </div>
+</main>
+<script src="https://unpkg.com/maplibre-gl@5.7.1/dist/maplibre-gl.js"></script>
+<script src="app.js?v=20260816-osm-draft"></script>
+</body>
+</html>
