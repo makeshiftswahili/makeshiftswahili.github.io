@@ -93,6 +93,18 @@ button.small { padding: 8px 10px; font-size: .82rem; white-space: nowrap; }
 }
 .module-row:last-child { border-bottom: 0; }
 .module-name { font-size: .95rem; }
+.module-link {
+  color: var(--text);
+  text-decoration: none;
+  border-bottom: 1px solid transparent;
+  transition: color .15s ease, border-color .15s ease;
+}
+.module-link:hover,
+.module-link:focus-visible {
+  color: var(--green);
+  border-bottom-color: var(--green);
+}
+.module-link span { color: var(--muted); font-size: .82em; }
 .module-status {
   font-size: .76rem;
   letter-spacing: .07em;
