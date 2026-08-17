@@ -8,7 +8,7 @@
   <title>Opportunity | SOCL4091</title>
   <link rel="stylesheet" href="https://use.typekit.net/pgi1nbm.css">
   <link rel="stylesheet" href="https://unpkg.com/maplibre-gl@5.7.1/dist/maplibre-gl.css">
-  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="styles.css?v=20260817-layers1">
 </head>
 <body>
 <main class="shell">
@@ -16,7 +16,7 @@
     <a class="home-link" href="../">← Communities & Crime</a>
     <div class="eyebrow">SOCL4091 · Comparative Neighborhood Analysis Project</div>
     <h1>Opportunity</h1>
-    <p>Compare the street networks of your two neighborhoods and consider how road hierarchy, connectivity, access, and physical barriers shape opportunities for movement, interaction, and crime.</p>
+    <p>Build an opportunity map in three stages. Start with the street network, add nonresidential land uses, then add drinking establishments to examine how access, activity settings, and places of convergence differ across your two neighborhoods.</p>
   </header>
 
   <section class="panel">
@@ -28,7 +28,7 @@
 
   <div id="projectContent" class="is-hidden">
     <section class="panel">
-      <div class="section-heading"><span class="step-number">2</span><div><h2>Your project</h2><p>Your saved neighborhoods are used to frame the street-network maps below.</p></div></div>
+      <div class="section-heading"><span class="step-number">2</span><div><h2>Your project</h2><p>Your saved neighborhood boundaries frame each stage below so you can compare the same two places as additional opportunity layers are added.</p></div></div>
       <div class="summary-grid">
         <div><span class="summary-label">City</span><strong id="cityName"></strong></div>
         <div><span class="summary-label">Neighborhood 1</span><strong id="neighborhoodOne"></strong></div>
@@ -36,11 +36,12 @@
       </div>
     </section>
 
-    <section class="panel">
-      <div class="section-heading"><span class="step-number">3</span><div><h2>Compare street networks</h2><p>The same road hierarchy is shown for both neighborhoods. Zoom and pan to inspect the structure within each neighborhood and the surrounding area.</p></div></div>
+    <section class="panel stage-panel">
+      <div class="section-heading"><span class="step-number">3</span><div><h2>Street networks</h2><p>Begin with the circulation system: the routes that organize movement into, through, and around each neighborhood.</p></div></div>
+      <div class="layer-stack"><span class="active">1 · Street network</span><span>2 · Land use</span><span>3 · Bars</span></div>
 
       <div class="map-instructions">
-        <p><strong>Look for:</strong> dense versus sparse local street networks, major arterials cutting through neighborhoods, freeway barriers, multiple versus limited routes in and out, and differences in connectivity between the two neighborhoods.</p>
+        <p><strong>Look for:</strong> dense versus sparse local street networks, major arterials cutting through neighborhoods, freeway barriers, multiple versus limited routes in and out, and differences in connectivity.</p>
         <p><strong>Interpret the hierarchy:</strong> local streets organize movement within neighborhoods, while larger roads can increase accessibility and traffic but may also divide residential areas or channel activity into particular corridors.</p>
       </div>
 
@@ -54,21 +55,77 @@
 
       <div class="map-grid">
         <article class="figure-card">
-          <div class="figure-heading"><div><span class="figure-number">Neighborhood 1</span><h3 id="mapOneTitle"></h3></div></div>
-          <div id="mapOne" class="map" aria-label="First neighborhood street-network map"></div>
+          <div class="figure-heading"><div><span class="figure-number">Neighborhood 1</span><h3 data-neighborhood-title="0"></h3></div></div>
+          <div id="streetMapOne" class="map" aria-label="First neighborhood street-network map"></div>
         </article>
         <article class="figure-card">
-          <div class="figure-heading"><div><span class="figure-number">Neighborhood 2</span><h3 id="mapTwoTitle"></h3></div></div>
-          <div id="mapTwo" class="map" aria-label="Second neighborhood street-network map"></div>
+          <div class="figure-heading"><div><span class="figure-number">Neighborhood 2</span><h3 data-neighborhood-title="1"></h3></div></div>
+          <div id="streetMapTwo" class="map" aria-label="Second neighborhood street-network map"></div>
         </article>
       </div>
-
       <div class="key"><span class="boundary-sample"></span><span>Selected neighborhood boundary</span></div>
-      <div id="mapStatus" class="status-message" aria-live="polite"></div>
+      <div id="streetStatus" class="status-message" aria-live="polite"></div>
+    </section>
+
+    <section class="panel stage-panel">
+      <div class="section-heading"><span class="step-number">4</span><div><h2>Add land use</h2><p>Now place activity-generating nonresidential buildings onto the same street networks. Residential building footprints are intentionally omitted so the map emphasizes destinations and institutional settings.</p></div></div>
+      <div class="layer-stack"><span class="active">1 · Street network</span><span class="active">2 · Land use</span><span>3 · Bars</span></div>
+
+      <div class="map-instructions">
+        <p><strong>Look for:</strong> commercial corridors, industrial districts, government and educational clusters, mixed activity areas, and places where land uses line up with major roads or remain embedded in local street networks.</p>
+        <p><strong>Use cautiously:</strong> these building classifications are derived from OpenStreetMap and should be treated as a spatial inventory for comparison rather than a complete census of every establishment or building use.</p>
+      </div>
+
+      <div class="landuse-legend" aria-label="Land-use legend">
+        <span class="legend-title">Nonresidential building use</span>
+        <span><i class="landuse-swatch commercial"></i>Commercial</span>
+        <span><i class="landuse-swatch industrial"></i>Industrial</span>
+        <span><i class="landuse-swatch government"></i>Government</span>
+        <span><i class="landuse-swatch education"></i>Education</span>
+      </div>
+
+      <div class="map-grid">
+        <article class="figure-card">
+          <div class="figure-heading"><div><span class="figure-number">Neighborhood 1</span><h3 data-neighborhood-title="0"></h3></div></div>
+          <div id="landUseMapOne" class="map" aria-label="First neighborhood street-network and land-use map"></div>
+        </article>
+        <article class="figure-card">
+          <div class="figure-heading"><div><span class="figure-number">Neighborhood 2</span><h3 data-neighborhood-title="1"></h3></div></div>
+          <div id="landUseMapTwo" class="map" aria-label="Second neighborhood street-network and land-use map"></div>
+        </article>
+      </div>
+      <div id="landUseStatus" class="status-message" aria-live="polite"></div>
+    </section>
+
+    <section class="panel stage-panel">
+      <div class="section-heading"><span class="step-number">5</span><div><h2>Add bars</h2><p>Finally, add drinking establishments to the street-network and land-use context. Use their locations to think about where people converge, how those places are accessed, and what other activity settings surround them.</p></div></div>
+      <div class="layer-stack"><span class="active">1 · Street network</span><span class="active">2 · Land use</span><span class="active">3 · Bars</span></div>
+
+      <div class="map-instructions">
+        <p><strong>Look for:</strong> concentrations versus isolated establishments, placement along major corridors versus local streets, proximity to commercial or institutional activity, and differences in the density of drinking establishments between the two neighborhoods.</p>
+        <p><strong>Click a point</strong> to see the OpenStreetMap name and establishment type. The layer includes bars, pubs, nightclubs, and biergartens and should not be treated as a complete inventory of alcohol-serving businesses.</p>
+      </div>
+
+      <div class="bar-legend" aria-label="Drinking-establishment legend">
+        <span class="legend-title">Added activity setting</span>
+        <span><i class="bar-sample"></i>Bar / pub / nightclub / biergarten</span>
+      </div>
+
+      <div class="map-grid">
+        <article class="figure-card">
+          <div class="figure-heading"><div><span class="figure-number">Neighborhood 1</span><h3 data-neighborhood-title="0"></h3></div></div>
+          <div id="barsMapOne" class="map" aria-label="First neighborhood cumulative opportunity map with bars"></div>
+        </article>
+        <article class="figure-card">
+          <div class="figure-heading"><div><span class="figure-number">Neighborhood 2</span><h3 data-neighborhood-title="1"></h3></div></div>
+          <div id="barsMapTwo" class="map" aria-label="Second neighborhood cumulative opportunity map with bars"></div>
+        </article>
+      </div>
+      <div id="barsStatus" class="status-message" aria-live="polite"></div>
     </section>
   </div>
 </main>
 <script src="https://unpkg.com/maplibre-gl@5.7.1/dist/maplibre-gl.js"></script>
-<script src="app.js?v=20260816-roadnet-v1"></script>
+<script src="app.js?v=20260817-layers1"></script>
 </body>
 </html>
