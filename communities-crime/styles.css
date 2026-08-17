@@ -23,6 +23,7 @@ body {
 }
 
 .page-header { margin-bottom: 36px; }
+.course-header { margin-bottom: 24px; }
 .eyebrow {
   color: var(--green);
   font-size: .78rem;
@@ -35,7 +36,9 @@ h1, h2, p { margin-top: 0; }
 h1 { font-size: clamp(2rem, 4.1vw, 3.15rem); margin-bottom: 12px; font-weight: 500; }
 h2 { font-size: 1.35rem; margin-bottom: 8px; font-weight: 500; }
 p { color: var(--muted); line-height: 1.55; }
-.page-header p { max-width: 700px; }
+.page-header p, .section-header p { max-width: 700px; }
+.section-header { margin-bottom: 24px; }
+.project-section { margin-top: 60px; }
 
 .tool-grid {
   display: grid;
@@ -75,4 +78,5 @@ p { color: var(--muted); line-height: 1.55; }
   .shell { width: min(100% - 24px, 1000px); padding-top: 32px; }
   h1 { font-size: clamp(2rem, 9vw, 2.8rem); }
   .tool-grid { grid-template-columns: 1fr; }
+  .project-section { margin-top: 48px; }
 }
