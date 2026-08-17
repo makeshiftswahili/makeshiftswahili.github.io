@@ -176,7 +176,7 @@ function drawSquare(ctx,x,y,size,color){ctx.fillStyle=color;ctx.fillRect(x,y,siz
 function drawDot(ctx,x,y,r,color){ctx.beginPath();ctx.arc(x,y,r,0,Math.PI*2);ctx.fillStyle=color;ctx.fill();ctx.strokeStyle="#555";ctx.lineWidth=1;ctx.stroke()}
 function drawZig(ctx,x,y,w){ctx.beginPath();const amp=3,step=7;ctx.moveTo(x,y);let flip=1;for(let px=x+step;px<x+w;px+=step){ctx.lineTo(px,y+amp*flip);flip*=-1}ctx.lineTo(x+w,y);ctx.strokeStyle=FUZZY;ctx.lineWidth=2;ctx.stroke()}
 function drawExportLegend(ctx,canvas,type,scale){
- const s=scale,font=Math.max(9*s,9),small=Math.max(7.5*s,7.5),lineH=16*s,pad=9*s,sw=9*s;let rows=4+(type==="disadvantage"?6:type==="boundary"?3:0);const width=210*s,height=(55+rows*16+(type==="race"?8:18))*s,x=canvas.width-width-10*s,y=canvas.height-height-10*s;
+ const s=scale*1.25,font=Math.max(9*s,9),small=Math.max(7.5*s,7.5),lineH=16*s,pad=9*s,sw=9*s;let rows=4+(type==="disadvantage"?6:type==="boundary"?3:0);const width=210*s,height=(55+rows*16+(type==="race"?8:18))*s,x=canvas.width-width-10*s,y=canvas.height-height-10*s;
  ctx.save();ctx.fillStyle="rgba(255,255,255,.96)";ctx.fillRect(x,y,width,height);ctx.strokeStyle="#c8c8c8";ctx.lineWidth=1*s;ctx.strokeRect(x+.5*s,y+.5*s,width-1*s,height-1*s);ctx.fillStyle="#222";ctx.font=`600 ${font}px Arial,sans-serif`;ctx.fillText("Predominant Racial-Ethnic Group",x+pad,y+17*s);ctx.font=`${small}px Arial,sans-serif`;let yy=y+34*s;
  for(const k of ["white","latino","black","asian"]){drawSquare(ctx,x+pad,yy-sw+2*s,sw,raceColors[k]);ctx.fillStyle="#333";ctx.fillText(raceLabels[k],x+pad+14*s,yy);yy+=lineH}
  if(type==="disadvantage"){
