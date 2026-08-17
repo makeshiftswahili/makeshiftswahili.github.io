@@ -1,11 +1,11 @@
 (() => {
-  const DARK_TILE_URL = "https://tiles.stadiamaps.com/tiles/alidade_smooth_dark/{z}/{x}/{y}.png";
+  const TILE_URL = "https://tiles.stadiamaps.com/tiles/alidade_smooth/{z}/{x}/{y}.png";
   const ATTRIBUTION_HTML = '&copy; <a href="https://stadiamaps.com/" target="_blank" rel="noopener noreferrer">Stadia Maps</a> &copy; <a href="https://openmaptiles.org/" target="_blank" rel="noopener noreferrer">OpenMapTiles</a> &copy; <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener noreferrer">OpenStreetMap</a>';
   const ATTRIBUTION_TEXT = "© Stadia Maps © OpenMapTiles © OpenStreetMap";
   const THEMATIC_OPACITY = 0.82;
 
-  window.CC_DARK_BASEMAP = {
-    tileUrl: DARK_TILE_URL,
+  window.CC_BASEMAP = {
+    tileUrl: TILE_URL,
     attributionHtml: ATTRIBUTION_HTML,
     attributionText: ATTRIBUTION_TEXT,
     thematicOpacity: THEMATIC_OPACITY
@@ -23,7 +23,7 @@
   }
 
   function patchMapLibre() {
-    if (!window.maplibregl?.Map || window.maplibregl.__ccDarkBasemapPatched) return;
+    if (!window.maplibregl?.Map || window.maplibregl.__ccBasemapPatched) return;
 
     const OriginalMap = window.maplibregl.Map;
 
@@ -39,7 +39,7 @@
       if (next.sources.osm?.type === "raster") {
         next.sources.osm = {
           ...next.sources.osm,
-          tiles: [DARK_TILE_URL],
+          tiles: [TILE_URL],
           tileSize: 256,
           attribution: ATTRIBUTION_HTML
         };
@@ -51,9 +51,9 @@
       const blankStyle = !hasMappedSources && hasOnlyBackground;
 
       if (blankStyle) {
-        next.sources["cc-dark-base"] = {
+        next.sources["cc-base"] = {
           type: "raster",
-          tiles: [DARK_TILE_URL],
+          tiles: [TILE_URL],
           tileSize: 256,
           attribution: ATTRIBUTION_HTML
         };
@@ -64,29 +64,29 @@
             ...next.layers[backgroundIndex],
             paint: {
               ...(next.layers[backgroundIndex].paint || {}),
-              "background-color": "#141414"
+              "background-color": "#f4f4f2"
             }
           };
         } else {
           next.layers.unshift({
-            id: "cc-dark-background",
+            id: "cc-background",
             type: "background",
-            paint: { "background-color": "#141414" }
+            paint: { "background-color": "#f4f4f2" }
           });
         }
 
         const insertAt = Math.max(next.layers.findIndex(layer => layer?.type === "background") + 1, 0);
         next.layers.splice(insertAt, 0, {
-          id: "cc-dark-base",
+          id: "cc-base",
           type: "raster",
-          source: "cc-dark-base"
+          source: "cc-base"
         });
       }
 
       return { style: next, blankStyle };
     }
 
-    class DarkBasemapMap extends OriginalMap {
+    class CourseBasemapMap extends OriginalMap {
       constructor(options = {}) {
         const patched = patchStyle(options.style);
         const nextOptions = { ...options, style: patched.style };
@@ -121,17 +121,17 @@
       }
     }
 
-    window.maplibregl.Map = DarkBasemapMap;
-    window.maplibregl.__ccDarkBasemapPatched = true;
+    window.maplibregl.Map = CourseBasemapMap;
+    window.maplibregl.__ccBasemapPatched = true;
   }
 
   function patchLeaflet() {
-    if (!window.L?.tileLayer || window.L.__ccDarkBasemapPatched) return;
+    if (!window.L?.tileLayer || window.L.__ccBasemapPatched) return;
 
     const originalTileLayer = window.L.tileLayer;
     const patchedTileLayer = function(url, options = {}) {
       if (typeof url === "string" && url.includes("tile.openstreetmap.org")) {
-        return originalTileLayer.call(window.L, DARK_TILE_URL, {
+        return originalTileLayer.call(window.L, TILE_URL, {
           ...options,
           maxZoom: 20,
           attribution: ATTRIBUTION_HTML
@@ -145,7 +145,7 @@
     });
 
     window.L.tileLayer = patchedTileLayer;
-    window.L.__ccDarkBasemapPatched = true;
+    window.L.__ccBasemapPatched = true;
   }
 
   patchMapLibre();
