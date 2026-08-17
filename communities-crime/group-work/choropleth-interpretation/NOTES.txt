@@ -1,1 +1,0 @@
-Instructor walkthrough + group exercise + Supabase autosave + client-side PDF export.
