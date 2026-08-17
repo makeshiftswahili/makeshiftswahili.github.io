@@ -39,16 +39,26 @@ const neighborhoodTwo = document.getElementById("neighborhoodTwo");
 const streetStatus = document.getElementById("streetStatus");
 const landUseStatus = document.getElementById("landUseStatus");
 const barsStatus = document.getElementById("barsStatus");
+const microStatus = document.getElementById("microStatus");
 
 let maps = [];
+let mapsByContainer = {};
 let dataAbortController = null;
 
 function baseStyle() {
   return {
     version: 8,
-    sources: {},
+    sources: {
+      satellite: {
+        type: "raster",
+        tiles: ["https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}"],
+        tileSize: 256,
+        attribution: "Tiles © Esri"
+      }
+    },
     layers: [
-      { id: "background", type: "background", paint: { "background-color": "#141414" } }
+      { id: "background", type: "background", paint: { "background-color": "#141414" } },
+      { id: "satellite", type: "raster", source: "satellite", layout: { visibility: "none" } }
     ]
   };
 }
@@ -63,6 +73,7 @@ function destroyMaps() {
     try { map.remove(); } catch {}
   });
   maps = [];
+  mapsByContainer = {};
   if (dataAbortController) {
     dataAbortController.abort();
     dataAbortController = null;
@@ -304,6 +315,29 @@ function addNeighborhoodLayer(map, feature) {
   });
 }
 
+function updateBasemapButtons(containerId, mode) {
+  document.querySelectorAll(`[data-map-container="${containerId}"][data-basemap]`).forEach(button => {
+    const active = button.dataset.basemap === mode;
+    button.classList.toggle("active", active);
+    button.setAttribute("aria-pressed", active ? "true" : "false");
+  });
+}
+
+function setBasemap(containerId, mode) {
+  const map = mapsByContainer[containerId];
+  if (!map) return;
+  updateBasemapButtons(containerId, mode);
+  if (!map.isStyleLoaded()) return;
+  map.setLayoutProperty("satellite", "visibility", mode === "satellite" ? "visible" : "none");
+  map.triggerRepaint();
+}
+
+function wireBasemapToggles() {
+  document.querySelectorAll("[data-map-container][data-basemap]").forEach(button => {
+    button.addEventListener("click", () => setBasemap(button.dataset.mapContainer, button.dataset.basemap));
+  });
+}
+
 function makeNeighborhoodMap(containerId, feature, roads, landUse = null, bars = null) {
   const map = new maplibregl.Map({
     container: containerId,
@@ -315,10 +349,13 @@ function makeNeighborhoodMap(containerId, feature, roads, landUse = null, bars =
     attributionControl: false
   });
 
+  mapsByContainer[containerId] = map;
+  updateBasemapButtons(containerId, "street");
+
   map.addControl(new maplibregl.NavigationControl({ showCompass: false }), "top-right");
   map.addControl(new maplibregl.AttributionControl({
     compact: true,
-    customAttribution: "© OpenStreetMap contributors"
+    customAttribution: "© OpenStreetMap contributors · Satellite © Esri"
   }));
 
   map.on("load", () => {
@@ -390,6 +427,7 @@ async function loadProject() {
     streetStatus.textContent = `Loading ${data.city.split(",")[0]} street-network data…`;
     landUseStatus.textContent = "Waiting for the street-network stage…";
     barsStatus.textContent = "Waiting for the land-use stage…";
+    microStatus.textContent = "Waiting for the cumulative opportunity layers…";
 
     const roads = await loadGeoJson(`OPP_paths_${slug}.geojson`, signal, "street-network");
     const localRoads = filterForNeighborhoods(roads, features);
@@ -407,7 +445,7 @@ async function loadProject() {
       makeNeighborhoodMap("landUseMapOne", features[0], localRoads[0], localLandUse[0]),
       makeNeighborhoodMap("landUseMapTwo", features[1], localRoads[1], localLandUse[1])
     );
-    landUseStatus.textContent = "Land use loaded. The street network remains visible beneath commercial, industrial, government, and education buildings.";
+    landUseStatus.textContent = "Land use loaded. Toggle between the street map and satellite imagery as you inspect nonresidential activity settings and land-use edges.";
 
     barsStatus.textContent = `Loading ${data.city.split(",")[0]} drinking-establishment data…`;
     const barData = await loadGeoJson(`OPP_bars_${slug}.geojson`, signal, "bar");
@@ -417,6 +455,13 @@ async function loadProject() {
       makeNeighborhoodMap("barsMapTwo", features[1], localRoads[1], localLandUse[1], localBars[1])
     );
     barsStatus.textContent = "Bars loaded. Compare where drinking establishments sit relative to street access and activity-generating land uses; click a point for its name and type.";
+
+    microStatus.textContent = "Preparing micro-place maps…";
+    maps.push(
+      makeNeighborhoodMap("microMapOne", features[0], localRoads[0], localLandUse[0], localBars[0]),
+      makeNeighborhoodMap("microMapTwo", features[1], localRoads[1], localLandUse[1], localBars[1])
+    );
+    microStatus.textContent = "Micro-place maps are ready. Zoom and pan independently until each map is framed around the place you think is most likely to concentrate crime opportunities.";
 
     dataAbortController = null;
     showMessage("Neighborhoods and opportunity layers loaded.", "success");
@@ -429,6 +474,7 @@ async function loadProject() {
   }
 }
 
+wireBasemapToggles();
 loadButton.addEventListener("click", loadProject);
 lsuId.addEventListener("keydown", event => {
   if (event.key === "Enter") loadProject();
