@@ -45,7 +45,7 @@ const moduleLinks = {
   "political-economy": "../political-economy/",
   "segregation": "../segregation/",
   "group-map-interpretation": "../group-work/choropleth-interpretation/",
-  "group-routine-collision": "../group-work/routine-collision/"
+  "group-routine-collision": "../group-work/microspatial/"
 };
 
 const communityModuleKeys = [
