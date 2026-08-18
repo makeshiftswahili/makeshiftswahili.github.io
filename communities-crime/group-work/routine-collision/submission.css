@@ -1,0 +1,180 @@
+body.session-locked .intro-panel,
+body.session-locked .stage-nav,
+body.session-locked .stage,
+body.session-locked .page-footer {
+  display: none !important;
+}
+
+.group-setup-panel,
+.group-identity-bar,
+.final-submission-panel {
+  border: 1px solid var(--line);
+  background: var(--panel);
+}
+
+.group-setup-panel {
+  margin: 34px 0 0;
+  padding: 24px;
+}
+
+.group-setup-panel h2 {
+  margin: 5px 0 7px;
+}
+
+.group-setup-panel p {
+  margin-bottom: 18px;
+}
+
+.member-rows {
+  display: grid;
+  gap: 9px;
+  max-width: 620px;
+}
+
+.member-row {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 8px;
+}
+
+.member-row input {
+  width: 100%;
+  border: 1px solid var(--line-strong);
+  background: #181818;
+  color: var(--text);
+  padding: 10px 12px;
+}
+
+.member-row input:focus,
+textarea:focus,
+select:focus {
+  outline: 1px solid var(--green);
+  outline-offset: 1px;
+}
+
+.member-remove {
+  min-width: 42px;
+  border: 1px solid var(--line-strong);
+  background: transparent;
+  color: var(--muted);
+  cursor: pointer;
+}
+
+.member-remove:hover {
+  color: var(--text);
+  border-color: #777;
+}
+
+.member-actions,
+.setup-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 14px;
+}
+
+.setup-message,
+.save-state,
+.submit-message {
+  min-height: 1.35em;
+  margin-top: 12px;
+  color: var(--muted);
+  font-size: .9rem;
+}
+
+.setup-message.error,
+.submit-message.error {
+  color: #e4b2b2;
+}
+
+.group-identity-bar {
+  margin: 26px 0;
+  padding: 13px 16px;
+  display: flex;
+  justify-content: space-between;
+  gap: 18px;
+  align-items: center;
+  background: #181818;
+}
+
+.group-identity-copy {
+  min-width: 0;
+}
+
+.group-identity-label {
+  color: var(--green);
+  font-size: .72rem;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+}
+
+.group-id-list {
+  margin-top: 3px;
+  color: var(--text);
+  overflow-wrap: anywhere;
+}
+
+.identity-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-shrink: 0;
+}
+
+.save-state {
+  margin: 0;
+  min-height: auto;
+  white-space: nowrap;
+}
+
+.final-submission-panel {
+  margin-top: 24px;
+  padding: 20px;
+  border-color: var(--green);
+  background: var(--green-soft);
+}
+
+.final-submission-panel h3 {
+  margin-bottom: 6px;
+}
+
+.final-submission-panel p {
+  margin-bottom: 14px;
+}
+
+.final-submission-panel.submitted {
+  border-color: var(--green);
+}
+
+.final-submission-panel.submitted .submit-message {
+  color: #bfe5ce;
+}
+
+body.activity-submitted .choice-chip input,
+body.activity-submitted input[type="range"],
+body.activity-submitted .collision-choice,
+body.activity-submitted .effect-choice,
+body.activity-submitted .prediction-choice,
+body.activity-submitted #predictionReason,
+body.activity-submitted #lockPrediction,
+body.activity-submitted textarea,
+body.activity-submitted #editMembersButton {
+  pointer-events: none;
+  opacity: .62;
+}
+
+@media (max-width: 700px) {
+  .group-identity-bar {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .identity-actions {
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  .member-row {
+    grid-template-columns: 1fr 42px;
+  }
+}
