@@ -13,7 +13,7 @@
     <header>
       <div class="eyebrow">SOCL4091 · Communities & Crime</div>
       <h1>Course Project Admin</h1>
-      <p>Instructor-only controls for module availability, neighborhood submissions, GeoJSON downloads, and selection resets.</p>
+      <p>Instructor-only controls for module availability, neighborhood submissions, group-work submissions, downloads, and selection resets.</p>
     </header>
 
     <section id="loginPanel" class="panel">
@@ -55,7 +55,7 @@
       <section class="panel">
         <div class="toolbar">
           <div>
-            <h2>Student submissions</h2>
+            <h2>Neighborhood selection submissions</h2>
             <p id="countLabel">Loading…</p>
           </div>
         </div>
@@ -77,6 +77,28 @@
         </div>
         <div id="adminMessage" class="message"></div>
       </section>
+
+      <section class="panel">
+        <div class="toolbar">
+          <div>
+            <h2>Microspatial Convergence Lab submissions</h2>
+            <p id="microspatialCount">Loading…</p>
+          </div>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>LSU IDs</th>
+                <th>Submitted</th>
+                <th>Deliverable</th>
+              </tr>
+            </thead>
+            <tbody id="microspatialRows"></tbody>
+          </table>
+        </div>
+        <div id="microspatialMessage" class="message"></div>
+      </section>
     </div>
   </main>
 
@@ -93,6 +115,7 @@
     </div>
   </div>
 
-  <script src="app.js"></script>
+  <script src="app.js?v=20260818-2"></script>
+  <script src="microspatial-admin.js?v=20260818-1"></script>
 </body>
 </html>
