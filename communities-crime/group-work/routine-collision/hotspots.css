@@ -1,0 +1,152 @@
+.stage-nav { grid-template-columns: repeat(6, 1fr); }
+/* Stage 6 · Boston robbery hotspot ground-truthing */
+.method-note {
+  margin-bottom: 18px;
+  padding: 15px 17px;
+  border-left: 3px solid var(--green);
+  background: #181818;
+  color: var(--muted);
+  line-height: 1.55;
+}
+
+.hotspot-status {
+  margin: 14px 0;
+  color: var(--muted);
+}
+
+.hotspot-summary {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+  margin: 16px 0;
+}
+.hotspot-summary > div {
+  padding: 13px 15px;
+  border: 1px solid var(--line);
+  background: #181818;
+}
+.hotspot-summary span {
+  display: block;
+  color: var(--muted);
+  font-size: .78rem;
+  text-transform: uppercase;
+  letter-spacing: .06em;
+}
+.hotspot-summary strong {
+  display: block;
+  margin-top: 3px;
+  font-size: 1.2rem;
+}
+
+.hotspot-map {
+  width: 100%;
+  height: 520px;
+  margin: 16px 0;
+  border: 1px solid var(--line);
+  background: #202020;
+}
+.hotspot-map .maplibregl-canvas { outline: none; }
+
+.hotspot-marker {
+  width: 34px;
+  height: 34px;
+  padding: 0;
+  border: 2px solid #fff;
+  border-radius: 50%;
+  background: #b64b4b;
+  color: #fff;
+  font: 700 14px/30px "avenir-lt-pro", "Avenir", sans-serif;
+  text-align: center;
+  cursor: pointer;
+  box-shadow: 0 1px 4px rgba(0,0,0,.45);
+}
+.hotspot-marker:hover, .hotspot-marker:focus-visible {
+  transform: scale(1.08);
+  outline: 2px solid var(--green);
+  outline-offset: 2px;
+}
+
+.hotspot-list {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+  margin: 16px 0 24px;
+}
+.hotspot-list-button {
+  display: grid;
+  grid-template-columns: 34px 1fr auto;
+  gap: 11px;
+  align-items: center;
+  width: 100%;
+  min-width: 0;
+  padding: 12px;
+  border: 1px solid var(--line);
+  background: #181818;
+  color: var(--text);
+  text-align: left;
+  cursor: pointer;
+}
+.hotspot-list-button:hover { border-color: #666; background: #202020; }
+.hotspot-list-button.selected { border-color: var(--green); background: var(--green-soft); }
+.hotspot-rank {
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: #b64b4b;
+  color: #fff;
+  font-weight: 700;
+}
+.hotspot-list-copy { min-width: 0; }
+.hotspot-list-copy strong, .hotspot-list-copy span { display: block; }
+.hotspot-list-copy span { margin-top: 2px; color: var(--muted); font-size: .78rem; line-height: 1.35; }
+.hotspot-open { color: var(--green); font-size: .78rem; white-space: nowrap; }
+
+.hotspot-observation-panel {
+  margin-top: 24px;
+  padding-top: 24px;
+  border-top: 1px solid var(--line);
+}
+.observation-heading {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 18px;
+  margin-bottom: 14px;
+}
+.hotspot-instructions {
+  padding: 13px 15px;
+  border: 1px solid var(--line);
+  background: #181818;
+}
+.hotspot-instructions p { margin: 0; }
+.notes-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+  margin-top: 16px;
+}
+.notes-grid label { display: block; }
+.notes-grid label > strong, .notes-grid label > span { display: block; }
+.notes-grid label > span { min-height: 38px; margin: 4px 0 7px; color: var(--muted); font-size: .82rem; line-height: 1.4; }
+.notes-grid textarea {
+  width: 100%;
+  min-height: 112px;
+  resize: vertical;
+  padding: 10px 11px;
+  border: 1px solid var(--line-strong);
+  background: #181818;
+  color: var(--text);
+  font: inherit;
+  line-height: 1.45;
+}
+.notes-grid textarea:focus { outline: 2px solid var(--green); outline-offset: 1px; }
+
+@media (max-width: 760px) {
+  .hotspot-summary, .hotspot-list, .notes-grid { grid-template-columns: 1fr; }
+  .hotspot-map { height: 430px; }
+  .hotspot-list-button { grid-template-columns: 34px 1fr; }
+  .hotspot-open { grid-column: 2; }
+  .observation-heading { flex-direction: column; }
+}
