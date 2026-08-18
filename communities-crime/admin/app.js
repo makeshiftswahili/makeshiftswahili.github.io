@@ -44,7 +44,8 @@ const moduleLinks = {
   "opportunity": "../opportunity/",
   "political-economy": "../political-economy/",
   "segregation": "../segregation/",
-  "group-map-interpretation": "../group-work/choropleth-interpretation/"
+  "group-map-interpretation": "../group-work/choropleth-interpretation/",
+  "group-routine-collision": "../group-work/routine-collision/"
 };
 
 const communityModuleKeys = [
@@ -57,7 +58,8 @@ const communityModuleKeys = [
 ];
 
 const groupModuleKeys = [
-  "group-map-interpretation"
+  "group-map-interpretation",
+  "group-routine-collision"
 ];
 
 function apiHeaders() {
