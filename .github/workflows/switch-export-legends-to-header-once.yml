@@ -22,6 +22,20 @@ jobs:
         with:
           fetch-depth: 0
 
+      - name: Fix segregation insertion point in migration script
+        shell: bash
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          p = Path('tools/switch-export-legends-to-header.py')
+          s = p.read_text(encoding='utf-8')
+          old = "needle = 'function drawExportSwatch'\nif needle not in s:\n    raise RuntimeError(\"Segregation export insertion point not found\")"
+          new = "needle = 'function drawSquare'\nif needle not in s:\n    raise RuntimeError(\"Segregation export insertion point not found\")"
+          if old not in s:
+              raise SystemExit('Segregation migration block not found')
+          p.write_text(s.replace(old, new, 1), encoding='utf-8')
+          PY
+
       - name: Apply migration
         run: python tools/switch-export-legends-to-header.py
 
