@@ -170,15 +170,6 @@
       }
     });
 
-    const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT);
-    const textNodes = [];
-    while (walker.nextNode()) textNodes.push(walker.currentNode);
-    textNodes.forEach(node => {
-      if (node.parentElement?.closest("script,style")) return;
-      const text = node.nodeValue || "";
-      if (/LSU ID/i.test(text)) node.nodeValue = text.replace(/LSU ID/gi, "Project Password");
-    });
-
     const lookupMessage = document.getElementById("lookupMessage");
     const loadButton = document.getElementById("loadButton");
     const actualPassword = () => passwordInput.value === MASK && rememberedPassword
