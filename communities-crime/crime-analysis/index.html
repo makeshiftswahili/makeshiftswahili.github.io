@@ -20,9 +20,9 @@
   </header>
 
   <section class="panel">
-    <div class="section-heading"><span class="step-number">1</span><div><h2>Load your neighborhoods</h2><p>Enter the LSU ID associated with your finalized neighborhood selection.</p></div></div>
-    <label class="field-label" for="lsuId">LSU ID</label>
-    <div class="lookup-row"><input id="lsuId" type="text" inputmode="numeric" autocomplete="off" placeholder="LSU ID number"><button id="loadButton" type="button">Load project</button></div>
+    <div class="section-heading"><span class="step-number">1</span><div><h2>Load your neighborhoods</h2><p>Enter the project password you created when you finalized your neighborhood selection.</p></div></div>
+    <label class="field-label" for="lsuId">Project Password</label>
+    <div class="lookup-row"><input id="lsuId" type="password" autocomplete="current-password" placeholder="Project password"><button id="loadButton" type="button">Load project</button></div>
     <div id="lookupMessage" class="status-message" aria-live="polite"></div>
   </section>
 
@@ -136,10 +136,10 @@
     </section>
 
     <section class="panel document-panel">
-      <div class="section-heading"><span class="step-number">6</span><div><h2>Build your final assignment</h2><p>Your Word document will insert your city, neighborhood names, selected crime type, and all four maps into the final Crime Analysis template.</p></div></div>
+      <div class="section-heading"><span class="step-number">6</span><div><h2>Build your final assignment</h2><p>Your Word document will insert your city, neighborhood names, selected crime type, and all four maps into the final Crime Analysis template, with a blank line for your LSU ID.</p></div></div>
       <div class="document-note">
         <p><strong>Before building:</strong> make sure all four maps are framed the way you want them to appear. For incident maps, leave Street map or Satellite selected according to the view you want captured.</p>
-        <p><strong>Before submitting:</strong> replace every red/bracketed prompt with your own writing and delete the prompts. Treat the maps as descriptive evidence and use this final section to assess how well your earlier theoretical predictions matched the observed crime patterns.</p>
+        <p><strong>Before submitting:</strong> enter your LSU ID on the blank line in the Word document, replace every red/bracketed prompt with your own writing, and delete the prompts. Treat the maps as descriptive evidence and use this final section to assess how well your earlier theoretical predictions matched the observed crime patterns.</p>
       </div>
       <div class="document-actions">
         <button id="buildDocument" type="button" disabled>Build Word assignment</button>
@@ -149,7 +149,7 @@
   </div>
 </main>
 <script src="https://unpkg.com/maplibre-gl@5.7.1/dist/maplibre-gl.js"></script>
-<script src="../dark-basemap.js?v=20260816-1"></script>
+<script src="../dark-basemap.js?v=20260821-3"></script>
 <script src="document.js?v=20260821-1"></script>
 <script src="app.js?v=20260821-1"></script>
 </body>
