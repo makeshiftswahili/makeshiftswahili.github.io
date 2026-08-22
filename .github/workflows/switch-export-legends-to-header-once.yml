@@ -5,6 +5,11 @@ on:
     paths:
       - tools/.export-legend-header-trigger
       - .github/workflows/switch-export-legends-to-header-once.yml
+  pull_request:
+    paths:
+      - tools/.export-legend-header-trigger
+      - tools/switch-export-legends-to-header.py
+      - .github/workflows/switch-export-legends-to-header-once.yml
 
 permissions:
   contents: write
@@ -48,6 +53,7 @@ jobs:
           ! grep -q '<strong>Legend preview:</strong>' communities-crime/crime-analysis/index.html
 
       - name: Commit migration
+        if: github.event_name == 'push'
         shell: bash
         run: |
           set -euo pipefail
