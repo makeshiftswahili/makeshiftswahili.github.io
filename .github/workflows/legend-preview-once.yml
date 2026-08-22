@@ -1,7 +1,8 @@
 name: Upgrade assignment map controls
 
 on:
-  push:
+  pull_request:
+    types: [opened]
     paths:
       - tools/legend-preview-upgrade.py
 
@@ -12,9 +13,10 @@ jobs:
   upgrade-map-controls:
     runs-on: ubuntu-latest
     steps:
-      - name: Check out repository
+      - name: Check out pull-request branch
         uses: actions/checkout@v4
         with:
+          ref: ${{ github.event.pull_request.head.ref }}
           fetch-depth: 0
 
       - name: Apply legend preview upgrade
@@ -38,8 +40,10 @@ jobs:
           grep -q 'CC_LEGEND_PREVIEW' communities-crime/segregation/app.js
           grep -q 'CC_LEGEND_PREVIEW' communities-crime/crime-analysis/app.js
 
-      - name: Commit upgrade
+      - name: Commit upgrade to PR branch
         shell: bash
+        env:
+          HEAD_REF: ${{ github.event.pull_request.head.ref }}
         run: |
           set -euo pipefail
           if git diff --quiet; then
@@ -50,4 +54,4 @@ jobs:
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
           git add communities-crime
           git commit -m 'Replace PNG downloads with legend preview controls'
-          git push origin HEAD:main
+          git push origin "HEAD:${HEAD_REF}"
