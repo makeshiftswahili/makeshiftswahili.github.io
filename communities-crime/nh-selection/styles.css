@@ -97,6 +97,7 @@ p { color: var(--muted); line-height: 1.55; }
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 18px;
 }
+.password-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
 
 label span, .city-select-label {
   display: block;
@@ -116,6 +117,8 @@ input, select {
 }
 input:focus, select:focus { border-color: var(--green); }
 select { max-width: 520px; }
+.password-note { margin: 14px 0 0; font-size: .9rem; max-width: 850px; }
+.password-note strong { color: var(--text); }
 
 .map-topline {
   display: flex;
@@ -169,6 +172,25 @@ select { max-width: 520px; }
 .summary-label { color: var(--muted); font-size: .8rem; text-transform: uppercase; letter-spacing: .08em; }
 .selected-names { margin-top: 4px; font-size: 1.05rem; }
 
+.password-reminder {
+  margin-top: 18px;
+  padding: 18px 20px;
+  border: 1px solid var(--green);
+  background: rgba(44,162,95,.08);
+}
+.password-reminder strong { display: block; margin-bottom: 8px; }
+.password-reminder code {
+  display: inline-block;
+  padding: 8px 10px;
+  margin-bottom: 10px;
+  background: #101010;
+  border: 1px solid var(--line);
+  color: var(--text);
+  font-size: 1.05rem;
+  user-select: all;
+}
+.password-reminder p { margin-bottom: 0; }
+
 button {
   border: 0;
   border-radius: 5px;
@@ -204,6 +226,10 @@ button.secondary:hover { background: var(--panel-2); }
 .modal h2 { font-size: 1.65rem; }
 .modal .warning { color: #ddd; }
 .modal-actions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 24px; }
+
+@media (max-width: 900px) {
+  .password-grid { grid-template-columns: 1fr; }
+}
 
 @media (max-width: 700px) {
   .shell { width: min(100% - 24px, 1100px); padding-top: 28px; }
