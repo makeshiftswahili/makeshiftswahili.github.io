@@ -226,9 +226,11 @@
     oppDocDrawLegend(canvas.getContext("2d"), canvas, type, sizeMultiplier, s);
     const liveWidth = map.getContainer().getBoundingClientRect().width || 1;
     const factor = liveWidth / exportWidth;
-    canvas.style.width = `${canvas.width * factor}px`;
-    canvas.style.height = `${canvas.height * factor}px`;
-    return canvas;
+    const img = document.createElement("img");
+    img.src = canvas.toDataURL("image/png");
+    img.alt = "Export legend preview";
+    img.style.cssText = `display:block;width:${canvas.width * factor}px;height:${canvas.height * factor}px;max-width:none;max-height:none`;
+    return img;
   }
 
   function oppDocDrawLegend(ctx, canvas, type, sizeMultiplier = 1, forcedScale = null) {

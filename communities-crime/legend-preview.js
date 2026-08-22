@@ -235,7 +235,7 @@
     toggle.type = "button";
     toggle.className = "secondary small cc-legend-toggle";
     toggle.setAttribute("aria-pressed", "false");
-    toggle.title = "Show or hide an approximate preview of the legend position in the Word figure.";
+    toggle.title = "Show or hide a preview matching the legend footprint in the Word figure.";
 
     const sizeWrap = document.createElement("span");
     sizeWrap.className = "cc-legend-size";
