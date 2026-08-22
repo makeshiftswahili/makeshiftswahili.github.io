@@ -4,6 +4,7 @@ on:
   push:
     paths:
       - tools/fix-legend-preview-attribution.py
+      - tools/.legend-preview-trigger
       - .github/workflows/fix-legend-preview-attribution-once.yml
 
 permissions:
