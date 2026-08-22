@@ -5,6 +5,7 @@ on:
     types: [opened]
     paths:
       - tools/legend-preview-upgrade.py
+      - tools/legend-preview-trigger.txt
 
 permissions:
   contents: write
