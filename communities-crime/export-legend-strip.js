@@ -107,7 +107,7 @@
 
   function compose(sourceCanvas, config = {}) {
     if (!sourceCanvas) throw new Error("Missing source map canvas.");
-    const scale = pixelRatioFor(sourceCanvas);
+    const scale = Math.max(1, Number(config.pixelRatio) || pixelRatioFor(sourceCanvas));
     const rows = Array.isArray(config.rows) ? config.rows : [];
     const hasNote = Boolean(config.note);
     const pad = 14 * scale;
