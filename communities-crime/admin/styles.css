@@ -46,6 +46,7 @@ p { color: var(--muted); line-height: 1.55; }
   gap: 10px;
   align-items: center;
 }
+.row-actions { flex-wrap: wrap; }
 .login-row { max-width: 700px; }
 input {
   flex: 1;
@@ -136,6 +137,17 @@ td { font-size: .92rem; }
 tbody tr:last-child td { border-bottom: 0; }
 .nh-pair { display: grid; gap: 4px; }
 .nh-pair span::before { content: "• "; color: var(--green); }
+.password-state {
+  display: inline-block;
+  padding: 4px 7px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  font-size: .75rem;
+  text-transform: uppercase;
+  letter-spacing: .05em;
+}
+.password-state.set { color: var(--green); border-color: rgba(44,162,95,.55); }
+.password-state.missing { color: #efb366; border-color: rgba(239,179,102,.5); }
 .empty { text-align: center; color: var(--muted); padding: 32px; }
 .message { min-height: 24px; padding-top: 10px; color: #efb366; font-size: .9rem; }
 .is-hidden { display: none !important; }
@@ -157,6 +169,9 @@ tbody tr:last-child td { border-bottom: 0; }
 }
 .modal h2 { font-size: 1.55rem; }
 .modal .warning { color: #ddd; }
+.modal-field { display: block; margin-top: 14px; }
+.modal-field span { display: block; margin-bottom: 6px; color: #ddd; font-size: .86rem; }
+.modal-field input { width: 100%; }
 .modal-actions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 24px; }
 @media (max-width: 700px) {
   .shell { width: min(100% - 24px, 1180px); padding-top: 28px; }
