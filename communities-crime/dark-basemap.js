@@ -148,6 +148,102 @@
     window.L.__ccBasemapPatched = true;
   }
 
+  function installProjectPasswordCompatibility() {
+    const passwordInput = document.getElementById("lsuId");
+    if (!passwordInput || window.__ccProjectPasswordInstalled) return;
+    window.__ccProjectPasswordInstalled = true;
+
+    let rememberedPassword = "";
+    const MASK = "********";
+    const LSU_ID_BLANK = "____________________________";
+
+    passwordInput.type = "password";
+    passwordInput.inputMode = "text";
+    passwordInput.autocomplete = "current-password";
+    passwordInput.placeholder = "Project password";
+
+    document.querySelectorAll("label").forEach(label => {
+      if (label.htmlFor === "lsuId" || label.contains(passwordInput)) {
+        const span = label.querySelector("span");
+        if (span && /LSU ID/i.test(span.textContent || "")) span.textContent = "Project Password";
+        else if (label.htmlFor === "lsuId" && /LSU ID/i.test(label.textContent || "")) label.textContent = "Project Password";
+      }
+    });
+
+    const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT);
+    const textNodes = [];
+    while (walker.nextNode()) textNodes.push(walker.currentNode);
+    textNodes.forEach(node => {
+      if (node.parentElement?.closest("script,style")) return;
+      const text = node.nodeValue || "";
+      if (/LSU ID/i.test(text)) node.nodeValue = text.replace(/LSU ID/gi, "Project Password");
+    });
+
+    const lookupMessage = document.getElementById("lookupMessage");
+    const loadButton = document.getElementById("loadButton");
+    const actualPassword = () => passwordInput.value === MASK && rememberedPassword
+      ? rememberedPassword
+      : passwordInput.value.trim();
+
+    const validatePassword = event => {
+      const value = actualPassword();
+      if (value.length >= 8) return true;
+      if (event) {
+        event.preventDefault();
+        event.stopImmediatePropagation();
+      }
+      if (lookupMessage) lookupMessage.textContent = "Enter your project password (at least 8 characters).";
+      passwordInput.focus();
+      return false;
+    };
+
+    loadButton?.addEventListener("click", validatePassword, true);
+    passwordInput.addEventListener("keydown", event => {
+      if (event.key === "Enter") validatePassword(event);
+    }, true);
+    passwordInput.addEventListener("input", () => {
+      if (passwordInput.value !== MASK) rememberedPassword = passwordInput.value.trim();
+    });
+
+    const originalFetch = window.fetch.bind(window);
+    window.fetch = async (input, init = {}) => {
+      const url = typeof input === "string" ? input : input?.url || "";
+      let nextInit = init;
+      let moduleLookup = false;
+
+      if (typeof init?.body === "string" && /supabase\.co\/functions\/v1\//.test(url)) {
+        try {
+          const body = JSON.parse(init.body);
+
+          if (url.includes("/neighborhood-selection") && body?.action === "moduleLookup") {
+            const candidate = body.projectPassword || body.lsuId || actualPassword();
+            if (candidate && candidate !== MASK) rememberedPassword = String(candidate).trim();
+            body.projectPassword = rememberedPassword || actualPassword();
+            delete body.lsuId;
+            nextInit = { ...init, body: JSON.stringify(body) };
+            moduleLookup = true;
+          } else if (url.includes("assignment-doc") && Object.prototype.hasOwnProperty.call(body, "lsuId")) {
+            body.lsuId = LSU_ID_BLANK;
+            nextInit = { ...init, body: JSON.stringify(body) };
+          }
+        } catch {}
+      }
+
+      const response = await originalFetch(input, nextInit);
+      if (moduleLookup && response.ok && rememberedPassword) {
+        passwordInput.value = MASK;
+        passwordInput.dataset.projectLoaded = "true";
+      }
+      return response;
+    };
+  }
+
   patchMapLibre();
   patchLeaflet();
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", installProjectPasswordCompatibility, { once: true });
+  } else {
+    installProjectPasswordCompatibility();
+  }
 })();
