@@ -27,7 +27,10 @@ const confirmCity = document.getElementById("confirmCity");
 const cancelConfirm = document.getElementById("cancelConfirm");
 const confirmSubmit = document.getElementById("confirmSubmit");
 const studentName = document.getElementById("studentName");
-const lsuId = document.getElementById("lsuId");
+const projectPassword = document.getElementById("projectPassword");
+const projectPasswordConfirm = document.getElementById("projectPasswordConfirm");
+const passwordReminder = document.getElementById("passwordReminder");
+const savedPassword = document.getElementById("savedPassword");
 
 let map;
 let mapResizeObserver;
@@ -37,9 +40,6 @@ let selected = [];
 let claimedNeighborhoods = new Set();
 let adjacencyBlocked = new Set();
 let submissionComplete = false;
-let existingSubmissionLocked = false;
-let lookupTimer = null;
-let lookupSequence = 0;
 
 const styles = {
   available: { color: "#f2f2f2", weight: 1.4, fillColor: "#2CA25F", fillOpacity: 0.20 },
@@ -112,7 +112,6 @@ function recomputeAdjacencyBlocked() {
   neighborhoodLayer.eachLayer(layer => {
     if (neighborhoodName(layer.feature) === firstName) firstFeature = layer.feature;
   });
-
   if (!firstFeature) return;
 
   neighborhoodLayer.eachLayer(layer => {
@@ -129,84 +128,40 @@ function recomputeAdjacencyBlocked() {
 function updateSelectionState() {
   recomputeAdjacencyBlocked();
   selectedNames.textContent = selected.length ? selected.join(" + ") : "None selected";
-  finalizeButton.disabled = submissionComplete || existingSubmissionLocked || selected.length !== 2;
+  finalizeButton.disabled = submissionComplete || selected.length !== 2;
   refreshStyles();
 }
 
-function updateSelectionSummary() {
-  updateSelectionState();
-}
-
-function resetForIdentityEdit() {
-  existingSubmissionLocked = false;
-  studentMessage.textContent = "";
-  citySelect.disabled = false;
-  updateSelectionSummary();
-}
-
-async function checkExistingSelection() {
+function validateStudentInfo(showMessage = true) {
   const name = studentName.value.trim();
-  const id = lsuId.value.trim();
-  const sequence = ++lookupSequence;
+  const password = projectPassword.value.trim();
+  const confirm = projectPasswordConfirm.value.trim();
 
-  if (name.length < 3 || id.length < 4 || submissionComplete) {
-    resetForIdentityEdit();
-    return;
+  let message = "";
+  let focusTarget = null;
+
+  if (name.length < 3) {
+    message = "Enter your full name before finalizing your selection.";
+    focusTarget = studentName;
+  } else if (password.length < 8) {
+    message = "Create a project password with at least 8 characters.";
+    focusTarget = projectPassword;
+  } else if (password !== confirm) {
+    message = "Your project passwords do not match. Enter the same password twice.";
+    focusTarget = projectPasswordConfirm;
   }
 
-  citySelect.disabled = true;
-  studentMessage.textContent = "Checking for an existing neighborhood selection…";
-
-  try {
-    const response = await fetch(API_URL, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ action: "lookup", studentName: name, lsuId: id })
-    });
-    const payload = await response.json().catch(() => ({}));
-    if (sequence !== lookupSequence) return;
-    if (!response.ok) throw new Error(payload.error || "Could not check existing selection");
-
-    if (!payload.exists) {
-      existingSubmissionLocked = false;
-      studentMessage.textContent = "";
-      citySelect.disabled = false;
-      updateSelectionSummary();
-      return;
-    }
-
-    existingSubmissionLocked = true;
-    selected = [];
-    adjacencyBlocked = new Set();
-    currentCityKey = null;
-    citySelect.value = "";
-    citySelect.disabled = true;
-    mapSection.classList.add("is-hidden");
-    updateSelectionSummary();
-
-    if (payload.matched && Array.isArray(payload.neighborhoods) && payload.neighborhoods.length === 2) {
-      studentMessage.textContent = `You have already selected ${payload.neighborhoods[0]} and ${payload.neighborhoods[1]} in ${payload.city}. Neighborhood selections are final.`;
-    } else {
-      studentMessage.textContent = "A neighborhood selection has already been submitted for that LSU ID. Check that your name and LSU ID are entered correctly; selections are final once submitted.";
-    }
-  } catch (error) {
-    if (sequence !== lookupSequence) return;
-    console.error(error);
-    existingSubmissionLocked = false;
-    citySelect.disabled = false;
-    studentMessage.textContent = "Could not verify whether this LSU ID has already submitted a selection. You may continue, but the system will check again before saving.";
-    updateSelectionSummary();
-  }
+  if (showMessage) studentMessage.textContent = message;
+  if (focusTarget && showMessage) focusTarget.focus();
+  return !message;
 }
 
-function scheduleExistingSelectionCheck() {
-  clearTimeout(lookupTimer);
-  resetForIdentityEdit();
-  lookupTimer = setTimeout(checkExistingSelection, 450);
-}
-
-studentName.addEventListener("input", scheduleExistingSelectionCheck);
-lsuId.addEventListener("input", scheduleExistingSelectionCheck);
+[studentName, projectPassword, projectPasswordConfirm].forEach(input => {
+  input.addEventListener("input", () => {
+    if (!submissionComplete) validateStudentInfo(false);
+    studentMessage.textContent = "";
+  });
+});
 
 async function refreshClaims() {
   const response = await fetch(API_URL, { method: "GET", cache: "no-store" });
@@ -221,7 +176,7 @@ async function refreshClaims() {
 }
 
 function handleNeighborhoodClick(layer) {
-  if (submissionComplete || existingSubmissionLocked) return;
+  if (submissionComplete) return;
   const name = neighborhoodName(layer.feature);
   if (!name || claimedNeighborhoods.has(name)) return;
 
@@ -240,26 +195,20 @@ function handleNeighborhoodClick(layer) {
   }
 
   mapMessage.textContent = "";
-  updateSelectionSummary();
+  updateSelectionState();
 }
 
 function bindNeighborhood(feature, layer) {
   const name = neighborhoodName(feature);
-
   if (!name) {
     layer.setStyle(styles.claimed);
     return;
   }
 
-  layer.bindTooltip(name, {
-    sticky: true,
-    direction: "auto",
-    className: "nh-label"
-  });
-
+  layer.bindTooltip(name, { sticky: true, direction: "auto", className: "nh-label" });
   layer.on("click", () => handleNeighborhoodClick(layer));
   layer.on("mouseover", () => {
-    if (!submissionComplete && !existingSubmissionLocked && !claimedNeighborhoods.has(name) && !adjacencyBlocked.has(name) && !selected.includes(name)) {
+    if (!submissionComplete && !claimedNeighborhoods.has(name) && !adjacencyBlocked.has(name) && !selected.includes(name)) {
       layer.setStyle({ weight: 2.5, fillOpacity: 0.35 });
     }
   });
@@ -267,13 +216,10 @@ function bindNeighborhood(feature, layer) {
 }
 
 async function loadCity(cityKey) {
-  if (existingSubmissionLocked) return;
-
   currentCityKey = cityKey;
   selected = [];
   adjacencyBlocked = new Set();
-  submissionComplete = false;
-  updateSelectionSummary();
+  updateSelectionState();
   mapMessage.textContent = "Loading neighborhood boundaries and current availability…";
 
   mapSection.classList.remove("is-hidden");
@@ -297,22 +243,16 @@ async function loadCity(cityKey) {
 
     if (!geoResponse.ok) throw new Error(`Could not load ${config.file}`);
     const geojson = await geoResponse.json();
-    if (geojson.type !== "FeatureCollection" || !Array.isArray(geojson.features)) {
-      throw new Error(`${config.file} is not a GeoJSON FeatureCollection`);
-    }
+    if (geojson.type !== "FeatureCollection" || !Array.isArray(geojson.features)) throw new Error(`${config.file} is not a GeoJSON FeatureCollection`);
 
     const names = geojson.features.map(feature => {
       const value = feature?.properties?.[config.nameField];
       return value === null || value === undefined ? "" : String(value).trim();
     });
-
     const missing = names.filter(name => !name).length;
     const duplicates = names.filter((name, index) => name && names.indexOf(name) !== index);
 
-    neighborhoodLayer = L.geoJSON(geojson, {
-      style: styleFeature,
-      onEachFeature: bindNeighborhood
-    }).addTo(map);
+    neighborhoodLayer = L.geoJSON(geojson, { style: styleFeature, onEachFeature: bindNeighborhood }).addTo(map);
 
     await nextFrame();
     map.invalidateSize({ pan: false, animate: false });
@@ -322,13 +262,9 @@ async function loadCity(cityKey) {
     const notices = [];
     if (missing) notices.push(`${missing} feature${missing === 1 ? "" : "s"} missing a neighborhood name`);
     if (duplicates.length) notices.push("duplicate neighborhood names detected");
-    if (notices.length) {
-      mapMessage.textContent = `Data check: ${notices.join("; ")}.`;
-    } else if (claimedNeighborhoods.size) {
-      mapMessage.textContent = `${claimedNeighborhoods.size} neighborhood${claimedNeighborhoods.size === 1 ? " is" : "s are"} already unavailable in this city.`;
-    } else {
-      mapMessage.textContent = "";
-    }
+    if (notices.length) mapMessage.textContent = `Data check: ${notices.join("; ")}.`;
+    else if (claimedNeighborhoods.size) mapMessage.textContent = `${claimedNeighborhoods.size} neighborhood${claimedNeighborhoods.size === 1 ? " is" : "s are"} already unavailable in this city.`;
+    else mapMessage.textContent = "";
   } catch (error) {
     console.error(error);
     mapMessage.textContent = `Map error: ${error.message}.`;
@@ -339,58 +275,40 @@ citySelect.addEventListener("change", event => {
   const cityKey = event.target.value;
   if (!cityKey) {
     mapSection.classList.add("is-hidden");
+    currentCityKey = null;
+    selected = [];
+    updateSelectionState();
     return;
   }
   loadCity(cityKey);
 });
 
 finalizeButton.addEventListener("click", async () => {
-  const name = studentName.value.trim();
-  const id = lsuId.value.trim();
-
-  if (name.length < 3 || id.length < 4) {
-    mapMessage.textContent = "Enter your full name and LSU ID before finalizing your selection.";
-    (name.length < 3 ? studentName : lsuId).focus();
-    return;
-  }
-
-  if (selected.length !== 2 || !currentCityKey || existingSubmissionLocked) return;
+  if (!validateStudentInfo(true)) return;
+  if (selected.length !== 2 || !currentCityKey || submissionComplete) return;
 
   finalizeButton.disabled = true;
-  mapMessage.textContent = "Checking current neighborhood availability…";
+  mapMessage.textContent = "Checking current neighborhood availability and project password…";
 
   try {
-    const lookupResponse = await fetch(API_URL, {
+    const passwordResponse = await fetch(API_URL, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ action: "lookup", studentName: name, lsuId: id })
+      body: JSON.stringify({ action: "passwordCheck", projectPassword: projectPassword.value.trim() })
     });
-    const lookupPayload = await lookupResponse.json().catch(() => ({}));
-    if (!lookupResponse.ok) throw new Error(lookupPayload.error || "Could not verify existing selection");
-
-    if (lookupPayload.exists) {
-      existingSubmissionLocked = true;
-      selected = [];
-      adjacencyBlocked = new Set();
-      currentCityKey = null;
-      citySelect.value = "";
-      citySelect.disabled = true;
-      mapSection.classList.add("is-hidden");
-      if (lookupPayload.matched && Array.isArray(lookupPayload.neighborhoods)) {
-        studentMessage.textContent = `You have already selected ${lookupPayload.neighborhoods[0]} and ${lookupPayload.neighborhoods[1]} in ${lookupPayload.city}. Neighborhood selections are final.`;
-      } else {
-        studentMessage.textContent = "A neighborhood selection has already been submitted for that LSU ID. Check that your name and LSU ID are entered correctly; selections are final once submitted.";
-      }
-      updateSelectionSummary();
+    const passwordPayload = await passwordResponse.json().catch(() => ({}));
+    if (!passwordResponse.ok) throw new Error(passwordPayload.error || "Could not check the project password.");
+    if (!passwordPayload.available) {
+      studentMessage.textContent = "That project password is already in use. Choose another password and enter it twice.";
+      projectPassword.focus();
       return;
     }
 
     await refreshClaims();
     const newlyClaimed = selected.filter(neighborhood => claimedNeighborhoods.has(neighborhood));
-
     if (newlyClaimed.length) {
       selected = selected.filter(neighborhood => !claimedNeighborhoods.has(neighborhood));
-      updateSelectionSummary();
+      updateSelectionState();
       const names = newlyClaimed.join(" and ");
       mapMessage.textContent = `${names} ${newlyClaimed.length === 1 ? "was" : "were"} just selected by another student. Please choose ${newlyClaimed.length === 1 ? "another neighborhood" : "two available neighborhoods"}.`;
       return;
@@ -402,25 +320,24 @@ finalizeButton.addEventListener("click", async () => {
     confirmModal.classList.remove("is-hidden");
   } catch (error) {
     console.error(error);
-    mapMessage.textContent = "Could not verify current neighborhood availability. Please try again.";
+    mapMessage.textContent = error.message || "Could not verify current availability. Please try again.";
   } finally {
-    updateSelectionSummary();
+    updateSelectionState();
   }
 });
 
 cancelConfirm.addEventListener("click", () => confirmModal.classList.add("is-hidden"));
-
 confirmModal.addEventListener("click", event => {
   if (event.target === confirmModal && !confirmSubmit.disabled) confirmModal.classList.add("is-hidden");
 });
-
 document.addEventListener("keydown", event => {
   if (event.key === "Escape" && !confirmSubmit.disabled) confirmModal.classList.add("is-hidden");
 });
 
 confirmSubmit.addEventListener("click", async () => {
-  if (submissionComplete || existingSubmissionLocked || selected.length !== 2 || !currentCityKey) return;
+  if (submissionComplete || selected.length !== 2 || !currentCityKey || !validateStudentInfo(true)) return;
 
+  const passwordForReminder = projectPassword.value.trim();
   confirmSubmit.disabled = true;
   cancelConfirm.disabled = true;
   confirmSubmit.textContent = "Submitting…";
@@ -431,7 +348,7 @@ confirmSubmit.addEventListener("click", async () => {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         studentName: studentName.value.trim(),
-        lsuId: lsuId.value.trim(),
+        projectPassword: passwordForReminder,
         city: currentCityKey,
         neighborhoods: [...selected]
       })
@@ -445,25 +362,29 @@ confirmSubmit.addEventListener("click", async () => {
     adjacencyBlocked = new Set();
     confirmModal.classList.add("is-hidden");
     refreshStyles();
-    updateSelectionSummary();
+    updateSelectionState();
 
     studentName.disabled = true;
-    lsuId.disabled = true;
+    projectPassword.disabled = true;
+    projectPasswordConfirm.disabled = true;
     citySelect.disabled = true;
+
+    savedPassword.textContent = passwordForReminder;
+    passwordReminder.classList.remove("is-hidden");
 
     const fileNote = payload.fileGenerated
       ? "Your two-neighborhood GeoJSON has also been generated for the instructor."
-      : "Your neighborhood selection is saved; the instructor file will be regenerated from the stored backup if needed.";
-    mapMessage.textContent = `Selection submitted successfully: ${selected.join(" and ")}. ${fileNote}`;
+      : "Your neighborhood selection is saved; the instructor file can be regenerated from the stored backup if needed.";
+    mapMessage.textContent = `Selection submitted successfully: ${selected.join(" and ")}. ${fileNote} Save the project password shown below before leaving this page.`;
+    studentMessage.textContent = "";
   } catch (error) {
     console.error(error);
     confirmModal.classList.add("is-hidden");
     mapMessage.textContent = error.message;
-
     try {
       await refreshClaims();
       selected = selected.filter(name => !claimedNeighborhoods.has(name));
-      updateSelectionSummary();
+      updateSelectionState();
     } catch (refreshError) {
       console.error(refreshError);
     }
