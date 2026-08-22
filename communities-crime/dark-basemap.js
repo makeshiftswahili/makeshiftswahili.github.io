@@ -3,6 +3,13 @@
   const ATTRIBUTION_HTML = '&copy; <a href="https://stadiamaps.com/" target="_blank" rel="noopener noreferrer">Stadia Maps</a> &copy; <a href="https://openmaptiles.org/" target="_blank" rel="noopener noreferrer">OpenMapTiles</a> &copy; <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener noreferrer">OpenStreetMap</a>';
   const ATTRIBUTION_TEXT = "© Stadia Maps © OpenMapTiles © OpenStreetMap";
   const THEMATIC_OPACITY = 0.82;
+  const RACE_PALETTE = {
+    white: "#0072B2",
+    latino: "#E69F00",
+    black: "#009E73",
+    asian: "#CC79A7",
+    none: "#9E9E9E"
+  };
 
   window.CC_BASEMAP = {
     tileUrl: TILE_URL,
@@ -10,6 +17,7 @@
     attributionText: ATTRIBUTION_TEXT,
     thematicOpacity: THEMATIC_OPACITY
   };
+  window.CC_RACE_PALETTE = { ...RACE_PALETTE };
 
   function cloneStyle(style) {
     if (!style || typeof style !== "object" || Array.isArray(style)) return style;
@@ -20,6 +28,47 @@
     } catch {
       return style;
     }
+  }
+
+  function installCrossPlatformZoom(map) {
+    if (!map?.getCanvas || map.__ccCrossPlatformZoom) return;
+    map.__ccCrossPlatformZoom = true;
+
+    try { map.scrollZoom.disable(); } catch {}
+
+    const canvas = map.getCanvas();
+    const clampZoom = zoom => {
+      const min = typeof map.getMinZoom === "function" ? map.getMinZoom() : 0;
+      const max = typeof map.getMaxZoom === "function" ? map.getMaxZoom() : 22;
+      return Math.max(min, Math.min(max, zoom));
+    };
+
+    canvas.addEventListener("wheel", event => {
+      if (!(event.ctrlKey || event.metaKey)) return;
+      event.preventDefault();
+      event.stopImmediatePropagation();
+
+      const raw = Number(event.deltaY) || 0;
+      if (!raw) return;
+      const amount = Math.max(0.045, Math.min(0.22, Math.abs(raw) * 0.004));
+      map.jumpTo({ zoom: clampZoom(map.getZoom() + (raw < 0 ? amount : -amount)) });
+    }, { passive: false, capture: true });
+
+    let gestureStartZoom = null;
+    canvas.addEventListener("gesturestart", event => {
+      event.preventDefault();
+      gestureStartZoom = map.getZoom();
+    }, { passive: false });
+    canvas.addEventListener("gesturechange", event => {
+      if (gestureStartZoom === null) return;
+      event.preventDefault();
+      const scale = Number(event.scale) || 1;
+      map.jumpTo({ zoom: clampZoom(gestureStartZoom + Math.log2(Math.max(scale, 0.01))) });
+    }, { passive: false });
+    canvas.addEventListener("gestureend", event => {
+      event.preventDefault();
+      gestureStartZoom = null;
+    }, { passive: false });
   }
 
   function patchMapLibre() {
@@ -94,6 +143,7 @@
           nextOptions.attributionControl = true;
         }
         super(nextOptions);
+        installCrossPlatformZoom(this);
       }
 
       addLayer(layer, beforeId) {
@@ -146,6 +196,32 @@
 
     window.L.tileLayer = patchedTileLayer;
     window.L.__ccBasemapPatched = true;
+  }
+
+  function installMapHelpText() {
+    const help = '<strong>Map controls:</strong> Use the + and − buttons to zoom. For finer control, hold <strong>Ctrl</strong> (Windows/Linux) or <strong>⌘ Command</strong> (macOS) while scrolling. On a trackpad, you can also <strong>pinch to zoom</strong>. Drag the map to reposition it.';
+    document.querySelectorAll(".map-instructions p").forEach(paragraph => {
+      const text = paragraph.textContent || "";
+      if (/Ctrl/i.test(text) && /zoom/i.test(text)) paragraph.innerHTML = help;
+    });
+  }
+
+  function installSegregationPalette() {
+    if (!/\/communities-crime\/segregation\//.test(window.location.pathname)) return;
+    try {
+      if (typeof raceColors !== "undefined") Object.assign(raceColors, RACE_PALETTE);
+      if (typeof raceLabels !== "undefined") {
+        Object.assign(raceLabels, {
+          white: "White",
+          latino: "Latino",
+          black: "Black",
+          asian: "Asian",
+          none: "No population/data"
+        });
+      }
+    } catch (error) {
+      console.error("Could not apply the segregation accessibility palette", error);
+    }
   }
 
   function installProjectPasswordCompatibility() {
@@ -229,12 +305,18 @@
     };
   }
 
+  function installPageEnhancements() {
+    installMapHelpText();
+    installSegregationPalette();
+    installProjectPasswordCompatibility();
+  }
+
   patchMapLibre();
   patchLeaflet();
 
   if (document.readyState === "loading") {
-    document.addEventListener("DOMContentLoaded", installProjectPasswordCompatibility, { once: true });
+    document.addEventListener("DOMContentLoaded", installPageEnhancements, { once: true });
   } else {
-    installProjectPasswordCompatibility();
+    installPageEnhancements();
   }
 })();
