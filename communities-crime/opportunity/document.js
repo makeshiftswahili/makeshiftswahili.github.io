@@ -133,7 +133,7 @@
     if (window.CC_LEGEND_PREVIEW || oppDocLegendLibraryRequested) return;
     oppDocLegendLibraryRequested = true;
     const script = document.createElement("script");
-    script.src = "../legend-preview.js?v=20260821-9";
+    script.src = "../legend-preview.js?v=20260821-11";
     script.dataset.opportunityLegendPreview = "true";
     script.onload = () => oppDocRegisterLegendPreviews();
     script.onerror = () => { oppDocLegendLibraryRequested = false; };
