@@ -6,14 +6,14 @@
   <meta name="robots" content="noindex,nofollow">
   <title>Communities & Crime | Admin</title>
   <link rel="stylesheet" href="https://use.typekit.net/pgi1nbm.css">
-  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="styles.css?v=20260821-2">
 </head>
 <body>
   <main class="shell">
     <header>
       <div class="eyebrow">SOCL4091 · Communities & Crime</div>
       <h1>Course Project Admin</h1>
-      <p>Instructor-only controls for module availability, neighborhood submissions, group-work submissions, downloads, and selection resets.</p>
+      <p>Instructor-only controls for module availability, neighborhood submissions, group-work submissions, downloads, password resets, and selection resets.</p>
     </header>
 
     <section id="loginPanel" class="panel">
@@ -65,9 +65,9 @@
             <thead>
               <tr>
                 <th>Student</th>
-                <th>LSU ID</th>
                 <th>City</th>
                 <th>Neighborhoods</th>
+                <th>Project Password</th>
                 <th>Submitted</th>
                 <th>Actions</th>
               </tr>
@@ -102,6 +102,28 @@
     </div>
   </main>
 
+  <div id="passwordModal" class="modal-backdrop is-hidden" role="dialog" aria-modal="true" aria-labelledby="passwordTitle">
+    <div class="modal">
+      <div class="eyebrow">PROJECT PASSWORD</div>
+      <h2 id="passwordTitle">Set a new project password</h2>
+      <p id="passwordDescription"></p>
+      <p class="warning">The old password cannot be viewed. Setting a new one immediately replaces it for every later project module.</p>
+      <label class="modal-field">
+        <span>New project password</span>
+        <input id="newProjectPassword" type="password" autocomplete="new-password" placeholder="At least 8 characters">
+      </label>
+      <label class="modal-field">
+        <span>Enter it again</span>
+        <input id="confirmProjectPassword" type="password" autocomplete="new-password" placeholder="Re-enter password">
+      </label>
+      <div id="passwordMessage" class="message"></div>
+      <div class="modal-actions">
+        <button id="cancelPasswordReset" class="secondary" type="button">Cancel</button>
+        <button id="confirmPasswordReset" type="button">Set project password</button>
+      </div>
+    </div>
+  </div>
+
   <div id="resetModal" class="modal-backdrop is-hidden" role="dialog" aria-modal="true" aria-labelledby="resetTitle">
     <div class="modal">
       <div class="eyebrow">RESET SUBMISSION</div>
@@ -115,7 +137,7 @@
     </div>
   </div>
 
-  <script src="app.js?v=20260818-2"></script>
+  <script src="app.js?v=20260821-2"></script>
   <script src="microspatial-admin.js?v=20260818-1"></script>
 </body>
 </html>
