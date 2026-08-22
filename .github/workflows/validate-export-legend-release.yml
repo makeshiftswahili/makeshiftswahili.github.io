@@ -30,9 +30,9 @@ jobs:
         run: |
           set -euo pipefail
           for page in social-disorganization political-economy segregation crime-analysis opportunity; do
-            grep -q 'export-legend-strip.js?v=20260822-1' "communities-crime/$page/index.html"
+            grep -q 'export-legend-strip.js?v=20260822-2' "communities-crime/$page/index.html"
           done
-          grep -q 'sdt-web-legends.js?v=20260822-1' communities-crime/social-disorganization/index.html
+          grep -q 'sdt-web-legends.js?v=20260822-2' communities-crime/social-disorganization/index.html
           grep -q 'class="map-legend"' communities-crime/political-economy/app.js
           grep -q 'legendMarkup(type)' communities-crime/segregation/app.js
           grep -q 'class="crime-legend"' communities-crime/crime-analysis/index.html
