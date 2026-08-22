@@ -8,7 +8,7 @@
   <title>Communities & Crime | Neighborhood Selection</title>
   <link rel="stylesheet" href="https://use.typekit.net/pgi1nbm.css">
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
-  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="styles.css?v=20260821-2">
 </head>
 <body>
   <main class="shell">
@@ -33,20 +33,25 @@
       <div class="section-heading">
         <span class="step-number">1</span>
         <div>
-          <h2 id="student-info-heading">Student information</h2>
-          <p>Enter your information exactly as it appears in LSU records.</p>
+          <h2 id="student-info-heading">Student information & project password</h2>
+          <p>Enter your full name so your instructor can identify your neighborhood selection. Then create a project password that you will use to load these same neighborhoods in every later project module.</p>
         </div>
       </div>
-      <div class="form-grid">
+      <div class="form-grid password-grid">
         <label>
-          <span>Name</span>
+          <span>Full name</span>
           <input id="studentName" type="text" autocomplete="name" placeholder="First and last name">
         </label>
         <label>
-          <span>LSU ID</span>
-          <input id="lsuId" type="text" inputmode="numeric" autocomplete="off" placeholder="LSU ID number">
+          <span>Create project password</span>
+          <input id="projectPassword" type="password" autocomplete="new-password" placeholder="At least 8 characters">
+        </label>
+        <label>
+          <span>Enter project password again</span>
+          <input id="projectPasswordConfirm" type="password" autocomplete="new-password" placeholder="Re-enter password">
         </label>
       </div>
+      <p class="password-note"><strong>Save this password.</strong> You will need it throughout the semester. The website stores only a cryptographic hash of the password, so your instructor cannot view the password you created. If you lose it, your instructor can reset it for you.</p>
       <div id="studentMessage" class="status-message" aria-live="polite"></div>
     </section>
 
@@ -90,6 +95,12 @@
         <button id="finalizeButton" type="button" disabled>Finalize selection</button>
       </div>
       <div id="mapMessage" class="status-message" aria-live="polite"></div>
+      <div id="passwordReminder" class="password-reminder is-hidden" aria-live="polite">
+        <div class="eyebrow">SAVE THIS</div>
+        <strong>Your project password</strong>
+        <code id="savedPassword"></code>
+        <p>You will use this password to load your neighborhoods in every remaining project module.</p>
+      </div>
     </section>
   </main>
 
@@ -98,7 +109,7 @@
       <div class="eyebrow">FINAL CHECK</div>
       <h2 id="confirm-title">Are you sure?</h2>
       <p>You are selecting <strong id="confirmNeighborhoods"></strong> in <strong id="confirmCity"></strong>.</p>
-      <p class="warning">Once confirmed, these choices are final and the two neighborhoods will become unavailable to other students.</p>
+      <p class="warning">Once confirmed, these choices are final and the two neighborhoods will become unavailable to other students. Make sure you have saved your project password.</p>
       <div class="modal-actions">
         <button id="cancelConfirm" type="button" class="secondary">Go back</button>
         <button id="confirmSubmit" type="button">Confirm final selection</button>
@@ -109,7 +120,7 @@
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
   <script src="https://unpkg.com/esri-leaflet@3.0.19/dist/esri-leaflet.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@turf/turf@7.2.0/turf.min.js"></script>
-  <script src="../dark-basemap.js?v=20260816-1"></script>
-  <script src="app.js"></script>
+  <script src="../dark-basemap.js?v=20260821-2"></script>
+  <script src="app.js?v=20260821-2"></script>
 </body>
 </html>
