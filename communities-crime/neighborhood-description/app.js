@@ -21,9 +21,6 @@ const mapOneTitle = document.getElementById("mapOneTitle");
 const mapTwoTitle = document.getElementById("mapTwoTitle");
 const mapOneCaption = document.getElementById("mapOneCaption");
 const mapTwoCaption = document.getElementById("mapTwoCaption");
-const downloadContext = document.getElementById("downloadContext");
-const downloadOne = document.getElementById("downloadOne");
-const downloadTwo = document.getElementById("downloadTwo");
 const buildDocument = document.getElementById("buildDocument");
 const mapStatus = document.getElementById("mapStatus");
 const documentStatus = document.getElementById("documentStatus");
@@ -58,7 +55,7 @@ function baseStyle() {
 }
 
 function setControls(enabled) {
-  [downloadContext, downloadOne, downloadTwo, buildDocument].forEach(button => button.disabled = !enabled);
+  buildDocument.disabled = !enabled;
   documentStatus.textContent = enabled ? "Ready to build your Word assignment." : "Maps must finish loading first.";
 }
 
@@ -118,7 +115,7 @@ function markReady(key) {
   readyMaps.add(key);
   if (readyMaps.size === 3) {
     setControls(true);
-    mapStatus.textContent = "All three maps are ready. Explore with satellite imagery if useful; exports will use the street basemap.";
+    mapStatus.textContent = "All three maps are ready. Explore with satellite imagery if useful; the Word document will use the street basemap.";
   }
 }
 
@@ -126,7 +123,7 @@ function addFineZoomControl(map) {
   map.scrollZoom.disable();
   const canvas = map.getCanvas();
   canvas.addEventListener("wheel", event => {
-    if (!event.ctrlKey) return;
+    if (!(event.ctrlKey || event.metaKey)) return;
     event.preventDefault();
     event.stopPropagation();
     const increment = event.deltaY < 0 ? 0.08 : -0.08;
@@ -277,24 +274,6 @@ function downloadBlob(blob, filename) {
   setTimeout(() => URL.revokeObjectURL(url), 1000);
 }
 
-async function downloadFigure(key, number) {
-  if (!currentProject || !maps[key]) return;
-  const button = key === "context" ? downloadContext : key === "one" ? downloadOne : downloadTwo;
-  button.disabled = true;
-  mapStatus.textContent = `Exporting Figure ${number} with the street basemap…`;
-  try {
-    const image = await captureMap(key);
-    const name = key === "context" ? currentProject.neighborhoods.join("_") : currentProject.neighborhoods[key === "one" ? 0 : 1];
-    downloadBlob(image.blob, `${safe(lsuId.value)}_figure${number}_${safe(name)}.png`);
-    mapStatus.textContent = `Figure ${number} downloaded with the street basemap.`;
-  } catch (error) {
-    console.error(error);
-    mapStatus.textContent = `Could not export Figure ${number}. ${error.message}`;
-  } finally {
-    button.disabled = false;
-  }
-}
-
 function blobToDataUrl(blob) {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
@@ -358,9 +337,6 @@ async function buildWord() {
 
 loadButton.addEventListener("click", loadProject);
 lsuId.addEventListener("keydown", event => { if (event.key === "Enter") loadProject(); });
-downloadContext.addEventListener("click", () => downloadFigure("context", 1));
-downloadOne.addEventListener("click", () => downloadFigure("one", 2));
-downloadTwo.addEventListener("click", () => downloadFigure("two", 3));
 buildDocument.addEventListener("click", buildWord);
 
 document.querySelectorAll("[data-map-key][data-basemap]").forEach(button => {

@@ -157,7 +157,7 @@ function filterPoints(data, box) {
 function addFineZoom(map) {
   map.scrollZoom.disable();
   map.getCanvas().addEventListener("wheel", event => {
-    if (!event.ctrlKey) return;
+    if (!(event.ctrlKey || event.metaKey)) return;
     event.preventDefault();
     event.stopPropagation();
     map.jumpTo({ zoom: Math.max(0, Math.min(22, map.getZoom() + (event.deltaY < 0 ? 0.08 : -0.08))) });
@@ -277,9 +277,17 @@ function destroyMaps() {
   updateDocumentState();
 }
 
+function registerRateLegendPreview(key) {
+  const mapHost = maps[key]?.getContainer?.();
+  const controlsHost = document.querySelector(`[data-legend-controls-for="${key}"]`);
+  const source = document.querySelector(".crime-legend");
+  if (!mapHost || !controlsHost || !source) return;
+  window.CC_LEGEND_PREVIEW?.register({ key, controlsHost, mapHost, render: () => source });
+}
+
 function markReady(key) {
   mapReady.add(key);
-  updateDownloadButtons();
+  if (key.startsWith("rate-")) registerRateLegendPreview(key);
   updateDocumentState();
 }
 
@@ -397,11 +405,6 @@ function updateChoiceButtons(type) {
   });
 }
 
-function updateDownloadButtons() {
-  document.querySelectorAll(".download-map").forEach(button => {
-    button.disabled = !mapReady.has(button.dataset.mapKey);
-  });
-}
 
 function updateDocumentState() {
   if (buildDocument?.dataset.building === "true") return;
@@ -480,7 +483,6 @@ async function chooseIncidentType(type) {
   incidentSection.classList.remove("is-hidden");
   destroyMap("incident-1");
   destroyMap("incident-2");
-  updateDownloadButtons();
   updateDocumentState();
 
   const info = INCIDENT_INFO[type];
@@ -528,12 +530,12 @@ async function captureMap(key, includeLegend) {
   canvas.width = width; canvas.height = height;
   const ctx = canvas.getContext("2d");
   ctx.drawImage(src, 0, 0, width, height);
-  if (includeLegend) drawRateLegend(ctx, canvas);
+  if (includeLegend) drawRateLegend(ctx, canvas, window.CC_LEGEND_PREVIEW?.getScale(key) ?? 1);
   return new Promise((resolve, reject) => canvas.toBlob(blob => blob ? resolve(blob) : reject(new Error("Could not export the map image.")), "image/png"));
 }
 
-function drawRateLegend(ctx, canvas) {
-  const scale = Math.max(0.9, canvas.width / 1150);
+function drawRateLegend(ctx, canvas, sizeMultiplier = 1) {
+  const scale = Math.max(0.9, canvas.width / 1150) * sizeMultiplier;
   const pad = 13 * scale;
   const row = 23 * scale;
   const sw = 14 * scale;
@@ -571,27 +573,6 @@ function drawRateLegend(ctx, canvas) {
   ctx.restore();
 }
 
-function downloadBlob(blob, filename) {
-  const url = URL.createObjectURL(blob);
-  const link = document.createElement("a");
-  link.href = url; link.download = filename;
-  document.body.appendChild(link); link.click(); link.remove();
-  setTimeout(() => URL.revokeObjectURL(url), 1000);
-}
-
-async function downloadFigure(button) {
-  const key = button.dataset.mapKey;
-  const figure = button.dataset.figure;
-  button.disabled = true;
-  try {
-    const blob = await captureMap(key, key.startsWith("rate-"));
-    downloadBlob(blob, `crime_analysis_figure_${figure}.png`);
-  } catch (error) {
-    console.error(error);
-  } finally {
-    button.disabled = !mapReady.has(key);
-  }
-}
 
 window.CC_CRIME_ANALYSIS = {
   getProject: () => currentProject,
@@ -607,5 +588,4 @@ wireBasemapToggles();
 loadButton.addEventListener("click", loadProject);
 lsuId.addEventListener("keydown", event => { if (event.key === "Enter") loadProject(); });
 document.querySelectorAll("[data-incident-type]").forEach(button => button.addEventListener("click", () => chooseIncidentType(button.dataset.incidentType)));
-document.querySelectorAll(".download-map").forEach(button => button.addEventListener("click", () => downloadFigure(button)));
 updateDocumentState();

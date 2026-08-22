@@ -8,7 +8,7 @@
   <title>Neighborhood Description & City Context | SOCL4091</title>
   <link rel="stylesheet" href="https://use.typekit.net/pgi1nbm.css">
   <link rel="stylesheet" href="/vendor/maplibre/maplibre-gl.css?v=5.7.1">
-  <link rel="stylesheet" href="styles.css?v=20260821-5">
+  <link rel="stylesheet" href="styles.css?v=20260821-7">
 </head>
 <body>
   <main class="shell">
@@ -43,7 +43,7 @@
 
         <div class="map-instructions">
           <p><strong>Map controls:</strong> Use the + and − buttons to zoom. For finer control, hold <strong>Ctrl</strong> (Windows/Linux) or <strong>⌘ Command</strong> (macOS) while scrolling. On a trackpad, you can also <strong>pinch to zoom</strong>. Drag the map to reposition it.</p>
-          <p><strong>Satellite imagery is for exploration:</strong> Toggle between Street map and Satellite as you inspect each neighborhood. Your PNGs and Word document will always export the <strong>Street map</strong> basemap at the same zoom and position you selected.</p>
+          <p><strong>Satellite imagery is for exploration:</strong> Toggle between Street map and Satellite as you inspect each neighborhood. Your Word document will always use the <strong>Street map</strong> basemap at the same zoom and position you selected.</p>
         </div>
 
         <article class="figure-card">
@@ -54,7 +54,6 @@
                 <button type="button" class="basemap-option active" data-map-key="context" data-basemap="street">Street map</button>
                 <button type="button" class="basemap-option" data-map-key="context" data-basemap="satellite">Satellite</button>
               </div>
-              <button id="downloadContext" class="secondary small" type="button" disabled>Download PNG</button>
             </div>
           </div>
           <div id="contextMap" class="map context-map" aria-label="City context map"></div>
@@ -69,7 +68,6 @@
                   <button type="button" class="basemap-option active" data-map-key="one" data-basemap="street">Street map</button>
                   <button type="button" class="basemap-option" data-map-key="one" data-basemap="satellite">Satellite</button>
                 </div>
-                <button id="downloadOne" class="secondary small" type="button" disabled>Download PNG</button>
               </div>
             </div>
             <div id="mapOne" class="map" aria-label="First neighborhood boundary map"></div>
@@ -83,7 +81,6 @@
                   <button type="button" class="basemap-option active" data-map-key="two" data-basemap="street">Street map</button>
                   <button type="button" class="basemap-option" data-map-key="two" data-basemap="satellite">Satellite</button>
                 </div>
-                <button id="downloadTwo" class="secondary small" type="button" disabled>Download PNG</button>
               </div>
             </div>
             <div id="mapTwo" class="map" aria-label="Second neighborhood boundary map"></div>
@@ -104,7 +101,7 @@
     </div>
   </main>
   <script src="/vendor/maplibre/maplibre-gl.js?v=5.7.1"></script>
-  <script src="../dark-basemap.js?v=20260821-5"></script>
-  <script type="module" src="app.js?v=20260821-5"></script>
+  <script src="../dark-basemap.js?v=20260821-7"></script>
+  <script type="module" src="app.js?v=20260821-7"></script>
 </body>
 </html>
