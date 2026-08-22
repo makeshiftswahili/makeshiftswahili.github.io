@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="robots" content="noindex,nofollow">
+  <meta name="description" content="SOCL4091 Communities & Crime crime analysis module">
+  <title>Crime Analysis | SOCL4091</title>
+  <link rel="stylesheet" href="https://use.typekit.net/pgi1nbm.css">
+  <link rel="stylesheet" href="https://unpkg.com/maplibre-gl@5.7.1/dist/maplibre-gl.css">
+  <link rel="stylesheet" href="styles.css?v=20260821-1">
+</head>
+<body>
+<main class="shell">
+  <header class="page-header">
+    <a class="home-link" href="../">← Communities & Crime</a>
+    <div class="eyebrow">SOCL4091 · Comparative Neighborhood Analysis Project</div>
+    <h1>Crime Analysis</h1>
+    <p>Compare violent crime rates and incident patterns across your two neighborhoods, then assess how well the crime patterns line up with the theoretical predictions you made earlier in the semester.</p>
+  </header>
+
+  <section class="panel">
+    <div class="section-heading"><span class="step-number">1</span><div><h2>Load your neighborhoods</h2><p>Enter the LSU ID associated with your finalized neighborhood selection.</p></div></div>
+    <label class="field-label" for="lsuId">LSU ID</label>
+    <div class="lookup-row"><input id="lsuId" type="text" inputmode="numeric" autocomplete="off" placeholder="LSU ID number"><button id="loadButton" type="button">Load project</button></div>
+    <div id="lookupMessage" class="status-message" aria-live="polite"></div>
+  </section>
+
+  <div id="projectContent" class="is-hidden">
+    <section class="panel">
+      <div class="section-heading"><span class="step-number">2</span><div><h2>Your project</h2><p>Your city and neighborhood boundaries are loaded from your finalized selection.</p></div></div>
+      <div class="summary-grid">
+        <div><span class="summary-label">City</span><strong id="cityName"></strong></div>
+        <div><span class="summary-label">Neighborhood 1</span><strong id="neighborhoodOne"></strong></div>
+        <div><span class="summary-label">Neighborhood 2</span><strong id="neighborhoodTwo"></strong></div>
+      </div>
+    </section>
+
+    <section class="panel stage-panel">
+      <div class="section-heading"><span class="step-number">3</span><div><h2>Violent crime rates</h2><p>Start with the broader pattern. Each block group is classified by its violent crime rate relative to block groups elsewhere in the same city.</p></div></div>
+
+      <div class="map-instructions">
+        <p><strong>Describe before explaining:</strong> identify the general level, the spatial pattern, and where higher or lower values occur. Then compare the two neighborhoods and the areas immediately around them.</p>
+        <p><strong>What the categories mean:</strong> violent crime includes homicide, aggravated assault, and robbery. Rates are per 1,000 residents and averaged across 2021–2023. The five categories represent relative positions within each city: Very Low, Low, Moderate, High, and Very High.</p>
+        <p><strong>Keep the inference descriptive:</strong> these maps can support, complicate, or contradict your earlier predictions, but they do not show that any neighborhood characteristic caused crime.</p>
+      </div>
+
+      <div class="crime-legend" aria-label="Violent crime rate legend">
+        <span class="legend-title">City-relative violent crime rate</span>
+        <span><i class="rate-swatch very-low"></i>Very Low</span>
+        <span><i class="rate-swatch low"></i>Low</span>
+        <span><i class="rate-swatch moderate"></i>Moderate</span>
+        <span><i class="rate-swatch high"></i>High</span>
+        <span><i class="rate-swatch very-high"></i>Very High</span>
+      </div>
+
+      <div class="map-grid">
+        <article class="figure-card">
+          <div class="figure-heading figure-heading-with-controls">
+            <div><span class="figure-number">Figure 1</span><h3 data-neighborhood-title="0"></h3></div>
+            <button type="button" class="secondary small download-map" data-map-key="rate-1" data-figure="1" disabled>Download PNG</button>
+          </div>
+          <div id="rateMapOne" class="map" aria-label="First neighborhood violent crime rate map"></div>
+          <p id="rateCaptionOne" class="caption"></p>
+        </article>
+        <article class="figure-card">
+          <div class="figure-heading figure-heading-with-controls">
+            <div><span class="figure-number">Figure 2</span><h3 data-neighborhood-title="1"></h3></div>
+            <button type="button" class="secondary small download-map" data-map-key="rate-2" data-figure="2" disabled>Download PNG</button>
+          </div>
+          <div id="rateMapTwo" class="map" aria-label="Second neighborhood violent crime rate map"></div>
+          <p id="rateCaptionTwo" class="caption"></p>
+        </article>
+      </div>
+      <div class="boundary-key"><i class="boundary-sample"></i><span>Selected neighborhood boundary</span></div>
+      <div id="rateStatus" class="status-message" aria-live="polite"></div>
+    </section>
+
+    <section class="panel stage-panel">
+      <div class="section-heading"><span class="step-number">4</span><div><h2>Choose an incident type</h2><p>For the point-level analysis, choose <strong>one</strong> crime type and use it for both neighborhoods.</p></div></div>
+      <div class="incident-choices" role="radiogroup" aria-label="Incident type">
+        <button type="button" class="incident-choice" data-incident-type="rob" aria-pressed="false">
+          <span class="choice-title">Robbery</span>
+          <span class="choice-subtitle">2021–2023 incidents</span>
+        </button>
+        <button type="button" class="incident-choice" data-incident-type="mvt" aria-pressed="false">
+          <span class="choice-title">Motor Vehicle Theft</span>
+          <span class="choice-subtitle">2022 incidents</span>
+        </button>
+      </div>
+      <div id="incidentChoiceStatus" class="status-message" aria-live="polite">Choose a crime type to create Figures 3 and 4.</div>
+    </section>
+
+    <section id="incidentSection" class="panel stage-panel is-hidden">
+      <div class="section-heading"><span class="step-number">5</span><div><h2 id="incidentHeading">Incident patterns</h2><p id="incidentIntro"></p></div></div>
+
+      <div class="map-instructions">
+        <p><strong>Focus on spatial distribution:</strong> look for clustering, dispersion, corridors, isolated pockets, and differences in where incidents concentrate. The number of points matters, but do not let volume substitute for describing the pattern.</p>
+        <p><strong>Return to your Opportunity analysis:</strong> compare the incident pattern with the micro-places, generators or attractors, nodes, paths, and edges you identified earlier. If relevant, also consider whether incidents appear to align with sharp or fuzzy racial-ethnic boundaries from the Segregation module.</p>
+        <p><strong>Map controls:</strong> use the Street map / Satellite toggle when built-environment context helps you interpret a cluster. Your Word document will capture the map in whichever view you leave selected.</p>
+      </div>
+
+      <div class="incident-key"><span><i class="incident-dot"></i><span id="incidentKeyLabel">Incident</span></span><span><i class="boundary-sample"></i>Selected neighborhood boundary</span></div>
+
+      <div class="map-grid">
+        <article class="figure-card">
+          <div class="figure-heading figure-heading-with-controls">
+            <div><span class="figure-number">Figure 3</span><h3 data-neighborhood-title="0"></h3></div>
+            <div class="figure-actions">
+              <div class="basemap-toggle" role="group" aria-label="Neighborhood 1 incident basemap">
+                <button type="button" class="basemap-option active" data-map-container="incidentMapOne" data-basemap="street" aria-pressed="true">Street map</button>
+                <button type="button" class="basemap-option" data-map-container="incidentMapOne" data-basemap="satellite" aria-pressed="false">Satellite</button>
+              </div>
+              <button type="button" class="secondary small download-map" data-map-key="incident-1" data-figure="3" disabled>Download PNG</button>
+            </div>
+          </div>
+          <div id="incidentMapOne" class="map" aria-label="First neighborhood point incident map"></div>
+          <p id="incidentCaptionOne" class="caption"></p>
+        </article>
+        <article class="figure-card">
+          <div class="figure-heading figure-heading-with-controls">
+            <div><span class="figure-number">Figure 4</span><h3 data-neighborhood-title="1"></h3></div>
+            <div class="figure-actions">
+              <div class="basemap-toggle" role="group" aria-label="Neighborhood 2 incident basemap">
+                <button type="button" class="basemap-option active" data-map-container="incidentMapTwo" data-basemap="street" aria-pressed="true">Street map</button>
+                <button type="button" class="basemap-option" data-map-container="incidentMapTwo" data-basemap="satellite" aria-pressed="false">Satellite</button>
+              </div>
+              <button type="button" class="secondary small download-map" data-map-key="incident-2" data-figure="4" disabled>Download PNG</button>
+            </div>
+          </div>
+          <div id="incidentMapTwo" class="map" aria-label="Second neighborhood point incident map"></div>
+          <p id="incidentCaptionTwo" class="caption"></p>
+        </article>
+      </div>
+      <div id="incidentStatus" class="status-message" aria-live="polite"></div>
+    </section>
+
+    <section class="panel document-panel">
+      <div class="section-heading"><span class="step-number">6</span><div><h2>Build your final assignment</h2><p>Your Word document will insert your city, neighborhood names, selected crime type, and all four maps into the final Crime Analysis template.</p></div></div>
+      <div class="document-note">
+        <p><strong>Before building:</strong> make sure all four maps are framed the way you want them to appear. For incident maps, leave Street map or Satellite selected according to the view you want captured.</p>
+        <p><strong>Before submitting:</strong> replace every red/bracketed prompt with your own writing and delete the prompts. Treat the maps as descriptive evidence and use this final section to assess how well your earlier theoretical predictions matched the observed crime patterns.</p>
+      </div>
+      <div class="document-actions">
+        <button id="buildDocument" type="button" disabled>Build Word assignment</button>
+        <span id="documentStatus" class="document-status" aria-live="polite">Load your project and choose an incident type first.</span>
+      </div>
+    </section>
+  </div>
+</main>
+<script src="https://unpkg.com/maplibre-gl@5.7.1/dist/maplibre-gl.js"></script>
+<script src="../dark-basemap.js?v=20260816-1"></script>
+<script src="document.js?v=20260821-1"></script>
+<script src="app.js?v=20260821-1"></script>
+</body>
+</html>
