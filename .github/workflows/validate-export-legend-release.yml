@@ -1,0 +1,45 @@
+name: Validate export legend release
+
+on:
+  pull_request:
+    paths:
+      - tools/.export-legend-validation-trigger
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Parse JavaScript
+        shell: bash
+        run: |
+          set -euo pipefail
+          node --check communities-crime/export-legend-strip.js
+          node --check communities-crime/social-disorganization/app.js
+          node --check communities-crime/political-economy/app.js
+          node --check communities-crime/segregation/app.js
+          node --check communities-crime/crime-analysis/app.js
+          node --check communities-crime/crime-analysis/document.js
+          node --check communities-crime/opportunity/document.js
+          node --check communities-crime/opportunity/app.js
+      - name: Verify release wiring
+        shell: bash
+        run: |
+          set -euo pipefail
+          for page in social-disorganization political-economy segregation crime-analysis opportunity; do
+            grep -q 'export-legend-strip.js?v=20260822-1' "communities-crime/$page/index.html"
+          done
+          grep -q 'sdt-web-legends.js?v=20260822-1' communities-crime/social-disorganization/index.html
+          grep -q 'class="map-legend"' communities-crime/political-economy/app.js
+          grep -q 'legendMarkup(type)' communities-crime/segregation/app.js
+          grep -q 'class="crime-legend"' communities-crime/crime-analysis/index.html
+          grep -q 'class="road-legend"' communities-crime/opportunity/index.html
+          grep -q 'class="landuse-legend"' communities-crime/opportunity/index.html
+          grep -q 'class="bar-legend"' communities-crime/opportunity/index.html
+          ! grep -q '<strong>Legend preview:</strong>' communities-crime/social-disorganization/index.html
+          ! grep -q '<strong>Legend preview:</strong>' communities-crime/political-economy/index.html
+          ! grep -q '<strong>Legend preview:</strong>' communities-crime/segregation/index.html
+          ! grep -q '<strong>Legend preview:</strong>' communities-crime/crime-analysis/index.html
