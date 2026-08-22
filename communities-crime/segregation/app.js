@@ -4,8 +4,8 @@ const DATA_BASE="../data/";
 
 const citySlug={NewOrleans:"neworleans",LA:"losangeles",Philadelphia:"philadelphia",Chicago:"chicago",Houston:"houston",SanFrancisco:"sanfrancisco",Atlanta:"atlanta",Milwaukee:"milwaukee",Detroit:"detroit",Denver:"denver",Seattle:"seattle"};
 const dataFolderRace=new Set(["atlanta","chicago","denver","detroit","houston"]);
-const raceColors={white:"#2b83ba",latino:"#4daf4a",black:"#984ea3",asian:"#e31a1c",none:"#d9d9d9"};
-const raceLabels={white:"Majority White",latino:"Majority Latino",black:"Majority Black",asian:"Majority Asian",none:"No population/data"};
+const raceColors={white:"#0072B2",latino:"#E69F00",black:"#009E73",asian:"#CC79A7",none:"#9E9E9E"};
+const raceLabels={white:"White",latino:"Latino",black:"Black",asian:"Asian",none:"No population/data"};
 const condis={
   1:{label:"Very Low Disadvantage",color:"#1f78b4"},
   2:{label:"Low Disadvantage",color:"#a6cee3"},
@@ -50,7 +50,7 @@ function overlaps(a,b){return a[0]<=b[2]&&a[2]>=b[0]&&a[1]<=b[3]&&a[3]>=b[1]}
 function filteredPolygons(data,box){return{type:"FeatureCollection",features:data.features.filter(f=>{try{return overlaps(bboxThing(f),box)}catch{return false}})}}
 function filteredPoints(data,box){return{type:"FeatureCollection",features:data.features.filter(f=>{const c=f?.geometry?.coordinates;return Array.isArray(c)&&c[0]>=box[0]&&c[0]<=box[2]&&c[1]>=box[1]&&c[1]<=box[3]})}}
 function featureCollection(features){return{type:"FeatureCollection",features}}
-function addFineZoom(map){map.scrollZoom.disable();map.getCanvas().addEventListener("wheel",e=>{if(!e.ctrlKey)return;e.preventDefault();e.stopPropagation();map.jumpTo({zoom:Math.max(0,Math.min(22,map.getZoom()+(e.deltaY<0?.08:-.08)))})},{passive:false})}
+function addFineZoom(map){map.scrollZoom.disable();map.getCanvas().addEventListener("wheel",e=>{if(!(e.ctrlKey||e.metaKey))return;e.preventDefault();e.stopPropagation();map.jumpTo({zoom:Math.max(0,Math.min(22,map.getZoom()+(e.deltaY<0?.08:-.08)))})},{passive:false})}
 function fit(map,b,padding=22,maxZoom=14){map.fitBounds([[b[0],b[1]],[b[2],b[3]]],{padding,duration:0,maxZoom})}
 function markReady(key){readyMaps.add(key);if(readyMaps.size===5){setControls(true);mapStatus.textContent="All five maps are ready. Adjust the framing, inspect block-group popups, and annotate any sharp/fuzzy boundaries before building the Word document."}}
 function addRaceLayers(map,data){
