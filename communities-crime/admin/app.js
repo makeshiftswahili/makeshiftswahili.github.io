@@ -44,6 +44,7 @@ const moduleLinks = {
   "opportunity": "../opportunity/",
   "political-economy": "../political-economy/",
   "segregation": "../segregation/",
+  "crime-analysis": "../crime-analysis/",
   "group-map-interpretation": "../group-work/choropleth-interpretation/",
   "group-routine-collision": "../group-work/microspatial/"
 };
@@ -54,7 +55,8 @@ const communityModuleKeys = [
   "social-disorganization",
   "opportunity",
   "political-economy",
-  "segregation"
+  "segregation",
+  "crime-analysis"
 ];
 
 const groupModuleKeys = [
