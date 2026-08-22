@@ -286,7 +286,6 @@ function registerRateLegendPreview(key) {
 
 function markReady(key) {
   mapReady.add(key);
-  if (key.startsWith("rate-")) registerRateLegendPreview(key);
   updateDocumentState();
 }
 
@@ -516,7 +515,9 @@ function waitForIdle(map) {
   });
 }
 
-async function captureMap(key, includeLegend) {
+function crimeExportLegendConfig(key){if(key.startsWith("rate-"))return{title:"City-relative violent crime rate",rows:[{items:[["Very Low","very low"],["Low","low"],["Moderate","moderate"],["High","high"],["Very High","very high"]].map(([label,k])=>({color:RATE_COLORS[k],label}))},{label:"Boundary",items:[{type:"line",color:"#111111",width:4,label:"Selected neighborhood"}]}]};const info=currentIncidentType?INCIDENT_INFO[currentIncidentType]:null;return{title:info?`${info.label} incidents, ${info.period}`:"Incident pattern",rows:[{items:[{type:"dot",color:"#e63946",label:info?.label||"Incident"},{type:"line",color:"#111111",width:4,label:"Selected neighborhood boundary"}]}]}}
+
+async function captureMap(key) {
   const map = maps[key];
   if (!map || !mapReady.has(key)) throw new Error("That map is not ready yet.");
   await waitForIdle(map);
@@ -525,11 +526,11 @@ async function captureMap(key, includeLegend) {
   const maxWidth = 1400;
   const width = Math.min(src.width, maxWidth);
   const height = Math.round(src.height * width / src.width);
-  const canvas = document.createElement("canvas");
-  canvas.width = width; canvas.height = height;
-  const ctx = canvas.getContext("2d");
-  ctx.drawImage(src, 0, 0, width, height);
-  if (includeLegend) drawRateLegend(ctx, canvas, window.CC_LEGEND_PREVIEW?.getScale(key) ?? 1);
+  const base = document.createElement("canvas");
+  base.width = width; base.height = height;
+  base.getContext("2d").drawImage(src, 0, 0, width, height);
+  const cssWidth = map.getContainer().getBoundingClientRect().width || width;
+  const canvas = window.CC_EXPORT_LEGEND.compose(base, {...crimeExportLegendConfig(key), pixelRatio: width / cssWidth});
   return new Promise((resolve, reject) => canvas.toBlob(blob => blob ? resolve(blob) : reject(new Error("Could not export the map image.")), "image/png"));
 }
 

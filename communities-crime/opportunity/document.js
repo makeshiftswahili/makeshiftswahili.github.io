@@ -53,8 +53,6 @@
   }
 
   function oppDocSetReadyState() {
-    oppDocEnsureLegendLibrary();
-    oppDocRegisterLegendPreviews();
     const button = document.getElementById("buildDocument");
     const status = document.getElementById("documentStatus");
     if (!button || !status) return;
@@ -298,6 +296,38 @@
     ctx.restore();
   }
 
+  function oppDocExportLegendConfig(key) {
+    const type = oppDocLegendType(key);
+    const roadItems = [...OPP_DOC_ROADS].reverse().map(item => ({ type: "line", color: item.color, width: item.width, label: item.label }));
+    const landItems = OPP_DOC_LAND.map(item => ({ color: item.color, label: item.label }));
+    if (type === "street") return {
+      title: "Street hierarchy",
+      rows: [
+        { label: "Roads", items: roadItems },
+        { label: "Boundary", items: [{ type: "line", color: "#2CA25F", width: 5, label: "Selected neighborhood" }] }
+      ]
+    };
+    if (type === "landuse") return {
+      title: "Street network + land use",
+      rows: [
+        { label: "Roads", items: roadItems },
+        { label: "Building use", items: landItems },
+        { label: "Boundary", items: [{ type: "line", color: "#2CA25F", width: 5, label: "Selected neighborhood" }] }
+      ]
+    };
+    return {
+      title: "Opportunity layers",
+      rows: [
+        { label: "Roads", items: roadItems },
+        { label: "Building use", items: landItems },
+        { label: "Activity", items: [
+          { type: "dot", color: "#ff5ca8", label: "Bar / pub / nightclub / biergarten" },
+          { type: "line", color: "#2CA25F", width: 5, label: "Selected neighborhood boundary" }
+        ] }
+      ]
+    };
+  }
+
   async function oppDocCapture(key) {
     const store = oppDocMapStore();
     const map = store?.[key];
@@ -309,17 +339,17 @@
     const maxWidth = 1200;
     const width = Math.min(src.width, maxWidth);
     const height = Math.round(src.height * width / src.width);
-    const canvas = document.createElement("canvas");
-    canvas.width = width;
-    canvas.height = height;
-    const ctx = canvas.getContext("2d");
-    ctx.drawImage(src, 0, 0, width, height);
-    oppDocDrawLegend(ctx, canvas, oppDocLegendType(key), window.CC_LEGEND_PREVIEW?.getScale(key) ?? 1);
+    const base = document.createElement("canvas");
+    base.width = width;
+    base.height = height;
+    base.getContext("2d").drawImage(src, 0, 0, width, height);
+    const cssWidth = map.getContainer().getBoundingClientRect().width || width;
+    const canvas = window.CC_EXPORT_LEGEND.compose(base, {...oppDocExportLegendConfig(key), pixelRatio: width / cssWidth});
 
     const blob = await new Promise((resolve, reject) => {
       canvas.toBlob(value => value ? resolve(value) : reject(new Error("Could not export a map image.")), "image/png");
     });
-    return { blob, width, height };
+    return { blob, width: canvas.width, height: canvas.height };
   }
 
   function oppDocDataUrl(blob) {
