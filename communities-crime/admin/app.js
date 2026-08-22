@@ -17,11 +17,19 @@ const resetModal = document.getElementById("resetModal");
 const resetDescription = document.getElementById("resetDescription");
 const cancelReset = document.getElementById("cancelReset");
 const confirmReset = document.getElementById("confirmReset");
+const passwordModal = document.getElementById("passwordModal");
+const passwordDescription = document.getElementById("passwordDescription");
+const newProjectPassword = document.getElementById("newProjectPassword");
+const confirmProjectPassword = document.getElementById("confirmProjectPassword");
+const passwordMessage = document.getElementById("passwordMessage");
+const cancelPasswordReset = document.getElementById("cancelPasswordReset");
+const confirmPasswordReset = document.getElementById("confirmPasswordReset");
 
 let adminKey = sessionStorage.getItem("cc_admin_key") || "";
 let submissions = [];
 let modules = [];
 let pendingReset = null;
+let pendingPasswordReset = null;
 
 const cityLabels = {
   NewOrleans: "New Orleans, LA",
@@ -180,7 +188,6 @@ function renderRows() {
   submissionRows.innerHTML = submissions.map(sub => `
     <tr>
       <td>${escapeHtml(sub.student_name)}</td>
-      <td>${escapeHtml(sub.lsu_id)}</td>
       <td>${escapeHtml(cityLabels[sub.city] || sub.city)}</td>
       <td>
         <div class="nh-pair">
@@ -188,10 +195,12 @@ function renderRows() {
           <span>${escapeHtml(sub.neighborhood_2)}</span>
         </div>
       </td>
+      <td><span class="password-state ${sub.has_project_password ? "set" : "missing"}">${sub.has_project_password ? "Set" : "Not set"}</span></td>
       <td>${escapeHtml(formatDate(sub.submitted_at))}</td>
       <td>
         <div class="row-actions">
           <button type="button" class="secondary small" data-download="${sub.id}">Download</button>
+          <button type="button" class="secondary small" data-password-reset="${sub.id}">${sub.has_project_password ? "Reset password" : "Set password"}</button>
           <button type="button" class="danger small" data-reset="${sub.id}">Release / reset</button>
         </div>
       </td>
@@ -201,7 +210,9 @@ function renderRows() {
   document.querySelectorAll("[data-download]").forEach(button => {
     button.addEventListener("click", () => downloadGeojson(Number(button.dataset.download)));
   });
-
+  document.querySelectorAll("[data-password-reset]").forEach(button => {
+    button.addEventListener("click", () => openPasswordReset(Number(button.dataset.passwordReset)));
+  });
   document.querySelectorAll("[data-reset]").forEach(button => {
     button.addEventListener("click", () => openReset(Number(button.dataset.reset)));
   });
@@ -236,6 +247,68 @@ async function downloadGeojson(submissionId) {
     adminMessage.textContent = error.message;
   }
 }
+
+function openPasswordReset(submissionId) {
+  const submission = submissions.find(item => item.id === submissionId);
+  if (!submission) return;
+  pendingPasswordReset = submission;
+  passwordDescription.textContent = `${submission.student_name}: ${submission.neighborhood_1} and ${submission.neighborhood_2}.`;
+  newProjectPassword.value = "";
+  confirmProjectPassword.value = "";
+  passwordMessage.textContent = "";
+  passwordModal.classList.remove("is-hidden");
+  setTimeout(() => newProjectPassword.focus(), 0);
+}
+
+function closePasswordReset() {
+  pendingPasswordReset = null;
+  passwordModal.classList.add("is-hidden");
+  newProjectPassword.value = "";
+  confirmProjectPassword.value = "";
+  passwordMessage.textContent = "";
+}
+
+cancelPasswordReset.addEventListener("click", closePasswordReset);
+confirmPasswordReset.addEventListener("click", async () => {
+  if (!pendingPasswordReset) return;
+  const password = newProjectPassword.value.trim();
+  const confirm = confirmProjectPassword.value.trim();
+  if (password.length < 8) {
+    passwordMessage.textContent = "Use at least 8 characters.";
+    newProjectPassword.focus();
+    return;
+  }
+  if (password !== confirm) {
+    passwordMessage.textContent = "The two passwords do not match.";
+    confirmProjectPassword.focus();
+    return;
+  }
+
+  const target = pendingPasswordReset;
+  confirmPasswordReset.disabled = true;
+  cancelPasswordReset.disabled = true;
+  confirmPasswordReset.textContent = "Saving…";
+  passwordMessage.textContent = "";
+
+  try {
+    const response = await fetch(API_URL, {
+      method: "POST",
+      headers: apiHeaders(),
+      body: JSON.stringify({ action: "reset-password", submissionId: target.id, projectPassword: password })
+    });
+    const payload = await response.json().catch(() => ({}));
+    if (!response.ok) throw new Error(payload.error || "Could not reset project password");
+    closePasswordReset();
+    adminMessage.textContent = `${target.student_name}'s project password was updated.`;
+    await fetchAdminState();
+  } catch (error) {
+    passwordMessage.textContent = error.message;
+  } finally {
+    confirmPasswordReset.disabled = false;
+    cancelPasswordReset.disabled = false;
+    confirmPasswordReset.textContent = "Set project password";
+  }
+});
 
 function openReset(submissionId) {
   const submission = submissions.find(item => item.id === submissionId);
@@ -318,16 +391,13 @@ loginButton.addEventListener("click", login);
 adminKeyInput.addEventListener("keydown", event => {
   if (event.key === "Enter") login();
 });
-
 refreshButton.addEventListener("click", async () => {
-  try {
-    await loadAdminState();
-  } catch (error) {
+  try { await loadAdminState(); }
+  catch (error) {
     adminMessage.textContent = error.message;
     moduleMessage.textContent = error.message;
   }
 });
-
 logoutButton.addEventListener("click", () => {
   adminKey = "";
   sessionStorage.removeItem("cc_admin_key");
@@ -339,6 +409,17 @@ logoutButton.addEventListener("click", () => {
 
 resetModal.addEventListener("click", event => {
   if (event.target === resetModal && !confirmReset.disabled) {
+    pendingReset = null;
+    resetModal.classList.add("is-hidden");
+  }
+});
+passwordModal.addEventListener("click", event => {
+  if (event.target === passwordModal && !confirmPasswordReset.disabled) closePasswordReset();
+});
+document.addEventListener("keydown", event => {
+  if (event.key !== "Escape") return;
+  if (!passwordModal.classList.contains("is-hidden") && !confirmPasswordReset.disabled) closePasswordReset();
+  else if (!resetModal.classList.contains("is-hidden") && !confirmReset.disabled) {
     pendingReset = null;
     resetModal.classList.add("is-hidden");
   }
