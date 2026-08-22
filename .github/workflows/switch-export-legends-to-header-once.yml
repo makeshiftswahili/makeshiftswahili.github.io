@@ -4,6 +4,7 @@ on:
   push:
     paths:
       - tools/.export-legend-header-trigger
+      - .github/workflows/switch-export-legends-to-header-once.yml
 
 permissions:
   contents: write
