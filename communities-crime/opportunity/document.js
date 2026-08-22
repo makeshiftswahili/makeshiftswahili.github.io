@@ -133,7 +133,7 @@
     if (window.CC_LEGEND_PREVIEW || oppDocLegendLibraryRequested) return;
     oppDocLegendLibraryRequested = true;
     const script = document.createElement("script");
-    script.src = "../legend-preview.js?v=20260821-8";
+    script.src = "../legend-preview.js?v=20260821-9";
     script.dataset.opportunityLegendPreview = "true";
     script.onload = () => oppDocRegisterLegendPreviews();
     script.onerror = () => { oppDocLegendLibraryRequested = false; };
@@ -166,7 +166,9 @@
         key,
         controlsHost,
         mapHost,
-        render: () => oppDocPreviewLegend(oppDocLegendType(key))
+        raw: true,
+        rerenderOnScale: true,
+        render: scale => oppDocRenderLegendPreview(key, scale)
       });
       oppDocPreviewMaps.set(key, map);
     }
@@ -206,8 +208,31 @@
     ctx.restore();
   }
 
-  function oppDocDrawLegend(ctx, canvas, type, sizeMultiplier = 1) {
-    const s = Math.max(0.92, canvas.width / 1100) * sizeMultiplier;
+  function oppDocRenderLegendPreview(key, sizeMultiplier = 1) {
+    const store = oppDocMapStore();
+    const map = store?.[key];
+    if (!map) return document.createElement("span");
+    const src = map.getCanvas();
+    const exportWidth = Math.min(src.width, 1200);
+    const type = oppDocLegendType(key);
+    const s = Math.max(0.92, exportWidth / 1100) * sizeMultiplier;
+    const rows = type === "street" ? 5 : type === "landuse" ? 10 : 11;
+    const width = 315 * s;
+    const height = (50 + rows * 21) * s;
+    const edge = 12 * s;
+    const canvas = document.createElement("canvas");
+    canvas.width = Math.ceil(width + edge);
+    canvas.height = Math.ceil(height + edge);
+    oppDocDrawLegend(canvas.getContext("2d"), canvas, type, sizeMultiplier, s);
+    const liveWidth = map.getContainer().getBoundingClientRect().width || 1;
+    const factor = liveWidth / exportWidth;
+    canvas.style.width = `${canvas.width * factor}px`;
+    canvas.style.height = `${canvas.height * factor}px`;
+    return canvas;
+  }
+
+  function oppDocDrawLegend(ctx, canvas, type, sizeMultiplier = 1, forcedScale = null) {
+    const s = forcedScale ?? (Math.max(0.92, canvas.width / 1100) * sizeMultiplier);
     const pad = 13 * s;
     const font = 13 * s;
     const small = 12 * s;

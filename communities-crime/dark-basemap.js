@@ -138,10 +138,7 @@
     class CourseBasemapMap extends OriginalMap {
       constructor(options = {}) {
         const patched = patchStyle(options.style);
-        const nextOptions = { ...options, style: patched.style };
-        if (patched.blankStyle && options.attributionControl === false) {
-          nextOptions.attributionControl = true;
-        }
+        const nextOptions = { ...options, style: patched.style, attributionControl: false };
         super(nextOptions);
         installCrossPlatformZoom(this);
       }
@@ -305,10 +302,50 @@
     };
   }
 
+  function installOffMapAttribution() {
+    if (!document.getElementById("cc-map-credit-style")) {
+      const style = document.createElement("style");
+      style.id = "cc-map-credit-style";
+      style.textContent = `
+        .maplibregl-ctrl-attrib, .leaflet-control-attribution { display: none !important; }
+        .cc-map-source-note {
+          margin: 10px 0 0;
+          color: #9f9f9f;
+          font-size: .78rem;
+          line-height: 1.4;
+        }
+        .cc-map-source-note a { color: #bdbdbd; text-decoration: underline; text-underline-offset: 2px; }
+      `;
+      document.head.appendChild(style);
+    }
+
+    const creditHtml = 'Map/data credits: <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener noreferrer">OpenStreetMap</a>. Basemap tiles where used: <a href="https://stadiamaps.com/" target="_blank" rel="noopener noreferrer">Stadia Maps</a> · <a href="https://openmaptiles.org/" target="_blank" rel="noopener noreferrer">OpenMapTiles</a>. Satellite imagery where shown: © Esri.';
+
+    const placeCredits = () => {
+      const containers = new Set();
+      document.querySelectorAll(".map, .leaflet-container, .maplibregl-map").forEach(mapNode => {
+        const container = mapNode.closest(".variable-section, .stage-panel, .panel");
+        if (container) containers.add(container);
+      });
+      containers.forEach(container => {
+        if (container.querySelector(":scope > .cc-map-source-note")) return;
+        const note = document.createElement("p");
+        note.className = "cc-map-source-note";
+        note.innerHTML = creditHtml;
+        container.appendChild(note);
+      });
+    };
+
+    placeCredits();
+    const observer = new MutationObserver(placeCredits);
+    observer.observe(document.body, { childList: true, subtree: true });
+  }
+
   function installPageEnhancements() {
     installMapHelpText();
     installSegregationPalette();
     installProjectPasswordCompatibility();
+    installOffMapAttribution();
   }
 
   patchMapLibre();

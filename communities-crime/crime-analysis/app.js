@@ -280,9 +280,8 @@ function destroyMaps() {
 function registerRateLegendPreview(key) {
   const mapHost = maps[key]?.getContainer?.();
   const controlsHost = document.querySelector(`[data-legend-controls-for="${key}"]`);
-  const source = document.querySelector(".crime-legend");
-  if (!mapHost || !controlsHost || !source) return;
-  window.CC_LEGEND_PREVIEW?.register({ key, controlsHost, mapHost, render: () => source });
+  if (!mapHost || !controlsHost) return;
+  window.CC_LEGEND_PREVIEW?.register({ key, controlsHost, mapHost, raw: true, rerenderOnScale: true, render: scale => renderRateLegendPreview(key, scale) });
 }
 
 function markReady(key) {
@@ -534,8 +533,10 @@ async function captureMap(key, includeLegend) {
   return new Promise((resolve, reject) => canvas.toBlob(blob => blob ? resolve(blob) : reject(new Error("Could not export the map image.")), "image/png"));
 }
 
-function drawRateLegend(ctx, canvas, sizeMultiplier = 1) {
-  const scale = Math.max(0.9, canvas.width / 1150) * sizeMultiplier;
+function renderRateLegendPreview(key,sizeMultiplier=1){const map=maps[key];if(!map)return document.createElement("span");const src=map.getCanvas(),exportWidth=Math.min(src.width,1400),legendScale=Math.max(.9,exportWidth/1150)*sizeMultiplier,width=290*legendScale,height=184*legendScale,edge=12*legendScale,canvas=document.createElement("canvas");canvas.width=Math.ceil(width+edge);canvas.height=Math.ceil(height+edge);drawRateLegend(canvas.getContext("2d"),canvas,sizeMultiplier,legendScale);const liveWidth=map.getContainer().getBoundingClientRect().width||1,factor=liveWidth/exportWidth;canvas.style.width=`${canvas.width*factor}px`;canvas.style.height=`${canvas.height*factor}px`;return canvas}
+
+function drawRateLegend(ctx, canvas, sizeMultiplier = 1, forcedScale = null) {
+  const scale = forcedScale ?? (Math.max(0.9, canvas.width / 1150) * sizeMultiplier);
   const pad = 13 * scale;
   const row = 23 * scale;
   const sw = 14 * scale;

@@ -15,6 +15,12 @@
       max-width: 52%;
     }
     .cc-legend-preview-overlay.is-hidden { display: none !important; }
+    .cc-legend-preview-overlay.cc-legend-preview-raw {
+      right: 0;
+      bottom: 0;
+      max-width: none;
+    }
+    .cc-legend-preview-overlay.cc-legend-preview-raw > * { display: block; }
     .cc-legend-preview-card {
       box-sizing: border-box;
       max-width: 280px;
@@ -143,8 +149,8 @@
     node.querySelectorAll("[id]").forEach(child => child.removeAttribute("id"));
   }
 
-  function makeLegendNode(render) {
-    const value = typeof render === "function" ? render() : render;
+  function makeLegendNode(render, scale = 1) {
+    const value = typeof render === "function" ? render(scale) : render;
     if (value instanceof Node) {
       const clone = value.cloneNode(true);
       stripIds(clone);
@@ -157,7 +163,7 @@
 
   function stateFor(key) {
     if (!entries.has(key)) {
-      entries.set(key, { key, scaleIndex: 1, visible: false, render: null, overlay: null, label: null, minus: null, plus: null, toggle: null });
+      entries.set(key, { key, scaleIndex: 1, visible: false, render: null, overlay: null, label: null, minus: null, plus: null, toggle: null, raw: false, rerenderOnScale: false });
     }
     return entries.get(key);
   }
@@ -165,7 +171,7 @@
   function applyState(entry) {
     const scale = SCALE_STEPS[entry.scaleIndex];
     if (entry.overlay) {
-      entry.overlay.style.transform = `scale(${scale})`;
+      entry.overlay.style.transform = entry.rerenderOnScale ? "none" : `scale(${scale})`;
       entry.overlay.classList.toggle("is-hidden", !entry.visible);
     }
     if (entry.label) entry.label.textContent = `${Math.round(scale * 100)}%`;
@@ -180,13 +186,18 @@
   function refresh(key) {
     const entry = entries.get(key);
     if (!entry?.overlay || !entry.render) return;
-    const card = entry.overlay.querySelector(".cc-legend-preview-card");
-    if (!card) return;
-    card.replaceChildren(makeLegendNode(entry.render));
+    const scale = SCALE_STEPS[entry.scaleIndex];
+    if (entry.raw) {
+      entry.overlay.replaceChildren(makeLegendNode(entry.render, scale));
+    } else {
+      const card = entry.overlay.querySelector(".cc-legend-preview-card");
+      if (!card) return;
+      card.replaceChildren(makeLegendNode(entry.render, scale));
+    }
     applyState(entry);
   }
 
-  function register({ key, controlsHost, mapHost, render, bare = false, defaultScaleIndex = 1 }) {
+  function register({ key, controlsHost, mapHost, render, bare = false, raw = false, rerenderOnScale = false, defaultScaleIndex = 1 }) {
     if (!key || !(controlsHost instanceof Element) || !(mapHost instanceof Element) || !render) return null;
 
     const previous = entries.get(key);
@@ -195,18 +206,25 @@
 
     const entry = stateFor(key);
     entry.render = render;
+    entry.raw = raw;
+    entry.rerenderOnScale = rerenderOnScale;
     entry.scaleIndex = Math.max(0, Math.min(SCALE_STEPS.length - 1, previous?.scaleIndex ?? defaultScaleIndex));
     entry.visible = previous?.visible ?? false;
 
     mapHost.classList.add("cc-legend-preview-host");
     const overlay = document.createElement("div");
-    overlay.className = "cc-legend-preview-overlay is-hidden";
+    overlay.className = `cc-legend-preview-overlay is-hidden${raw ? " cc-legend-preview-raw" : ""}`;
     overlay.dataset.legendPreviewKey = key;
     overlay.setAttribute("aria-hidden", "true");
-    const card = document.createElement("div");
-    card.className = `cc-legend-preview-card${bare ? " cc-bare" : ""}`;
-    card.appendChild(makeLegendNode(render));
-    overlay.appendChild(card);
+    const initialScale = SCALE_STEPS[entry.scaleIndex];
+    if (raw) {
+      overlay.appendChild(makeLegendNode(render, initialScale));
+    } else {
+      const card = document.createElement("div");
+      card.className = `cc-legend-preview-card${bare ? " cc-bare" : ""}`;
+      card.appendChild(makeLegendNode(render, initialScale));
+      overlay.appendChild(card);
+    }
     mapHost.appendChild(overlay);
 
     const controls = document.createElement("div");
@@ -251,11 +269,11 @@
     });
     minus.addEventListener("click", () => {
       if (entry.scaleIndex > 0) entry.scaleIndex -= 1;
-      applyState(entry);
+      if (entry.rerenderOnScale) refresh(key); else applyState(entry);
     });
     plus.addEventListener("click", () => {
       if (entry.scaleIndex < SCALE_STEPS.length - 1) entry.scaleIndex += 1;
-      applyState(entry);
+      if (entry.rerenderOnScale) refresh(key); else applyState(entry);
     });
 
     Object.assign(entry, { overlay, controls, toggle, minus, plus, label });
