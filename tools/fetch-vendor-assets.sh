@@ -39,7 +39,7 @@ fetch "https://cdn.jsdelivr.net/npm/@turf/turf@7.2.0/turf.min.js" "vendor/turf/t
 # exercise dependency on a public CDN.
 fetch "https://unpkg.com/maplibre-gl@5.7.1/dist/maplibre-gl.js" "vendor/maplibre/maplibre-gl.js"
 fetch "https://unpkg.com/maplibre-gl@5.7.1/dist/maplibre-gl.css" "vendor/maplibre/maplibre-gl.css"
-fetch "https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.2/jspdf.umd.min.js" "vendor/jspdf/jspdf.umd.min.js"
+fetch "https://unpkg.com/jspdf@2.5.2/dist/jspdf.umd.min.js" "vendor/jspdf/jspdf.umd.min.js"
 
 # License copies are useful in a vendored tree. Do not make the runtime update
 # fail solely because a package changes the location of its license file.
