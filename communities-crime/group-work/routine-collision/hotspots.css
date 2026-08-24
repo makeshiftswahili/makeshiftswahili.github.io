@@ -150,3 +150,27 @@
   .hotspot-open { grid-column: 2; }
   .observation-heading { flex-direction: column; }
 }
+
+.reflection-block {
+  margin-top: 24px;
+}
+.reflection-block .stage-kicker {
+  margin-bottom: 5px;
+}
+.reflection-block textarea {
+  display: block;
+  width: 100%;
+  min-height: 132px;
+  margin-top: 10px;
+  resize: vertical;
+  padding: 11px 12px;
+  border: 1px solid var(--line-strong);
+  background: #181818;
+  color: var(--text);
+  font: inherit;
+  line-height: 1.5;
+}
+.reflection-block textarea:focus {
+  outline: 2px solid var(--green);
+  outline-offset: 1px;
+}

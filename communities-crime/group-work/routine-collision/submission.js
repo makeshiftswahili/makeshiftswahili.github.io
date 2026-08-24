@@ -207,7 +207,7 @@
         mechanismLabel: mechanism?.selectedOptions?.[0]?.textContent || "Not recorded",
         robberyCounts
       },
-      stage6: { hotspots: hotspotNotes }
+      stage6: { hotspots: hotspotNotes, reflection: $("#finalReflection")?.value.trim() || "" }
     };
   }
 
@@ -278,6 +278,9 @@
       $("#predictionReason").value = responses.stage5.mechanismCode;
       $("#predictionReason").dispatchEvent(new Event("change", { bubbles: true }));
     }
+    if (typeof responses.stage6?.reflection === "string") {
+      $("#finalReflection").value = responses.stage6.reflection;
+    }
 
     window.setTimeout(() => { restoring = false; }, 0);
   }
@@ -341,6 +344,14 @@
     if (!accessToken || sessionStatus !== "in_progress") return;
     clearTimeout(saveTimer);
     const responses = snapshotResponses();
+    const reflection = responses.stage6?.reflection || "";
+    if (!reflection) {
+      submitMessage.classList.add("error");
+      submitMessage.textContent = "Complete the required Reflection prompt before submitting.";
+      $("#finalReflection")?.focus();
+      $("#finalReflection")?.scrollIntoView({ behavior: "smooth", block: "center" });
+      return;
+    }
     submitActivity.disabled = true;
     submitMessage.classList.remove("error");
     submitMessage.textContent = "Submitting group activity…";
@@ -412,7 +423,7 @@
   });
 
   document.addEventListener("input", event => {
-    if (event.target.matches?.("#initialRisk, #timeSlider, #clockRisk, [data-hotspot-note]")) scheduleSave();
+    if (event.target.matches?.("#initialRisk, #timeSlider, #clockRisk, [data-hotspot-note], #finalReflection")) scheduleSave();
   });
   document.addEventListener("change", event => {
     if (event.target.matches?.("#observationGrid input, #predictionReason")) scheduleSave();
