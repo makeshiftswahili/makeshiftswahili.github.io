@@ -127,7 +127,7 @@ function renderMaps(){
  requestAnimationFrame(()=>{createCitywideMap(n1f,n2f);createNeighborhoodMap("disadvantage-1",n1f,true,false);createNeighborhoodMap("disadvantage-2",n2f,true,false);createNeighborhoodMap("boundary-1",n1f,false,true);createNeighborhoodMap("boundary-2",n2f,false,true)});
 }
 async function loadDatasets(slug){
- const [rRace,rCity,rCondis]=await Promise.all([fetch(racePath(slug),{cache:"force-cache"}),fetch(cityPath(slug),{cache:"force-cache"}),fetch("../../SEG_condis.geojson",{cache:"force-cache"})]);
+ const [rRace,rCity,rCondis]=await Promise.all([fetch(racePath(slug),{cache:"force-cache"}),fetch(cityPath(slug),{cache:"force-cache"}),fetch(`${DATA_BASE}SEG_condis.geojson`,{cache:"force-cache"})]);
  if(!rRace.ok)throw new Error("Could not load racial-ethnic composition data for your city.");if(!rCity.ok)throw new Error("Could not load the city boundary.");if(!rCondis.ok)throw new Error("Could not load concentrated disadvantage centroids.");
  const [race,city,cd]=await Promise.all([rRace.json(),rCity.json(),rCondis.json()]);raceData=enrichRace(race);cityBoundary=city;condisData=cd;
 }
