@@ -1,0 +1,36 @@
+name: Add Boston reflection prompt
+
+on:
+  push:
+    paths:
+      - tools/.boston-reflection-trigger
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - run: python tools/add-boston-reflection.py
+      - name: Validate
+        shell: bash
+        run: |
+          set -euo pipefail
+          node --check communities-crime/group-work/routine-collision/submission.js
+          grep -q 'id="finalReflection"' communities-crime/group-work/routine-collision/index.html
+          grep -q 'Complete the required Reflection prompt before submitting' communities-crime/group-work/routine-collision/submission.js
+          grep -q 'reflection-block textarea' communities-crime/group-work/routine-collision/hotspots.css
+          grep -q 'submission.js?v=20260824-1' communities-crime/group-work/routine-collision/index.html
+      - name: Commit
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add communities-crime/group-work/routine-collision
+          git commit -m 'Add required Boston activity reflection'
+          git push origin HEAD:main
