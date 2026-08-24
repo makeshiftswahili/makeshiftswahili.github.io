@@ -1,0 +1,37 @@
+name: Fix segregation concentrated disadvantage path
+
+on:
+  push:
+    paths:
+      - tools/.segregation-condis-fix-trigger
+
+permissions:
+  contents: write
+
+jobs:
+  fix:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Apply fix
+        run: python tools/fix-segregation-condis-path.py
+      - name: Validate
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -s communities-crime/data/SEG_condis.geojson
+          test "$(wc -c < communities-crime/data/SEG_condis.geojson)" -gt 10000000
+          grep -q 'DATA_BASE}SEG_condis.geojson' communities-crime/segregation/app.js
+          grep -q 'app.js?v=20260824-segfix1' communities-crime/segregation/index.html
+          node --check communities-crime/segregation/app.js
+      - name: Commit fix
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add communities-crime/segregation/app.js communities-crime/segregation/index.html
+          git commit -m 'Fix segregation concentrated disadvantage loading'
+          git push origin HEAD:main
