@@ -131,3 +131,37 @@ svgToPng = function(svg) {
     JsPdf.prototype.__ccGroupNamesPatched = true;
   }
 })();
+
+// Keep the exercise-1 answer key comfortably inside the PDF page.
+// The original export placed each map/description pairing on one long line;
+// some PDF viewers/renderers clipped the longest descriptions at the right edge.
+(() => {
+  if (window.__ccChoroplethPdfWrapFix || typeof window.addWrappedText !== "function") return;
+  window.__ccChoroplethPdfWrapFix = true;
+
+  const originalAddWrappedText = window.addWrappedText;
+
+  window.addWrappedText = function(doc, text, x, y, width, fontSize = 10, bold = false) {
+    const value = String(text || "");
+    const match = value.match(/^Map ([A-D])\s*→\s*Description (\d+):\s*(.*)$/);
+    if (!match) return originalAddWrappedText(doc, text, x, y, width, fontSize, bold);
+
+    const pageWidth = doc.internal.pageSize.getWidth();
+    const safeWidth = Math.min(width, pageWidth - x - 18, 165);
+    const label = `Map ${match[1]} - Description ${match[2]}:`;
+    const description = match[3];
+    const lineStep = fontSize * 0.42;
+
+    doc.setTextColor(30, 30, 30);
+    doc.setFontSize(fontSize);
+    doc.setFont("helvetica", "bold");
+    doc.text(label, x, y);
+
+    doc.setFont("helvetica", "normal");
+    const descriptionX = x + 4;
+    const lines = doc.splitTextToSize(description, safeWidth - 4);
+    doc.text(lines, descriptionX, y + lineStep + 1);
+
+    return y + (1 + lines.length) * lineStep + 4;
+  };
+})();
