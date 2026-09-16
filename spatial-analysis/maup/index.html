@@ -16,5 +16,15 @@
 <body data-lab="maup">
   <div id="app"></div>
   <noscript>This interactive lab requires JavaScript.</noscript>
+  <script>
+    window.addEventListener('DOMContentLoaded', () => {
+      setTimeout(() => {
+        const scale = document.getElementById('maup-scale');
+        if (!scale) return;
+        scale.value = '1';
+        scale.dispatchEvent(new Event('change'));
+      }, 0);
+    });
+  </script>
 </body>
 </html>
