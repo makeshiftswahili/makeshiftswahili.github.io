@@ -21,6 +21,20 @@
       setTimeout(() => {
         const scale = document.getElementById('maup-scale');
         if (!scale) return;
+
+        const label = document.querySelector('label[for="maup-scale"]');
+        if (label) label.textContent = 'Aggregation factor';
+
+        const optionLabels = {
+          '1': 'Original scale (1 source cell per unit)',
+          '2': '2×2 source cells per block',
+          '4': '4×4 source cells per block',
+          '8': '8×8 source cells per block'
+        };
+        Array.from(scale.options).forEach(option => {
+          if (optionLabels[option.value]) option.textContent = optionLabels[option.value];
+        });
+
         scale.value = '1';
         scale.dispatchEvent(new Event('change'));
       }, 0);
