@@ -15,7 +15,7 @@
     <header class="page-header">
       <div class="eyebrow">SOCL7213 · Spatial Analysis</div>
       <h1>Course Admin</h1>
-      <p>Instructor-only controls for lab availability.</p>
+      <p>Instructor-only controls for lab availability and one-time meeting reservations.</p>
     </header>
 
     <section id="loginPanel" class="panel admin-panel">
@@ -25,14 +25,25 @@
       <div id="loginMessage" class="message"></div>
     </section>
 
-    <section id="adminPanel" class="panel admin-panel is-hidden">
-      <div class="toolbar">
-        <div><h2>Module availability</h2><p>Changes take effect on the SOCL7213 landing page.</p></div>
-        <div class="toolbar-actions"><button id="refreshButton" type="button">Refresh</button><button id="logoutButton" type="button">Lock admin</button></div>
-      </div>
-      <div id="moduleRows" class="module-list"></div>
-      <div id="moduleMessage" class="message"></div>
-    </section>
+    <div id="adminPanel" class="is-hidden">
+      <section class="panel admin-panel">
+        <div class="toolbar">
+          <div><h2>Module availability</h2><p>Changes take effect on the SOCL7213 landing page.</p></div>
+          <div class="toolbar-actions"><button id="refreshButton" type="button">Refresh</button><button id="logoutButton" type="button">Lock admin</button></div>
+        </div>
+        <div id="moduleRows" class="module-list"></div>
+        <div id="moduleMessage" class="message"></div>
+      </section>
+
+      <section class="panel admin-panel">
+        <div class="toolbar">
+          <div><h2>Meeting reservations</h2><p>Student reservations for the September 22–25 meeting window.</p></div>
+          <div id="bookingCount" class="booking-count"></div>
+        </div>
+        <div id="meetingRows" class="meeting-list"></div>
+        <div id="meetingMessage" class="message"></div>
+      </section>
+    </div>
   </main>
   <script src="app.js"></script>
 </body>
