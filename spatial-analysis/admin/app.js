@@ -50,6 +50,27 @@ function renderModules() {
   document.querySelectorAll("[data-module]").forEach(button => button.addEventListener("click", () => toggleModule(button.dataset.module, button.dataset.next === "true", button)));
 }
 
+function adminOutlookUrl(booking) {
+  const isZoom = booking.modality === "Zoom";
+  const bodyParts = [
+    `Student: ${booking.student_name}`,
+    `Format: ${booking.modality}`
+  ];
+
+  if (booking.questions) bodyParts.push(`Advance questions: ${booking.questions}`);
+  if (isZoom) {
+    bodyParts.push("Zoom meeting ID: 828 756 0198");
+    bodyParts.push("Student will enter the waiting room when joining.");
+  }
+
+  return window.SACalendar.outlookUrl({
+    slotKey: booking.slot_key || booking.key,
+    subject: `SOCL7213: ${booking.student_name} (${booking.modality})`,
+    body: bodyParts.join("\n\n"),
+    location: isZoom ? "Zoom — Meeting ID 828 756 0198" : "In person"
+  });
+}
+
 function renderMeetings() {
   bookingCount.textContent = `${meetingBookings.length} of ${meetingSlots.length || 12} booked`;
   if (!meetingBookings.length) {
@@ -67,7 +88,10 @@ function renderMeetings() {
         <strong>${escapeHtml(booking.student_name)}</strong>
         ${booking.questions ? `<p>${escapeHtml(booking.questions)}</p>` : '<p class="no-questions">No advance questions.</p>'}
       </div>
-      <button type="button" class="danger-button" data-booking-id="${booking.id}" data-student="${escapeHtml(booking.student_name)}">Cancel reservation</button>
+      <div class="meeting-actions">
+        <a class="outlook-button" href="${escapeHtml(adminOutlookUrl(booking))}" target="_blank" rel="noopener noreferrer">Add to Outlook</a>
+        <button type="button" class="danger-button" data-booking-id="${booking.id}" data-student="${escapeHtml(booking.student_name)}">Cancel reservation</button>
+      </div>
     </article>`).join("");
 
   document.querySelectorAll("[data-booking-id]").forEach(button => {
