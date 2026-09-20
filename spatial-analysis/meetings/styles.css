@@ -24,7 +24,7 @@
 .slot-option input:focus-visible + label { outline: 2px solid var(--green); outline-offset: 2px; }
 .slot-option input:disabled + label { opacity: .48; cursor: not-allowed; }
 .slot-time { color: var(--text); font-size: .95rem; }
-.slot-mode { color: var(--muted); font-size: .8rem; text-transform: uppercase; letter-spacing: .05em; }
+.slot-mode { color: var(--green); font-size: .8rem; font-weight: 600; text-transform: uppercase; letter-spacing: .05em; }
 .slot-taken { color: var(--amber); font-size: .78rem; }
 .booking-form { border-top: 1px solid var(--line); padding-top: 20px; }
 .booking-form label { margin-top: 14px; }
