@@ -19,9 +19,14 @@ const refreshButton = document.getElementById("refreshButton");
 const logoutButton = document.getElementById("logoutButton");
 const moduleRows = document.getElementById("moduleRows");
 const moduleMessage = document.getElementById("moduleMessage");
+const meetingRows = document.getElementById("meetingRows");
+const meetingMessage = document.getElementById("meetingMessage");
+const bookingCount = document.getElementById("bookingCount");
 
 let adminKey = sessionStorage.getItem("sa_admin_key") || "";
 let modules = [];
+let meetingBookings = [];
+let meetingSlots = [];
 
 function headers() { return { "Content-Type": "application/json", "x-admin-key": adminKey }; }
 function escapeHtml(value) { return String(value ?? "").replaceAll("&","&amp;").replaceAll("<","&lt;").replaceAll(">","&gt;").replaceAll('"',"&quot;").replaceAll("'","&#039;"); }
@@ -45,12 +50,40 @@ function renderModules() {
   document.querySelectorAll("[data-module]").forEach(button => button.addEventListener("click", () => toggleModule(button.dataset.module, button.dataset.next === "true", button)));
 }
 
+function renderMeetings() {
+  bookingCount.textContent = `${meetingBookings.length} of ${meetingSlots.length || 12} booked`;
+  if (!meetingBookings.length) {
+    meetingRows.innerHTML = '<div class="empty-state">No meeting reservations yet.</div>';
+    return;
+  }
+
+  meetingRows.innerHTML = meetingBookings.map(booking => `
+    <article class="meeting-row">
+      <div class="meeting-time">
+        <strong>${escapeHtml(booking.date)}</strong>
+        <span>${escapeHtml(booking.time)} · ${escapeHtml(booking.modality)}</span>
+      </div>
+      <div class="meeting-student">
+        <strong>${escapeHtml(booking.student_name)}</strong>
+        ${booking.questions ? `<p>${escapeHtml(booking.questions)}</p>` : '<p class="no-questions">No advance questions.</p>'}
+      </div>
+      <button type="button" class="danger-button" data-booking-id="${booking.id}" data-student="${escapeHtml(booking.student_name)}">Cancel reservation</button>
+    </article>`).join("");
+
+  document.querySelectorAll("[data-booking-id]").forEach(button => {
+    button.addEventListener("click", () => cancelMeeting(button));
+  });
+}
+
 async function fetchState() {
   const response = await fetch(API_URL, { method: "GET", headers: headers(), cache: "no-store" });
   const payload = await response.json().catch(() => ({}));
-  if (!response.ok) throw new Error(payload.error || "Could not load module availability");
+  if (!response.ok) throw new Error(payload.error || "Could not load course admin");
   modules = payload.modules || [];
+  meetingBookings = payload.meetingBookings || [];
+  meetingSlots = payload.meetingSlots || [];
   renderModules();
+  renderMeetings();
 }
 
 async function toggleModule(moduleKey, isAvailable, button) {
@@ -65,6 +98,28 @@ async function toggleModule(moduleKey, isAvailable, button) {
     moduleMessage.textContent = `${payload.module.label} is now ${payload.module.is_available ? "available" : "hidden"}.`;
   } catch (error) {
     moduleMessage.textContent = error.message;
+    button.disabled = false;
+  }
+}
+
+async function cancelMeeting(button) {
+  const student = button.dataset.student || "this student";
+  if (!window.confirm(`Cancel the meeting reservation for ${student}? The time will immediately become available to students again.`)) return;
+  button.disabled = true;
+  meetingMessage.textContent = "Canceling reservation…";
+  try {
+    const response = await fetch(API_URL, {
+      method: "POST",
+      headers: headers(),
+      body: JSON.stringify({ action: "cancel-meeting", bookingId: Number(button.dataset.bookingId) }),
+    });
+    const payload = await response.json().catch(() => ({}));
+    if (!response.ok) throw new Error(payload.error || "Could not cancel reservation.");
+    meetingBookings = payload.meetingBookings || [];
+    renderMeetings();
+    meetingMessage.textContent = "Reservation canceled; the time is available again.";
+  } catch (error) {
+    meetingMessage.textContent = error.message;
     button.disabled = false;
   }
 }
@@ -84,9 +139,26 @@ async function login() {
 
 loginButton.addEventListener("click", login);
 adminKeyInput.addEventListener("keydown", e => { if (e.key === "Enter") login(); });
-refreshButton.addEventListener("click", async () => { moduleMessage.textContent = "Refreshing…"; try { await fetchState(); moduleMessage.textContent = ""; } catch (e) { moduleMessage.textContent = e.message; } });
-logoutButton.addEventListener("click", () => { sessionStorage.removeItem("sa_admin_key"); adminKey = ""; adminKeyInput.value = ""; adminPanel.classList.add("is-hidden"); loginPanel.classList.remove("is-hidden"); });
+refreshButton.addEventListener("click", async () => {
+  moduleMessage.textContent = "Refreshing…";
+  meetingMessage.textContent = "";
+  try { await fetchState(); moduleMessage.textContent = ""; }
+  catch (e) { moduleMessage.textContent = e.message; }
+});
+logoutButton.addEventListener("click", () => {
+  sessionStorage.removeItem("sa_admin_key");
+  adminKey = "";
+  adminKeyInput.value = "";
+  adminPanel.classList.add("is-hidden");
+  loginPanel.classList.remove("is-hidden");
+});
 
 if (adminKey) {
-  fetchState().then(() => { loginPanel.classList.add("is-hidden"); adminPanel.classList.remove("is-hidden"); }).catch(() => { sessionStorage.removeItem("sa_admin_key"); adminKey = ""; });
+  fetchState().then(() => {
+    loginPanel.classList.add("is-hidden");
+    adminPanel.classList.remove("is-hidden");
+  }).catch(() => {
+    sessionStorage.removeItem("sa_admin_key");
+    adminKey = "";
+  });
 }
