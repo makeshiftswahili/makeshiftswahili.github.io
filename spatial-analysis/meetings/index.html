@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="robots" content="noindex,nofollow">
+  <title>Book a Meeting | SOCL7213</title>
+  <link rel="stylesheet" href="https://use.typekit.net/pgi1nbm.css">
+  <link rel="stylesheet" href="../styles.css">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <main class="shell meeting-shell">
+    <nav class="lab-nav"><a href="../">← Spatial Analysis</a></nav>
+    <header class="page-header">
+      <div class="eyebrow">SOCL7213 · Spatial Analysis</div>
+      <h1>Book a 30-minute meeting</h1>
+      <p>Select one available time below. In-person and Zoom meetings are offered only during September 22–25.</p>
+    </header>
+
+    <section class="panel meeting-panel">
+      <div class="meeting-intro">
+        <h2>Reserve a time</h2>
+        <p>Enter your full name, choose an available 30-minute session, and optionally send questions or topics you want to discuss ahead of time.</p>
+      </div>
+
+      <div id="availabilityMessage" class="message" aria-live="polite">Loading available times…</div>
+      <div id="slotGroups" class="slot-groups"></div>
+
+      <form id="bookingForm" class="booking-form">
+        <label for="studentName">Full name</label>
+        <input id="studentName" name="studentName" type="text" maxlength="120" autocomplete="name" required placeholder="First and last name">
+
+        <label for="questions">Questions or topics to discuss ahead of time <span class="optional">(optional)</span></label>
+        <textarea id="questions" name="questions" rows="5" maxlength="3000" placeholder="Anything you want me to be prepared to discuss?"></textarea>
+
+        <button id="bookButton" class="primary" type="submit" disabled>Reserve selected time</button>
+        <div id="bookingMessage" class="message" aria-live="polite"></div>
+      </form>
+    </section>
+
+    <section class="panel zoom-panel">
+      <h2>Zoom meetings</h2>
+      <p>For a Zoom appointment, join using meeting ID <strong>828 756 0198</strong>. You will be placed in a waiting room when you join, and I will admit you at your scheduled time.</p>
+    </section>
+
+    <section id="confirmationPanel" class="panel confirmation-panel is-hidden" aria-live="polite">
+      <div class="status">Reserved</div>
+      <h2>Your meeting is booked</h2>
+      <p id="confirmationText"></p>
+      <p id="zoomConfirmation" class="is-hidden"><strong>Zoom meeting ID:</strong> 828 756 0198. You will enter a waiting room when you join.</p>
+    </section>
+  </main>
+  <script src="app.js"></script>
+</body>
+</html>
