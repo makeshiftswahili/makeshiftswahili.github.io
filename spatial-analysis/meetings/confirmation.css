@@ -1,0 +1,47 @@
+.confirmation-shell { width: min(760px, calc(100% - 32px)); }
+.confirmation-card, .missing-card { padding: 28px; }
+.confirmation-card { border-left: 3px solid var(--green); }
+.confirmation-card .status { margin-bottom: 8px; }
+.detail-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+  margin: 24px 0;
+}
+.detail {
+  border: 1px solid var(--line);
+  background: #181818;
+  padding: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.detail-label {
+  color: var(--muted);
+  font-size: .76rem;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+}
+.zoom-details {
+  border-top: 1px solid var(--line);
+  border-bottom: 1px solid var(--line);
+  padding: 18px 0 4px;
+  margin: 22px 0;
+}
+.zoom-details strong { color: var(--text); }
+.confirmation-actions { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; margin-top: 22px; }
+.calendar-button {
+  display: inline-block;
+  border: 1px solid var(--green);
+  background: #202020;
+  color: #dff4e7;
+  padding: 10px 13px;
+  text-decoration: none;
+}
+.calendar-button:hover { border-color: #67c58c; background: #242424; }
+.secondary-link { color: var(--muted); text-decoration: none; }
+.secondary-link:hover { color: var(--text); }
+.is-hidden { display: none !important; }
+@media (max-width: 600px) {
+  .detail-grid { grid-template-columns: 1fr; }
+}
