@@ -91,6 +91,20 @@ bookingForm.addEventListener("submit", async event => {
     return;
   }
 
+  const selected = slots.find(slot => slot.key === selectedSlot);
+  if (!selected) {
+    bookingMessage.textContent = "That meeting time is no longer available. Please choose another slot.";
+    bookingMessage.classList.add("error");
+    await loadAvailability();
+    return;
+  }
+
+  const format = selected.modality === "Zoom" ? "ZOOM" : "IN PERSON";
+  const confirmed = window.confirm(
+    `This will schedule an ${format} meeting for ${selected.date}, ${selected.time}. Click OK to Continue`
+  );
+  if (!confirmed) return;
+
   bookButton.disabled = true;
   bookingMessage.classList.remove("error");
   bookingMessage.textContent = "Reserving your meeting…";
