@@ -1,5 +1,5 @@
 .meeting-shell { width: min(880px, calc(100% - 32px)); }
-.meeting-panel, .zoom-panel, .confirmation-panel { padding: 24px; margin-bottom: 18px; }
+.meeting-panel { padding: 24px; margin-bottom: 18px; }
 .meeting-intro { margin-bottom: 18px; }
 .slot-groups { display: grid; gap: 18px; margin: 8px 0 26px; }
 .slot-group { border-top: 1px solid var(--line); padding-top: 16px; }
@@ -40,10 +40,6 @@
 .optional { color: var(--muted); font-weight: 400; }
 .message { min-height: 1.4em; color: var(--muted); font-size: .88rem; }
 .message.error { color: #ffabab; }
-.confirmation-panel { border-left: 3px solid var(--green); }
-.confirmation-panel .status { margin-bottom: 8px; }
-.is-hidden { display: none !important; }
-.zoom-panel strong, .confirmation-panel strong { color: var(--text); }
 @media (max-width: 650px) {
   .slot-list { grid-template-columns: 1fr; }
 }
