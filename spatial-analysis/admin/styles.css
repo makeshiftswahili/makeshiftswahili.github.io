@@ -16,20 +16,34 @@
 .message { min-height: 1.4em; margin-top: 12px; color: var(--muted); font-size: .86rem; }
 .booking-count { color: var(--green); font-size: .84rem; letter-spacing: .04em; white-space: nowrap; }
 .meeting-list { border-top: 1px solid var(--line); }
-.meeting-row { display: grid; grid-template-columns: 220px minmax(0, 1fr) 145px; gap: 16px; align-items: start; padding: 16px 0; border-bottom: 1px solid var(--line); }
+.meeting-row { display: grid; grid-template-columns: 205px minmax(0, 1fr) 155px; gap: 16px; align-items: start; padding: 16px 0; border-bottom: 1px solid var(--line); }
 .meeting-time, .meeting-student { display: flex; flex-direction: column; gap: 3px; }
 .meeting-time span { color: var(--muted); font-size: .85rem; }
 .meeting-student p { margin: 5px 0 0; white-space: pre-wrap; }
 .no-questions { font-style: italic; opacity: .72; }
+.meeting-actions { display: grid; gap: 8px; }
+.outlook-button {
+  display: block;
+  border: 1px solid var(--green);
+  background: #202020;
+  color: #dff4e7;
+  padding: 8px 10px;
+  text-align: center;
+  text-decoration: none;
+  font-size: .88rem;
+}
+.outlook-button:hover { border-color: #67c58c; background: #242424; }
 .danger-button { border-color: #815050; color: #ffc2c2; }
 .danger-button:hover { border-color: var(--red); }
 .empty-state { padding: 18px 0; color: var(--muted); }
 @media (max-width: 760px) {
   .meeting-row { grid-template-columns: 1fr; }
+  .meeting-actions { grid-template-columns: 1fr 1fr; }
   .meeting-row button { width: 100%; }
 }
 @media (max-width: 650px) {
   .login-row, .toolbar { flex-direction: column; }
   .module-row { grid-template-columns: 1fr; gap: 7px; }
   .module-row button { width: 100%; }
+  .meeting-actions { grid-template-columns: 1fr; }
 }
