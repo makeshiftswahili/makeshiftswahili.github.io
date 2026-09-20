@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="robots" content="noindex,nofollow">
+  <title>Meeting Confirmed | SOCL7213</title>
+  <link rel="stylesheet" href="https://use.typekit.net/pgi1nbm.css">
+  <link rel="stylesheet" href="../styles.css">
+  <link rel="stylesheet" href="confirmation.css">
+</head>
+<body>
+  <main class="shell confirmation-shell">
+    <nav class="lab-nav"><a href="../">← Spatial Analysis</a></nav>
+
+    <section id="confirmationCard" class="panel confirmation-card">
+      <div class="status">Reserved</div>
+      <h1>Your meeting is booked</h1>
+
+      <div class="detail-grid" aria-label="Meeting details">
+        <div class="detail">
+          <span class="detail-label">Name</span>
+          <strong id="studentName">—</strong>
+        </div>
+        <div class="detail">
+          <span class="detail-label">Date</span>
+          <strong id="meetingDate">—</strong>
+        </div>
+        <div class="detail">
+          <span class="detail-label">Time</span>
+          <strong id="meetingTime">—</strong>
+        </div>
+        <div class="detail">
+          <span class="detail-label">Format</span>
+          <strong id="meetingFormat">—</strong>
+        </div>
+      </div>
+
+      <section id="zoomDetails" class="zoom-details is-hidden">
+        <h2>Zoom information</h2>
+        <p><strong>Meeting ID:</strong> 828 756 0198</p>
+        <p>You will be placed in a waiting room when you join. Dr. Williams will admit you at your scheduled time.</p>
+      </section>
+
+      <div class="confirmation-actions">
+        <a id="outlookButton" class="calendar-button" href="#" target="_blank" rel="noopener noreferrer">Add to Outlook calendar</a>
+        <a class="secondary-link" href="../">Return to Spatial Analysis</a>
+      </div>
+    </section>
+
+    <section id="missingCard" class="panel missing-card is-hidden">
+      <h1>Meeting confirmation</h1>
+      <p>This confirmation page is available immediately after you reserve a meeting.</p>
+      <a class="calendar-button" href="./">Return to meeting scheduler</a>
+    </section>
+  </main>
+
+  <script src="../calendar.js"></script>
+  <script src="confirmation.js"></script>
+</body>
+</html>
