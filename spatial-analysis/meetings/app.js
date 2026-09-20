@@ -7,9 +7,6 @@ const studentName = document.getElementById("studentName");
 const questions = document.getElementById("questions");
 const bookButton = document.getElementById("bookButton");
 const bookingMessage = document.getElementById("bookingMessage");
-const confirmationPanel = document.getElementById("confirmationPanel");
-const confirmationText = document.getElementById("confirmationText");
-const zoomConfirmation = document.getElementById("zoomConfirmation");
 
 let slots = [];
 let selectedSlot = "";
@@ -80,6 +77,8 @@ async function loadAvailability() {
 bookingForm.addEventListener("submit", async event => {
   event.preventDefault();
   const name = studentName.value.trim();
+  const advanceQuestions = questions.value.trim();
+
   if (!selectedSlot) {
     bookingMessage.textContent = "Choose an available meeting time.";
     bookingMessage.classList.add("error");
@@ -100,20 +99,17 @@ bookingForm.addEventListener("submit", async event => {
     const response = await fetch(API_URL, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ slotKey: selectedSlot, studentName: name, questions: questions.value.trim() }),
+      body: JSON.stringify({ slotKey: selectedSlot, studentName: name, questions: advanceQuestions }),
     });
     const payload = await response.json().catch(() => ({}));
     if (!response.ok) throw new Error(payload.error || "Could not reserve that meeting time.");
 
-    const booking = payload.booking;
-    confirmationText.textContent = `${booking.date}, ${booking.time} — ${booking.modality}.`;
-    zoomConfirmation.classList.toggle("is-hidden", booking.modality !== "Zoom");
-    confirmationPanel.classList.remove("is-hidden");
-    bookingForm.reset();
-    selectedSlot = "";
-    bookingMessage.textContent = "Reservation saved.";
-    await loadAvailability();
-    confirmationPanel.scrollIntoView({ behavior: "smooth", block: "nearest" });
+    sessionStorage.setItem("sa_meeting_confirmation", JSON.stringify({
+      studentName: name,
+      questions: advanceQuestions,
+      ...payload.booking
+    }));
+    window.location.href = "confirmation.html";
   } catch (error) {
     bookingMessage.textContent = error.message;
     bookingMessage.classList.add("error");
