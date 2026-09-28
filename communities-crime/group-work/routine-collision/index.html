@@ -8,9 +8,9 @@
   <title>Microspatial Convergence Lab | SOCL4091</title>
   <link rel="stylesheet" href="https://use.typekit.net/pgi1nbm.css">
   <link rel="stylesheet" href="/vendor/maplibre/maplibre-gl.css?v=5.7.1">
-  <link rel="stylesheet" href="styles.css?v=20260824-1">
-  <link rel="stylesheet" href="hotspots.css?v=20260824-1">
-  <link rel="stylesheet" href="submission.css?v=20260824-1">
+  <link rel="stylesheet" href="styles.css?v=20260928-1">
+  <link rel="stylesheet" href="hotspots.css?v=20260928-1">
+  <link rel="stylesheet" href="submission.css?v=20260928-1">
 </head>
 <body class="session-locked">
   <main class="shell">
@@ -46,12 +46,25 @@
         <button id="cancelEditMembers" class="secondary is-hidden" type="button">Cancel</button>
       </div>
       <div id="setupMessage" class="setup-message" aria-live="polite"></div>
+
+      <div class="resume-access">
+        <div class="resume-divider"><span>returning group</span></div>
+        <h3>Resume previous group work</h3>
+        <p>Enter the group code provided by your instructor. A submitted group can be reopened, edited, and submitted again.</p>
+        <div class="resume-row">
+          <input id="resumeCodeInput" type="text" autocomplete="off" spellcheck="false" placeholder="group1" aria-label="Group resume code">
+          <button id="resumeSessionButton" class="secondary" type="button">Resume group</button>
+        </div>
+        <div id="resumeMessage" class="setup-message" aria-live="polite"></div>
+      </div>
     </section>
 
     <div id="groupIdentityBar" class="group-identity-bar is-hidden">
       <div class="group-identity-copy">
         <div class="group-identity-label">Group LSU IDs</div>
         <div id="groupIdList" class="group-id-list"></div>
+        <div class="group-identity-label resume-code-label">Resume code</div>
+        <div id="groupResumeCode" class="group-id-list"></div>
       </div>
       <div class="identity-actions">
         <span id="saveState" class="save-state" aria-live="polite"></span>
@@ -320,10 +333,10 @@
   </main>
 
   <script src="/vendor/maplibre/maplibre-gl.js?v=5.7.1"></script>
-  <script src="../../dark-basemap.js?v=20260822-2"></script>
-  <script src="data.js?v=20260824-1"></script>
-  <script src="app.js?v=20260824-1"></script>
-  <script src="hotspots.js?v=20260824-1"></script>
-  <script src="submission.js?v=20260824-1"></script>
+  <script src="../../dark-basemap.js?v=20260928-1"></script>
+  <script src="data.js?v=20260928-1"></script>
+  <script src="app.js?v=20260928-1"></script>
+  <script src="hotspots.js?v=20260928-1"></script>
+  <script src="submission.js?v=20260928-1"></script>
 </body>
 </html>
