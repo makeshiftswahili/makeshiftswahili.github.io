@@ -34,19 +34,32 @@
   }
 
   function render(submissions) {
-    count.textContent = `${submissions.length} submission${submissions.length === 1 ? "" : "s"}`;
+    submissions.sort((a, b) => {
+      const an = Number(String(a.resume_code || "").replace(/^group/i, "")) || 999999;
+      const bn = Number(String(b.resume_code || "").replace(/^group/i, "")) || 999999;
+      return an - bn;
+    });
+    count.textContent = `${submissions.length} group${submissions.length === 1 ? "" : "s"} with resume codes`;
     if (!submissions.length) {
-      rows.innerHTML = `<tr><td colspan="3" class="empty">No Microspatial Convergence Lab submissions yet.</td></tr>`;
+      rows.innerHTML = `<tr><td colspan="5" class="empty">No Microspatial Convergence Lab groups with resume codes yet.</td></tr>`;
       return;
     }
 
-    rows.innerHTML = submissions.map(item => `
-      <tr>
-        <td><div class="nh-pair">${(item.lsu_ids || []).map(id => `<span>${escape(id)}</span>`).join("")}</div></td>
-        <td>${escape(format(item.submitted_at))}</td>
-        <td><button type="button" class="secondary small" data-micro-download="${escape(item.id)}">Download .docx</button></td>
-      </tr>
-    `).join("");
+    rows.innerHTML = submissions.map(item => {
+      const submitted = item.status === "submitted";
+      return `
+        <tr>
+          <td><div class="nh-pair">${(item.lsu_ids || []).map(id => `<span>${escape(id)}</span>`).join("")}</div></td>
+          <td><strong>${escape(item.resume_code || "")}</strong></td>
+          <td>${escape(submitted ? "Submitted" : "In progress")}</td>
+          <td>${escape(item.submitted_at ? format(item.submitted_at) : "")}</td>
+          <td>${submitted
+            ? `<button type="button" class="secondary small" data-micro-download="${escape(item.id)}">Download .docx</button>`
+            : `<span class="muted">Reopened for editing</span>`}
+          </td>
+        </tr>
+      `;
+    }).join("");
 
     rows.querySelectorAll("[data-micro-download]").forEach(button => {
       button.addEventListener("click", () => downloadSubmission(button.dataset.microDownload, button));
