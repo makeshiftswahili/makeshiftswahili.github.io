@@ -87,6 +87,58 @@ select:focus {
   color: #e4b2b2;
 }
 
+
+.resume-access {
+  margin-top: 24px;
+  padding-top: 2px;
+  max-width: 620px;
+}
+
+.resume-divider {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 4px 0 18px;
+  color: var(--muted);
+  font-size: .72rem;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+}
+
+.resume-divider::before,
+.resume-divider::after {
+  content: "";
+  flex: 1;
+  height: 1px;
+  background: var(--line);
+}
+
+.resume-access h3 {
+  margin: 0 0 6px;
+}
+
+.resume-access p {
+  margin-bottom: 12px;
+}
+
+.resume-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 10px;
+}
+
+.resume-row input {
+  width: 100%;
+  border: 1px solid var(--line-strong);
+  background: #181818;
+  color: var(--text);
+  padding: 10px 12px;
+}
+
+.resume-code-label {
+  margin-top: 8px;
+}
+
 .group-identity-bar {
   margin: 26px 0;
   padding: 13px 16px;
@@ -176,5 +228,9 @@ body.activity-submitted #editMembersButton {
 
   .member-row {
     grid-template-columns: 1fr 42px;
+  }
+
+  .resume-row {
+    grid-template-columns: 1fr;
   }
 }
