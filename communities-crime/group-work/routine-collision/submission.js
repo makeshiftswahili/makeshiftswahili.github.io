@@ -8,6 +8,7 @@
   let accessToken = localStorage.getItem(TOKEN_KEY) || "";
   let sessionStatus = "none";
   let lsuIds = [];
+  let resumeCode = "";
   let savedResponses = {};
   let hotspotNotes = {};
   let saveTimer = null;
@@ -17,6 +18,7 @@
   const groupSetup = $("#groupSetup");
   const groupIdentityBar = $("#groupIdentityBar");
   const groupIdList = $("#groupIdList");
+  const groupResumeCode = $("#groupResumeCode");
   const memberRows = $("#memberRows");
   const setupMessage = $("#setupMessage");
   const startSessionButton = $("#startSessionButton");
@@ -28,6 +30,9 @@
   const submitActivity = $("#submitActivity");
   const submitMessage = $("#submitMessage");
   const finalSubmissionPanel = $("#finalSubmissionPanel");
+  const resumeCodeInput = $("#resumeCodeInput");
+  const resumeSessionButton = $("#resumeSessionButton");
+  const resumeMessage = $("#resumeMessage");
 
   if (!groupSetup || !data) return;
 
@@ -95,11 +100,23 @@
     setupMessage.classList.toggle("error", error);
   }
 
+  function unlockForEditing() {
+    document.body.classList.remove("activity-submitted");
+    finalSubmissionPanel?.classList.remove("submitted");
+    submitActivity.disabled = false;
+    submitActivity.textContent = "Submit activity";
+    editMembersButton.disabled = false;
+    submitMessage.classList.remove("error");
+    submitMessage.textContent = "";
+  }
+
   function showIdentity() {
     groupIdList.textContent = lsuIds.join(" · ");
+    if (groupResumeCode) groupResumeCode.textContent = resumeCode || "Not assigned";
     groupIdentityBar.classList.remove("is-hidden");
     groupSetup.classList.add("is-hidden");
     document.body.classList.remove("session-locked");
+    if (sessionStatus === "in_progress") unlockForEditing();
   }
 
   function showSetupForEdit() {
@@ -293,9 +310,13 @@
     submitActivity.textContent = "Submitted";
     editMembersButton.disabled = true;
     const date = submittedAt ? new Date(submittedAt) : null;
-    submitMessage.textContent = date && !Number.isNaN(date.getTime())
-      ? `Submission received ${date.toLocaleString()}. Your instructor can download the group summary from the course admin page.`
-      : "Submission received. Your instructor can download the group summary from the course admin page.";
+    const received = date && !Number.isNaN(date.getTime())
+      ? `Submission received ${date.toLocaleString()}.`
+      : "Submission received.";
+    const codeNote = resumeCode
+      ? ` Group resume code: ${resumeCode}. Use this code to reopen the activity later and continue working.`
+      : "";
+    submitMessage.textContent = `${received} Your instructor can download the group summary from the course admin page.${codeNote}`;
     setSaveState("Submitted");
   }
 
@@ -310,6 +331,7 @@
       accessToken = payload.session.access_token;
       localStorage.setItem(TOKEN_KEY, accessToken);
       lsuIds = payload.session.lsu_ids || ids;
+      resumeCode = payload.session.resume_code || "";
       sessionStatus = payload.session.status || "in_progress";
       restoreResponses(payload.session.responses || {});
       showIdentity();
@@ -330,6 +352,7 @@
     try {
       const payload = await api("updateMembers", { lsuIds: ids });
       lsuIds = payload.session.lsu_ids || ids;
+      resumeCode = payload.session.resume_code || resumeCode;
       editMode = false;
       showIdentity();
       setSaveState("IDs updated");
@@ -358,11 +381,43 @@
     try {
       const payload = await api("submit", { responses });
       savedResponses = responses;
+      resumeCode = payload.session?.resume_code || resumeCode;
+      if (groupResumeCode) groupResumeCode.textContent = resumeCode || "Not assigned";
       lockSubmitted(payload.session?.submitted_at);
     } catch (error) {
       submitActivity.disabled = false;
       submitMessage.classList.add("error");
       submitMessage.textContent = error.message || "Could not submit the activity.";
+    }
+  }
+
+  async function resumePreviousSession() {
+    const code = String(resumeCodeInput?.value || "").trim().toLowerCase();
+    if (!code) {
+      resumeMessage.textContent = "Enter your group resume code.";
+      resumeMessage.classList.add("error");
+      resumeCodeInput?.focus();
+      return;
+    }
+    resumeSessionButton.disabled = true;
+    resumeMessage.classList.remove("error");
+    resumeMessage.textContent = "Reopening your group work…";
+    try {
+      const payload = await api("resume", { resumeCode: code });
+      accessToken = payload.session.access_token;
+      localStorage.setItem(TOKEN_KEY, accessToken);
+      lsuIds = payload.session.lsu_ids || [];
+      resumeCode = payload.session.resume_code || code;
+      sessionStatus = "in_progress";
+      restoreResponses(payload.session.responses || {});
+      showIdentity();
+      setSaveState("Autosave on");
+      resumeMessage.textContent = "";
+    } catch (error) {
+      resumeMessage.classList.add("error");
+      resumeMessage.textContent = error.message || "Could not reopen this group session.";
+    } finally {
+      resumeSessionButton.disabled = false;
     }
   }
 
@@ -372,16 +427,24 @@
     try {
       const payload = await api("load");
       lsuIds = payload.session.lsu_ids || [];
+      resumeCode = payload.session.resume_code || "";
       sessionStatus = payload.session.status || "in_progress";
       restoreResponses(payload.session.responses || {});
-      showIdentity();
-      if (sessionStatus === "submitted") lockSubmitted(payload.session.submitted_at);
-      else setSaveState("Autosave on");
+      if (sessionStatus === "submitted") {
+        localStorage.removeItem(TOKEN_KEY);
+        accessToken = "";
+        showSetupForStart();
+        if (resumeCodeInput && resumeCode) resumeCodeInput.value = resumeCode;
+        setSetupMessage(`This group has already submitted. Use ${resumeCode || "your group code"} below to reopen the activity and continue working.`, false);
+      } else {
+        showIdentity();
+        setSaveState("Autosave on");
+      }
     } catch (error) {
       localStorage.removeItem(TOKEN_KEY);
       accessToken = "";
       showSetupForStart();
-      setSetupMessage("The previous session could not be restored. Enter your LSU IDs to begin.", false);
+      setSetupMessage("The previous session could not be restored. Start a new group or use your group resume code.", false);
     }
   }
 
@@ -411,6 +474,10 @@
   });
   editMembersButton.addEventListener("click", showSetupForEdit);
   submitActivity.addEventListener("click", submitFinal);
+  resumeSessionButton?.addEventListener("click", resumePreviousSession);
+  resumeCodeInput?.addEventListener("keydown", event => {
+    if (event.key === "Enter") resumePreviousSession();
+  });
 
   document.addEventListener("click", event => {
     const target = event.target.closest?.(".collision-choice, .effect-choice, .prediction-choice, #checkClock, #lockPrediction");
